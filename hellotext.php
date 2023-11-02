@@ -93,3 +93,17 @@ function init_hellotext () {
     }
 }
 
+add_action( 'wp_head', 'hellotext_script' );
+function hellotext_script () {
+    $id = get_option( 'business_id' );
+
+    echo <<<EOT
+        <script type="module">
+            import Hellotext from 'https://unpkg.com/@hellotext/hellotext@latest/src/index.js';
+
+            window.Hellotext = Hellotext;
+            window.Hellotext.initialize({$id});
+        </script>
+    EOT;
+}
+
