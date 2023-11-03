@@ -22,3 +22,5 @@ include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/inject_script.php' );
 
+// API
+include_once( plugin_dir_path( __FILE__ ) . 'hellotext/api/cart.php' );
