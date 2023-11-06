@@ -18,7 +18,7 @@ function listeners_javascript () {
     $path = plugin_dir_url( __FILE__ ) . '../javascript/listeners.js';
 
     ?>
-        <script type="text/javascript" src="<?= $path ?>"></script>
+        <script type="module" src="<?= $path ?>"></script>
     <?php
 }
 

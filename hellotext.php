@@ -24,3 +24,4 @@ include_once( plugin_dir_path( __FILE__ ) . 'hellotext/inject_script.php' );
 
 // API
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/api/cart.php' );
+include_once( plugin_dir_path( __FILE__ ) . 'hellotext/api/product.php' );

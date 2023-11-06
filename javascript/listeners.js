@@ -1,48 +1,41 @@
+import {
+  cartEvent,
+  couponEvent,
+  productEvent,
+} from './events/index.js'
+
 const events = {
-  updated_checkout: cartUpdated,
-  updated_cart_totals: cartUpdated,
-  wc_cart_emptied: cartUpdated,
-  updated_cart_totals: cartUpdated,
-  added_to_cart: cartUpdated,
-  removed_from_cart: cartUpdated,
-  cart_page_refreshed: cartUpdated
-};
+  // Cart Events
+  added_to_cart: cartEvent,
+  cart_page_refreshed: cartEvent,
+  removed_from_cart: cartEvent,
+  updated_cart_totals: cartEvent,
+  updated_cart_totals: cartEvent,
+  updated_checkout: cartEvent,
+  wc_cart_emptied: cartEvent,
 
-async function cartUpdated() {
-  const response = await fetch('/wp-json/hellotext/v1/cart')
-  const cart = await response.json()
-  const previousCart = JSON.parse(sessionStorage.getItem('hellotext-cart'))
-  const changes = {
-    added: [],
-    removed: []
-  }
+  // Coupen Events
+  // - coupon.redeemed
+  applied_coupon_in_checkout: couponEvent,
 
-  if (previousCart) {
-    cart.forEach(item => {
-      const previousItem = previousCart.find(previousItem => previousItem.id === item.id)
 
-      if (!previousItem || previousItem.quantity < item.quantity) {
-        changes.added.push(item)
-      }
-    })
+  // Order Events
+  // - order.placed
+  // - order.confirmed ?
+  // - order.cancelled ?
 
-    previousCart.forEach(item => {
-      const currentItem = cart.find(currentItem => currentItem.id === item.id)
-
-      if (!currentItem || currentItem.quantity < item.quantity) {
-        changes.removed.push(currentItem)
-      }
-    })
-  }
-
-  changes.added.forEach(item => { Hellotext.track('cart.added', item) })
-  changes.removed.forEach(item => { Hellotext.track('cart.removed', item) })
-
-  console.log(changes)
-
-  sessionStorage.setItem('hellotext-cart', JSON.stringify(cart))
+  // Product Events
+  // - product.purchased
+  // - product.viewed
+  product_viewed: productEvent,
 }
 
+
 Object.keys(events).forEach(event => {
-  jQuery(document).on(event, events[event]);
+  jQuery(document).on(event, events[event])
 })
+
+// Custom Events
+if (document.querySelector('.single-product')) {
+  jQuery(document).trigger('product_viewed')
+}

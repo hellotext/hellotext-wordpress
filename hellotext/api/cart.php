@@ -7,7 +7,7 @@
 
 add_action( 'rest_api_init', 'register_get_cart_endpoint' );
 function register_get_cart_endpoint () {
-    register_rest_route( 'hellotext/v1', '/cart/', array(
+    register_rest_route( 'hellotext/v1', '/cart', array(
         'methods'  => WP_REST_Server::READABLE,
         'callback' => 'get_cart_contents',
     ) );
@@ -23,11 +23,10 @@ function get_cart_contents () {
         $product = wc_get_product( $product_id );
 
         $cart_items[] = array(
-            'id' => $product_id,
+            'reference' => $product_id,
             'type' => 'product',
             'name' => $product->get_name(),
             'categories' => wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) ),
-            'created_at' => $product->get_date_created()->date( 'Y-m-d H:i:s' ),
             'currency' => get_woocommerce_currency(),
             'price' => $product->get_price(),
             'quantity' => $cart_item['quantity'],
