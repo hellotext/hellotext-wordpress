@@ -3,6 +3,6 @@ export default async function productEvent(coupon) {
   const response = await fetch(`/wp-json/hellotext/v1/product/${id}`)
   const product = await response.json()
 
-  Hellotext.track('product.viewed', { product })
+  Hellotext.track('product.viewed', { product_parameters: product })
 }
 
