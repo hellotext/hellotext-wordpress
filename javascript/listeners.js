@@ -17,6 +17,7 @@ const events = {
   // Coupen Events
   // - coupon.redeemed
   applied_coupon_in_checkout: couponEvent,
+  applied_coupon: couponEvent,
 
 
   // Order Events
@@ -26,8 +27,7 @@ const events = {
 
   // Product Events
   // - product.purchased
-  // - product.viewed
-  product_viewed: productEvent,
+  product_viewed: e => productEvent(e, 'viewed'),
 }
 
 

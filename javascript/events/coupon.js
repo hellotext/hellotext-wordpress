@@ -1,5 +1,10 @@
 export default async function couponEvent(coupon) {
-  const code = document.querySelector('.checkout_coupon #coupon_code').value
+  const code = document.querySelector('#coupon_code').value
+  const response = await fetch(`/wp-json/hellotext/v1/coupon/${code}`)
+  const { valid } = await response.json()
 
-  Hellotext.track('coupon.redeemed', { code })
+
+  if (valid) {
+    Hellotext.track('coupon.redeemed', { code })
+  }
 }

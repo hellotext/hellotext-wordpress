@@ -23,5 +23,9 @@ include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/inject_script.php' );
 
 // API
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/api/cart.php' );
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/api/product.php' );
+$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/api/' );
+foreach ($scan as $file) {
+  if (strpos($file, '.php') !== false) {
+    include('hellotext/api/' . $file);
+  }
+}
