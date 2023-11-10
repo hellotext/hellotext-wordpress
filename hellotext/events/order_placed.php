@@ -1,7 +1,7 @@
 <?php
 
-add_action( 'woocommerce_after_order_details', 'order_details_javascript' );
-function order_details_javascript ( $order ) {
+add_action( 'woocommerce_after_order_details', 'order_placed' );
+function order_placed ( $order ) {
     $products = [];
 
     foreach ($order->get_items() as $item) {
@@ -15,6 +15,7 @@ function order_details_javascript ( $order ) {
             'currency' => get_woocommerce_currency(),
             'price' => $product->get_price(),
             'quantity' => $item->get_quantity(),
+            'amount' => $product->get_price(),
             'tags' => wp_get_post_terms( $product->id, 'product_tag', array( 'fields' => 'names' ) ),
             'image_url' => wp_get_attachment_url( $product->get_image_id() ),
         ];
@@ -29,8 +30,13 @@ function order_details_javascript ( $order ) {
                 amount: <?= $order->get_total() ?>,
                 currency: '<?= $order->get_currency() ?>',
             }
-            console.log(order_parameters)
             Hellotext.track('order.placed', { order_parameters })
+
+            <?php foreach ($products as $product) { ?>
+                var product_parameters = JSON.parse('<?= json_encode($product) ?>')
+
+                Hellotext.track('product.purchased', { product_parameters })
+            <?php } ?>
         </script>
     <?php
 }

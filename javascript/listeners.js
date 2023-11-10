@@ -15,19 +15,17 @@ const events = {
   wc_cart_emptied: cartEvent,
 
   // Coupen Events
-  // - coupon.redeemed
   applied_coupon_in_checkout: couponEvent,
   applied_coupon: couponEvent,
 
 
   // Order Events
-  // - order.placed
-  // Done on hellotext/events/order_placed.php
-  // - order.confirmed ?
-  // - order.cancelled ?
+  // - order.placed    => hellotext/events/order_placed.php
+  // - order.confirmed
+  // - order.cancelled
 
   // Product Events
-  // - product.purchased
+  // - product.purchased => hellotext/events/order_placed.php (We add this event here)
   product_viewed: e => productEvent(e, 'viewed'),
 }
 
