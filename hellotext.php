@@ -20,7 +20,15 @@
 
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/inject_script.php' );
+include_once( plugin_dir_path( __FILE__ ) . 'hellotext/scripts.php' );
+
+// Backend Events
+$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/events/' );
+foreach ($scan as $file) {
+  if (strpos($file, '.php') !== false) {
+    include('hellotext/events/' . $file);
+  }
+}
 
 // API
 $scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/api/' );

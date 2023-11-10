@@ -22,6 +22,7 @@ const events = {
 
   // Order Events
   // - order.placed
+  // Done on hellotext/events/order_placed.php
   // - order.confirmed ?
   // - order.cancelled ?
 
