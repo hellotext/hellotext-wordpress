@@ -30,6 +30,14 @@ foreach ($scan as $file) {
   }
 }
 
+// Adapters
+$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/adapters/' );
+foreach ($scan as $file) {
+  if (strpos($file, '.php') !== false) {
+    include('hellotext/adapters/' . $file);
+  }
+}
+
 // API
 $scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/api/' );
 foreach ($scan as $file) {

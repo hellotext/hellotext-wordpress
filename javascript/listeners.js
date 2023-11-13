@@ -21,8 +21,8 @@ const events = {
 
   // Order Events
   // - order.placed    => hellotext/events/order_placed.php
-  // - order.confirmed
-  // - order.cancelled
+  // - order.confirmed => hellotext/events/order_confirmed.php
+  // - order.cancelled => hellotext/events/order_cancelled.php
 
   // Product Events
   // - product.purchased => hellotext/events/order_placed.php (We add this event here)

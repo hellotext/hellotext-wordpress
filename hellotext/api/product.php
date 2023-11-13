@@ -10,16 +10,8 @@ function register_get_product_endpoint () {
 }
 
 function get_product_data (WP_REST_Request $request) {
-    $product = wc_get_product( $request->get_param( 'id' ) );
+    $productAdapter = new ProductAdapter( $request->get_param( 'id' ) );
+    $product = $productAdapter->get();
 
-    wp_send_json(array(
-        'reference' => $product->id,
-        'type' => 'product',
-        'name' => $product->name,
-        'categories' => wp_get_post_terms( $product->id, 'product_cat', array( 'fields' => 'names' ) ),
-        'currency' => get_woocommerce_currency(),
-        'price' => $product->get_price(),
-        'tags' => wp_get_post_terms( $product->id, 'product_tag', array( 'fields' => 'names' ) ),
-        'image_url' => wp_get_attachment_url( $product->get_image_id() ),
-    ));
+    wp_send_json( $product );
 }

@@ -19,20 +19,8 @@ function get_cart_contents () {
     $cart_items = array();
 
     foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-        $product_id = $cart_item['product_id'];
-        $product = wc_get_product( $product_id );
-
-        $cart_items[] = array(
-            'reference' => $product_id,
-            'type' => 'product',
-            'name' => $product->get_name(),
-            'categories' => wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) ),
-            'currency' => get_woocommerce_currency(),
-            'price' => $product->get_price(),
-            'quantity' => $cart_item['quantity'],
-            'tags' => wp_get_post_terms( $product_id, 'product_tag', array( 'fields' => 'names' ) ),
-            'image_url' => wp_get_attachment_url( $product->get_image_id() ),
-        );
+        $product = new ProductAdapter( $cart_item['product_id'], $cart_item);
+        $cart_items[] = $product->get();
     }
 
     wp_send_json( $cart_items );
