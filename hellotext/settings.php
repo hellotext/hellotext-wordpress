@@ -11,14 +11,14 @@ function hellotext_settings_init() {
     );
 
     add_settings_field(
-       'business_id',
-       __( 'Business ID', 'business_id' ),
-       'business_id_field',
+       'hellotext_business_id',
+       __( 'Business ID', 'hellotext_business_id' ),
+       'hellotext_business_id_field',
        'hellotext-form',
        'hellotext_setting_section'
     );
 
-    register_setting( 'hellotext-form', 'business_id' );
+    register_setting( 'hellotext-form', 'hellotext_business_id' );
 }
 
 function hellotext_description_section_callback () {
@@ -27,10 +27,21 @@ function hellotext_description_section_callback () {
     <?php
 }
 
-function business_id_field () {
+function hellotext_business_id_field () {
     ?>
-        <input type="text" id="business_id" name="business_id" value="<?php echo get_option( 'business_id' ); ?>">
+        <input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?php echo get_option( 'hellotext_business_id' ); ?>">
     <?php
+}
+
+add_action('update_option', 'hellotext_business_id_updated', 10, 3);
+function hellotext_business_id_updated ($option, $old_value, $new_value) {
+    if (
+        $option !== 'hellotext_business_id' ||
+        $old_value === $new_value
+    ) return;
+
+    $hellotext = new Hellotext($new_value);
+    $hellotext->track('app.installed', array());
 }
 
 

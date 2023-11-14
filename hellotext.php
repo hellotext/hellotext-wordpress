@@ -16,6 +16,7 @@
  * Author URI: https://hellotext.com
  * License: GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * WgwXWr7P
  */
 
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
@@ -45,3 +46,9 @@ foreach ($scan as $file) {
     include('hellotext/api/' . $file);
   }
 }
+
+// This function is under ./hellotext/events/app_removed.php
+// The `app.installed` function is on ./hellotext/settings.php
+// under the hellotext_business_id_updated name.
+register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
+

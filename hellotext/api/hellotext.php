@@ -6,12 +6,12 @@ class Hellotext {
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
-    public function __construct ($business_id = null) {
-        if (! isset($business_id)) {
-            $business_id = get_option('business_id');
+    public function __construct ($hellotext_business_id = null) {
+        if (! isset($hellotext_business_id)) {
+            $hellotext_business_id = get_option('hellotext_business_id');
         }
 
-        $this->business_id = $business_id;
+        $this->hellotext_business_id = $hellotext_business_id;
         $this->curl = curl_init($this->get_api_url());
         $this->set_curl_options();
     }
@@ -25,9 +25,6 @@ class Hellotext {
         ));
 
         $result = curl_exec($this->curl);
-
-        var_dump($result);
-        die();
 
         if (curl_errno($this->curl)) {
             echo 'Hellotext API call error:' . curl_error($this->curl);
@@ -45,7 +42,7 @@ class Hellotext {
         // Headers
         curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->business_id,
+            'Authorization: Bearer ' . $this->hellotext_business_id,
         ));
     }
 
