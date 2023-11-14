@@ -51,4 +51,5 @@ foreach ($scan as $file) {
 // The `app.installed` function is on ./hellotext/settings.php
 // under the hellotext_business_id_updated name.
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
+register_activation_hook  ( __FILE__, 'hellotext_activate' );
 

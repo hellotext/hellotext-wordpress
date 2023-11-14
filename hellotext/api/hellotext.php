@@ -1,8 +1,7 @@
 <?php
 
 class Hellotext {
-    // TODO: set to false before release
-    private $DEV_MODE = true;
+	// private $DEV_MODE = true;
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
@@ -19,7 +18,10 @@ class Hellotext {
     public function track ($event, $payload) {
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode(
             array_merge(
-                array('event' => $event),
+				array(
+					'event' => $event,
+					'session' => $this->browser_session(),
+				),
                 $payload
             )
         ));
@@ -47,10 +49,18 @@ class Hellotext {
     }
 
     private function get_api_url () {
-        if (isset($this->DEV_MODE)) {
+        if (isset($this->DEV_MODE) && $this->DEV_MODE) {
             return $this->DEV_URL;
         }
 
         return $this->API_URL;
     }
+
+	private function browser_session () {
+		if (isset($_COOKIE['hello_session'])) {
+			return $_COOKIE['hello_session'];
+		}
+
+		return null;
+	}
 }
