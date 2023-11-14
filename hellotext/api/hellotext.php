@@ -1,6 +1,8 @@
 <?php
 
 class Hellotext {
+    // TODO: set to false before release
+    private $DEV_MODE = true;
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
@@ -24,6 +26,9 @@ class Hellotext {
 
         $result = curl_exec($this->curl);
 
+        var_dump($result);
+        die();
+
         if (curl_errno($this->curl)) {
             echo 'Hellotext API call error:' . curl_error($this->curl);
         } else {
@@ -42,12 +47,10 @@ class Hellotext {
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->business_id,
         ));
-
-        // Body
     }
 
     private function get_api_url () {
-        if (isset($this->DEV_URL)) {
+        if (isset($this->DEV_MODE)) {
             return $this->DEV_URL;
         }
 
