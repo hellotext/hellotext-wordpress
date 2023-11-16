@@ -1,7 +1,7 @@
 <?php
 
 class Hellotext {
-    // private $DEV_MODE = true;
+    private $DEV_MODE = true;
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
@@ -15,16 +15,15 @@ class Hellotext {
     }
 
     public function track ($action, $payload) {
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode(
-            array_merge(
-                array(
+        $body = array_merge(
+            array(
+                'action' => $action,
+                'session' => $this->browser_session(),
+            ),
+            $payload
+        );
 
-                    'action' => $action,
-                    'session' => $this->browser_session(),
-                ),
-                $payload
-            )
-        ));
+        curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($body));
 
         $result = curl_exec($this->curl);
 

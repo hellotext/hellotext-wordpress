@@ -33,18 +33,6 @@ function hellotext_business_id_field () {
     <?php
 }
 
-add_action('update_option', 'hellotext_business_id_updated', 10, 3);
-function hellotext_business_id_updated ($option, $old_value, $new_value) {
-    if (
-        $option !== 'hellotext_business_id' ||
-        $old_value === $new_value
-    ) return;
-
-    $hellotext = new Hellotext($new_value);
-    $hellotext->track('app.installed', array());
-}
-
-
 add_action('plugins_loaded', 'init_hellotext');
 function init_hellotext () {
     function custom_woocommerce_menu() {

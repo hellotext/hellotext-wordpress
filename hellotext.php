@@ -47,9 +47,10 @@ foreach ($scan as $file) {
   }
 }
 
+// NOTE: Disabled for now.
 // This function is under ./hellotext/events/app_removed.php
 // The `app.installed` function is on ./hellotext/settings.php
 // under the hellotext_business_id_updated name.
-register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
-register_activation_hook  ( __FILE__, 'hellotext_activate' );
+// register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
+// register_activation_hook  ( __FILE__, 'hellotext_activate' );
 

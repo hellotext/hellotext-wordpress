@@ -10,7 +10,7 @@ function hellotext_script () {
             window.Hellotext = Hellotext;
             // TODO: remove this line before release
             window.Hellotext.__apiURL = 'http://api.lvh.me:4000/v1/';
-            window.Hellotext.initialize('<?= get_option( 'business_id' ) ?>');
+            window.Hellotext.initialize('<?= get_option( 'hellotext_business_id' ) ?>');
         </script>
     <?php
 }
