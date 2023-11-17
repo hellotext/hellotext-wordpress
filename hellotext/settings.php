@@ -10,6 +10,7 @@ function hellotext_settings_init() {
         'hellotext-form'
     );
 
+    // Hellotext business ID
     add_settings_field(
        'hellotext_business_id',
        __( 'Business ID', 'hellotext_business_id' ),
@@ -18,18 +19,35 @@ function hellotext_settings_init() {
        'hellotext_setting_section'
     );
 
+    // Helloteext Access Token
+    add_settings_field(
+       'hellotext_access_token',
+       __( 'Access Token', 'hellotext_access_token' ),
+       'hellotext_access_token_field',
+       'hellotext-form',
+       'hellotext_setting_section'
+    );
+
     register_setting( 'hellotext-form', 'hellotext_business_id' );
+    register_setting( 'hellotext-form', 'hellotext_access_token' );
 }
 
 function hellotext_description_section_callback () {
     ?>
-        <p>You can find yout Business ID on the <a href="https://hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings</a>.</p>
+        <p>You can find your Business ID on the <a href="https://hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings</a>.</p>
+        <p>You can create a new Access Token on the <a href="https://hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings > Authorizations</a>.</p>
     <?php
 }
 
 function hellotext_business_id_field () {
     ?>
-        <input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?php echo get_option( 'hellotext_business_id' ); ?>">
+        <input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?= get_option( 'hellotext_business_id' ); ?>" style="width: 400px;" />
+    <?php
+}
+
+function hellotext_access_token_field () {
+    ?>
+        <textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5"><?= get_option( 'hellotext_access_token' ) ?></textarea>
     <?php
 }
 
