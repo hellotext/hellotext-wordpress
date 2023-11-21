@@ -4,7 +4,7 @@ add_action('woocommerce_order_status_changed', 'track_order_status', 10, 4);
 
 function track_order_status ($order_id, $old_status, $new_status, $order) {
     $orderAdapter = new OrderAdapter($order);
-    $hellotext = new Hellotext();
+    $hellotext = new HellotextEvent();
 
     switch ($new_status) {
         case 'processing':

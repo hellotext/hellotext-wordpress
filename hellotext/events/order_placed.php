@@ -1,7 +1,8 @@
 <?php
 
-add_action( 'woocommerce_after_order_details', 'order_placed' );
-function order_placed ( $order ) {
+add_action( 'woocommerce_after_order_details', 'hellotext_order_placed' );
+
+function hellotext_order_placed ( $order ) {
     $products = [];
 
     foreach ($order->get_items() as $item) {

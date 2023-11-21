@@ -23,28 +23,20 @@ include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/scripts.php' );
 
-// Backend Events
-$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/events/' );
-foreach ($scan as $file) {
-  if (strpos($file, '.php') !== false) {
-    include('hellotext/events/' . $file);
-  }
-}
+$paths = [
+    'adapters',
+    'api',
+    'events',
+    'services',
+];
 
-// Adapters
-$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/adapters/' );
-foreach ($scan as $file) {
-  if (strpos($file, '.php') !== false) {
-    include('hellotext/adapters/' . $file);
-  }
-}
-
-// API
-$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/api/' );
-foreach ($scan as $file) {
-  if (strpos($file, '.php') !== false) {
-    include('hellotext/api/' . $file);
-  }
+foreach ($paths as $path) {
+    $scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $path . '/' );
+    foreach ($scan as $file) {
+        if (strpos($file, '.php') !== false) {
+            include('hellotext/' . $path . '/' . $file);
+        }
+    }
 }
 
 // NOTE: Disabled for now.

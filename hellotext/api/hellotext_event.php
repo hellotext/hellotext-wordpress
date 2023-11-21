@@ -1,6 +1,6 @@
 <?php
 
-class Hellotext {
+class HellotextEvent {
     private $DEV_MODE = true;
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
