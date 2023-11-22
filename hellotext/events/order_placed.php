@@ -12,13 +12,16 @@ function hellotext_order_placed ( $order ) {
         $products[] = $productAdapter->get();
     };
 
-    $order = new OrderAdapter($order, $products);
-    $order = $order->get();
+    $adapter = new OrderAdapter($order, $products);
+    $parsedOrder = $adapter->get();
 
+    $encrypted_session = Session::encrypt($_COOKIE['hello_session']);
+
+    add_post_meta($order->get_id(), 'hellotext_session', $encrypted_session);
 
     ?>
         <script type="module">
-            const order_parameters = <?= wp_json_encode($order) ?>
+            const order_parameters = <?= wp_json_encode($parsedOrder) ?>
 
             Hellotext.track('order.placed', { order_parameters })
 
@@ -30,4 +33,3 @@ function hellotext_order_placed ( $order ) {
         </script>
     <?php
 }
-

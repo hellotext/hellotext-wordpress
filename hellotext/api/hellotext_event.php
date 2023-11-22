@@ -5,11 +5,9 @@ class HellotextEvent {
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
-    public function __construct ($hellotext_business_id = null) {
-        $this->hellotext_business_id = isset($hellotext_business_id)
-            ? $hellotext_business_id
-            : get_option('hellotext_business_id');
-
+    public function __construct ($session = null) {
+        $this->hellotext_business_id = get_option('hellotext_business_id');
+        $this->session = $session;
         $this->curl = curl_init($this->get_api_url());
         $this->set_curl_options();
     }
@@ -18,7 +16,9 @@ class HellotextEvent {
         $body = array_merge(
             array(
                 'action' => $action,
-                'session' => $this->browser_session(),
+                'session' => (isset($this->session) && $this->session)
+                    ? $this->session
+                    : $this->browser_session(),
             ),
             $payload
         );
