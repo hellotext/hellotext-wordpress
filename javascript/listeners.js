@@ -1,7 +1,6 @@
 import {
   cartEvent,
   couponEvent,
-  productEvent,
 } from './events/index.js'
 
 const events = {
@@ -23,10 +22,6 @@ const events = {
   // - order.placed    => hellotext/events/order_placed.php
   // - order.confirmed => hellotext/events/order_confirmed.php
   // - order.cancelled => hellotext/events/order_cancelled.php
-
-  // Product Events
-  // - product.purchased => hellotext/events/order_placed.php (We add this event here)
-  product_viewed: e => productEvent(e, 'viewed'),
 }
 
 
@@ -34,7 +29,3 @@ Object.keys(events).forEach(event => {
   jQuery(document).on(event, events[event])
 })
 
-// Custom Events
-if (document.querySelector('.single-product')) {
-  jQuery(document).trigger('product_viewed')
-}

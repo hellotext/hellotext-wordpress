@@ -28,6 +28,7 @@ class CreateProfile
     {
         $response = HellotextClient::post('/profiles', array(
             'session' => $this->session,
+            'reference' => $this->user->ID,
             'first_name' => $this->user->nickname,
             'email' => $this->user->user_email,
             'lists' => array('WooCommerce'),

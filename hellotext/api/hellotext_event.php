@@ -27,12 +27,6 @@ class HellotextEvent {
 
         $result = curl_exec($this->curl);
 
-        if (curl_errno($this->curl)) {
-            echo 'Hellotext API call error:' . curl_error($this->curl);
-        } else {
-            echo 'Hellotext API call success' . json_encode($result);
-        }
-
         curl_close($this->curl);
     }
 
