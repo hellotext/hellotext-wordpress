@@ -15,6 +15,7 @@ function hellotext_coupon_redeemed ($code) {
         (new HellotextEvent())->track('coupon.redeemed', [
             'coupon_parameters' => [
                 'type' => 'coupon',
+                'reference' => $coupon->get_id(),
                 'code' => $code,
                 'description' => $coupon->get_description(),
                 'destination_url' => site_url('/cart'),
