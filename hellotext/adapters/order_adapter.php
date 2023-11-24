@@ -1,5 +1,9 @@
 <?php
 
+namespace Hellotext\Adapters;
+
+use Hellotext\Adapters\ProductAdapter;
+
 class OrderAdapter {
     public $order;    // WooCommerce Order
     public $products; // Order items
@@ -10,6 +14,10 @@ class OrderAdapter {
     }
 
     public function get () {
+        if (is_null($this->order)) {
+            return throw new \Exception('Order not found');
+        }
+
         return array(
             'reference' => $this->order->get_id(),
             'type' => 'order',

@@ -1,5 +1,7 @@
 <?php
 
+namespace Hellotext\Adapters;
+
 class ProductAdapter {
     public $product; // WooCommerce product
     public $item;    // Cart/Order item
