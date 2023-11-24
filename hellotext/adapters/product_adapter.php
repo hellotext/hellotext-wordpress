@@ -23,7 +23,9 @@ class ProductAdapter {
         );
 
         if (isset($this->item)) {
-            $response['quantity'] = $this->item->get_quantity();
+            $response['quantity'] = is_array($this->item)
+                ? $this->item['quantity']
+                : $this->item->get_quantity();
         }
 
         return $response;
