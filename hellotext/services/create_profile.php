@@ -14,6 +14,10 @@ class CreateProfile
 
     public function process ()
     {
+        $exists = $this->verify_if_profile_exists();
+
+        if ($exists) return false;
+
         $this->get_user();
         $this->create_hellotext_profile();
         $this->attach_profile_to_session();
@@ -22,6 +26,13 @@ class CreateProfile
     private function get_user ()
     {
         $this->user = get_user_by('id', $this->user_id);
+    }
+
+    private function verify_if_profile_exists ()
+    {
+        if (get_user_meta($this->user_id, 'hellotext_profile_id', true)) {
+            return true;
+        }
     }
 
     private function create_hellotext_profile ()
@@ -46,3 +57,13 @@ class CreateProfile
         ));
     }
 }
+
+add_action('hellotext_create_profile', function ($user_id = null) {
+    if (!is_user_logged_in() && !isset($user_id)) return;
+
+    $user = isset($user_id) ? get_user_by('id', $user_id) : wp_get_current_user();
+
+    if (get_user_meta($user->ID, 'hellotext_profile_id', true) == null) {
+        (new CreateProfile($user->ID))->process();
+    }
+}, 10, 1);

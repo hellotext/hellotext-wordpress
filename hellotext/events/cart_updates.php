@@ -6,10 +6,11 @@
 add_action( 'woocommerce_after_cart', 'hellotext_trigger_cart_updated' );
 
 function hellotext_trigger_cart_updated () {
-    do_action( 'hellotext_woocommerce_cart_updated' );
+    do_action('hellotext_create_profile');
+    do_action('hellotext_woocommerce_cart_updated');
 }
 
-add_action( 'hellotext_woocommerce_cart_updated', 'hellotext_cart_updated' );
+add_action('hellotext_woocommerce_cart_updated', 'hellotext_cart_updated');
 
 function hellotext_cart_updated () {
     session_start();

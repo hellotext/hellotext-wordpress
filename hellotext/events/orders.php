@@ -9,6 +9,8 @@ function track_order_status ($order_id, $old_status, $new_status, $order) {
     $orderAdapter = new OrderAdapter($order);
     $hellotext = new HellotextEvent($session);
 
+    do_action('hellotext_create_profile', $order->get_user_id());
+
     switch ($new_status) {
         case 'processing':
             $hellotext->track('order.confirmed', array(

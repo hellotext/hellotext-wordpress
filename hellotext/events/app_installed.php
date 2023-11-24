@@ -1,6 +1,8 @@
 <?php
 
 function hellotext_activate () {
+    do_action('hellotext_create_profile');
+
     $hellotext_business_id = get_option('hellotext_business_id');
     if (!$hellotext_business_id) return;
 

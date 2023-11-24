@@ -22,15 +22,11 @@ class OrderAdapter {
     }
 
     public function adapted_products () {
-        $products = [];
-
-        foreach ($this->order->get_items() as $item) {
+        return array_map(function ($item) {
             $product = $item->get_product();
-            $adapter = new ProductAdapter($product, $this->order->get_item($product->id));
-            $products[] = $adapter->get();
-        }
 
-        return $products;
+            return (new ProductAdapter($product, $item))->get();
+        }, $this->order->get_items());
     }
 
 }

@@ -3,10 +3,13 @@
 add_action( 'woocommerce_applied_coupon', 'hellotext_coupon_redeemed', 10, 1 );
 
 function hellotext_coupon_redeemed ($code) {
+    do_action('hellotext_create_profile');
+
     $coupon = new \WC_Coupon($code);
     $discounts = new \WC_Discounts();
 
     $valid = $discounts->is_coupon_valid($coupon);
+
 
     if ($valid) {
         (new HellotextEvent())->track('coupon.redeemed', [

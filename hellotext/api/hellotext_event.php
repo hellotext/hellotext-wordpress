@@ -27,9 +27,6 @@ class HellotextEvent {
 
         $result = curl_exec($this->curl);
 
-        var_dump($result);
-        die();
-
         curl_close($this->curl);
     }
 
