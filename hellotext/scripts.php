@@ -15,12 +15,3 @@ function hellotext_script () {
     <?php
 }
 
-add_action( 'wp_head', 'listeners_javascript' );
-function listeners_javascript () {
-    $path = plugin_dir_url( __FILE__ ) . '../javascript/listeners.js';
-
-    ?>
-        <script type="module" src="<?= $path ?>"></script>
-    <?php
-}
-
