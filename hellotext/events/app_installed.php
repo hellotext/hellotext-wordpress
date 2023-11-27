@@ -1,5 +1,7 @@
 <?php
 
+use Hellotext\Api\Event;
+
 function hellotext_activate () {
     do_action('hellotext_create_profile');
 
@@ -9,8 +11,7 @@ function hellotext_activate () {
     $store_image_id = get_option('woocommerce_email_header_image_id');
     $store_image_url = wp_get_attachment_image_url($store_image_id, 'full');
 
-    $hellotext = new HellotextEvent();
-    $hellotext->track('app.installed', array(
+    (new Event())->track('app.installed', array(
         'app_parameters' => array(
             'type' => 'app',
             'name' => get_bloginfo('name'),

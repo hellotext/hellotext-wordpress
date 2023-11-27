@@ -3,7 +3,6 @@
 namespace Hellotext\Api;
 
 class Client {
-    const DEV_MODE = true;
     const DEV_URL = 'http://api.lvh.me:4000/v1';
     const API_URL = 'https://api.hellotext.com/v1';
 
@@ -48,7 +47,7 @@ class Client {
     }
 
     private static function get_api_url () {
-        return self::DEV_MODE
+        return (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE)
             ? self::DEV_URL
             : self::API_URL;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use Hellotext\Adapters\ProductAdapter;
+use Hellotext\Api\Event;
 
 add_action('woocommerce_after_single_product', 'hellotext_product_viewed');
 
@@ -9,7 +10,7 @@ function hellotext_product_viewed() {
 
     do_action('hellotext_create_profile');
 
-    (new HellotextEvent())->track('product.viewed', array(
+    (new Event())->track('product.viewed', array(
         'product_parameters' => (new ProductAdapter($product))->get()
     ));
 }
