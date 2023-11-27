@@ -9,11 +9,15 @@ class CreateProfile
     public $user;
     public $hellotext_profile_id;
 
+    public $client;
+
     public $user_id;
+    public $session;
     public function __construct($user_id)
     {
         $this->user_id = $user_id;
         $this->session = $_COOKIE['hello_session'];
+        $this->client = Client::class;
     }
 
     public function process ()
@@ -30,6 +34,10 @@ class CreateProfile
     private function get_user ()
     {
         $this->user = get_user_by('id', $this->user_id);
+
+        if (!$this->user) {
+            throw new \Exception("User with id {$this->user_id} not found");
+        }
     }
 
     private function verify_if_profile_exists ()
@@ -41,7 +49,7 @@ class CreateProfile
 
     private function create_hellotext_profile ()
     {
-        $response = Client::post('/profiles', array(
+        $response = $this->client::post('/profiles', array(
             'session' => $this->session,
             'reference' => $this->user->ID,
             'first_name' => $this->user->nickname,
@@ -55,7 +63,7 @@ class CreateProfile
     private function attach_profile_to_session ()
     {
         $profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
-        $response = Client::patch("/sessions/{$this->session}", array(
+        $response = $this->client::patch("/sessions/{$this->session}", array(
             'session' => $this->session,
             'profile' => $profile_id,
         ));

@@ -17,9 +17,9 @@ class Session {
         return base64_encode($encrypted . '::' . $iv);
     }
 
-    public static function decrypt ($encryptedData = null) {
+    public static function decrypt ($encrypted_data = null) {
         $key = get_option('hellotext_bussiness_id');
-        $parts = explode('::', base64_decode($encryptedData));
+        $parts = explode('::', base64_decode($encrypted_data));
 
         return openssl_decrypt($parts[0], self::METHOD, $key, 0, $parts[1]);
     }

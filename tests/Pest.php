@@ -44,7 +44,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
-{
-    // ..
+class TestHelper {
+    public static function find_or_create_user ($name = 'Jane Doe', $email = 'jane@doe.com', $password = 'doe') {
+        $user = get_user_by('email', $email);
+
+        if (! $user) {
+            $user = wp_create_user($name, $password, $email);
+        }
+
+        return $user;
+    }
 }

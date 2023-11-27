@@ -3,8 +3,18 @@
 use Hellotext\Adapters\RefundAdapter;
 use Hellotext\Adapters\OrderAdapter;
 
+use Hellotext\Services\Session;
+
 beforeEach(function () {
-    $this->order = wc_create_order();
+    $user = TestHelper::find_or_create_user();
+    $_COOKIE['hello_session'] = '123';
+
+    $this->order = wc_create_order([
+        'customer_id' => $user->ID
+    ]);
+
+    add_post_meta($this->order->get_id(), 'hellotext_session', Session::encrypt('123'));
+
     $this->refund = wc_create_refund([
         'amount' => $this->order->get_total() / 2,
         'order_id' => $this->order->get_id(),

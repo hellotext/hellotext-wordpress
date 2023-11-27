@@ -2,7 +2,6 @@
 
 use Hellotext\Services\Session;
 
-
 test('encrypts data', function () {
     $encrypted = Session::encrypt('test');
     expect($encrypted)->not->toBe('test');
