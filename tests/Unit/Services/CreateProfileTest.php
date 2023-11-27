@@ -16,7 +16,7 @@ test('throws an exception if the user does not exist', function () {
     (new CreateProfile(999))->process();
 });
 
-test('it calls the Hellotext\Api\Client with the correct parameters', function () {
+test('calls the Hellotext\Api\Client with the correct parameters', function () {
     $client = Mockery::mock(Client::class);
 
     $client->shouldReceive('post')

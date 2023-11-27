@@ -43,7 +43,7 @@ test('has the correct type', function () {
     expect($result['type'])->toBe('order');
 });
 
-it('finds the correct order if passed an ID', function () {
+test('finds the correct order if passed an ID', function () {
     $result = (new OrderAdapter($this->order->get_id()))->get();
 
     expect($result['reference'])->toBe($this->order->get_id());
