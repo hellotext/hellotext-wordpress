@@ -12,15 +12,19 @@ class ProductAdapter {
     }
 
     public function get () {
+        if (!$this->product) {
+            throw new \Exception('Product not found');
+        }
+
         $response = array(
-            'reference' => $this->product->id,
+            'reference' => $this->product->get_id(),
             'type' => 'product',
-            'name' => $this->product->name,
-            'categories' => wp_get_post_terms( $this->product->id, 'product_cat', array( 'fields' => 'names' ) ),
+            'name' => $this->product->get_name(),
+            'categories' => wp_get_post_terms( $this->product->get_id(), 'product_cat', array( 'fields' => 'names' ) ),
             'currency' => get_woocommerce_currency(),
             'price' => $this->product->get_price(),
             'amount' => $this->product->get_price(),
-            'tags' => wp_get_post_terms( $this->product->id, 'product_tag', array( 'fields' => 'names' ) ),
+            'tags' => wp_get_post_terms( $this->product->get_id(), 'product_tag', array( 'fields' => 'names' ) ),
             'image_url' => wp_get_attachment_url( $this->product->get_image_id() ),
         );
 

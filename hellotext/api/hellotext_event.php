@@ -1,7 +1,8 @@
 <?php
 
 class HellotextEvent {
-    private $DEV_MODE = true;
+    global $HELLOTEXT_DEV_MODE;
+
     private $DEV_URL = 'http://api.lvh.me:4000/v1/track/events';
     private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
@@ -42,7 +43,7 @@ class HellotextEvent {
     }
 
     private function get_api_url () {
-        if (isset($this->DEV_MODE) && $this->DEV_MODE) {
+        if (isset($this->HELLOTEXT_DEV_MODE) && $this->HELLOTEXT_DEV_MODE) {
             return $this->DEV_URL;
         }
 

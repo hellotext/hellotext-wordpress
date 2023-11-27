@@ -1,5 +1,7 @@
 <?php
 
+use Hellotext\Adapters\ProductAdapter;
+
 // We could listen for woocommerce_cart_updated event but this event is
 // triggered too many times per cart update. Instead, we listen for the
 // cart page load and trigger our own event.

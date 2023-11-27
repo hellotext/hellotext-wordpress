@@ -1,5 +1,7 @@
 <?php
 
+namespace Hellotext\Services;
+
 class Session {
     const METHOD = 'aes-256-cbc';
 

@@ -19,15 +19,17 @@
  * WgwXWr7P
  */
 
+$HELLOTEXT_DEV_MODE = true;
+
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/scripts.php' );
 
 $paths = [
-    'adapters',
-    'api',
-    'events',
-    'services',
+    'Adapters',
+    'Api',
+    'Events',
+    'Services',
 ];
 
 foreach ($paths as $path) {

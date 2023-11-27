@@ -1,5 +1,8 @@
 <?php
 
+use Hellotext\Adapters\RefundAdapter;
+use Hellotext\Services\Session;
+
 add_action( 'woocommerce_order_refunded', 'hellotext_refund_created', 10, 2 );
 
 function hellotext_refund_created ($order_id, $refund_id) {

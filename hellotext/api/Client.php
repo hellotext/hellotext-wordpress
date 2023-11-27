@@ -1,6 +1,8 @@
 <?php
 
-class HellotextClient {
+namespace Hellotext\Api;
+
+class Client {
     const DEV_MODE = true;
     const DEV_URL = 'http://api.lvh.me:4000/v1';
     const API_URL = 'https://api.hellotext.com/v1';
@@ -26,23 +28,23 @@ class HellotextClient {
     }
 
     public static function get ($path = '/', $data = null) {
-        return HellotextClient::request('GET', $path, $data);
+        return Client::request('GET', $path, $data);
     }
 
     public static function post ($path = '/', $data = null) {
-        return HellotextClient::request('POST', $path, $data);
+        return Client::request('POST', $path, $data);
     }
 
     public static function patch ($path = '/', $data = null) {
-        return HellotextClient::request('PATCH', $path, $data);
+        return Client::request('PATCH', $path, $data);
     }
 
     public static function put ($path = '/', $data = null) {
-        return HellotextClient::request('PUT', $path, $data);
+        return Client::request('PUT', $path, $data);
     }
 
     public static function delete ($path = '/', $data = null) {
-        return HellotextClient::request('DELETE', $path, $data);
+        return Client::request('DELETE', $path, $data);
     }
 
     private static function get_api_url () {

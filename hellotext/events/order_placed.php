@@ -1,5 +1,8 @@
 <?php
 
+use Hellotext\Adapters\OrderAdapter;
+use Hellotext\Services\Session;
+
 add_action( 'woocommerce_after_order_details', 'hellotext_order_placed' );
 
 function hellotext_order_placed ( $order ) {

@@ -1,5 +1,7 @@
 <?php
 
+namespace Hellotext\Adapters;
+
 class RefundAdapter {
     public $refund; // WooCommerce Refund
 
@@ -9,6 +11,14 @@ class RefundAdapter {
     }
 
     public function get () {
+        if (!$this->refund) {
+            throw new \Exception('Refund not found');
+        }
+
+        if (!$this->order) {
+            throw new \Exception('Order not found');
+        }
+
         return array(
             'reference' => $this->refund->get_id(),
             'type' => 'refund',

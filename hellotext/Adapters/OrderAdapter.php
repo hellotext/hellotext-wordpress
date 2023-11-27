@@ -30,11 +30,15 @@ class OrderAdapter {
     }
 
     public function adapted_products () {
-        return array_map(function ($item) {
+        $items = $this->order->get_items();
+
+        foreach ($items as $item) {
             $product = $item->get_product();
 
-            return (new ProductAdapter($product, $item))->get();
-        }, $this->order->get_items());
+            $this->products[] = (new ProductAdapter($product))->get();
+        }
+
+        return $this->products;
     }
 
 }

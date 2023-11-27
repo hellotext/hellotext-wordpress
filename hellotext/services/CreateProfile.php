@@ -1,5 +1,9 @@
 <?php
 
+namespace Hellotext\Services;
+
+use Hellotext\Api\Client;
+
 class CreateProfile
 {
     public $user;
@@ -37,7 +41,7 @@ class CreateProfile
 
     private function create_hellotext_profile ()
     {
-        $response = HellotextClient::post('/profiles', array(
+        $response = Client::post('/profiles', array(
             'session' => $this->session,
             'reference' => $this->user->ID,
             'first_name' => $this->user->nickname,
@@ -51,7 +55,7 @@ class CreateProfile
     private function attach_profile_to_session ()
     {
         $profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
-        $response = HellotextClient::patch("/sessions/{$this->session}", array(
+        $response = Client::patch("/sessions/{$this->session}", array(
             'session' => $this->session,
             'profile' => $profile_id,
         ));
