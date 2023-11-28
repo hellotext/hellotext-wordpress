@@ -19,7 +19,7 @@
  * WgwXWr7P
  */
 
-$HELLOTEXT_DEV_MODE = true;
+$HELLOTEXT_DEV_MODE = false;
 
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
 include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
