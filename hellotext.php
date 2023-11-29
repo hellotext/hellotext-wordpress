@@ -19,16 +19,13 @@
  * WgwXWr7P
  */
 
-$HELLOTEXT_DEV_MODE = false;
-
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/menu.php' );
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/settings.php' );
-include_once( plugin_dir_path( __FILE__ ) . 'hellotext/scripts.php' );
+$HELLOTEXT_DEV_MODE = true;
 
 $paths = [
     'Adapters',
     'Api',
     'Events',
+    'Misc',
     'Services',
 ];
 
@@ -41,10 +38,8 @@ foreach ($paths as $path) {
     }
 }
 
-// NOTE: Disabled for now.
-// This function is under ./hellotext/events/app_removed.php
-// The `app.installed` function is on ./hellotext/settings.php
-// under the hellotext_business_id_updated name.
-// register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
-// register_activation_hook  ( __FILE__, 'hellotext_activate' );
+// Function on Events/AppInstalled.php
+register_activation_hook( __FILE__, 'hellotext_activate' );
 
+// Function on Events/AppRemoved.php
+register_deactivation_hook( __FILE__, 'hellotext_deactivate' );

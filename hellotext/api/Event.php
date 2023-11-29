@@ -43,6 +43,8 @@ class Event {
     }
 
     private function get_api_url () {
+        global $HELLOTEXT_DEV_MODE;
+
         if (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE) {
             return $this->DEV_URL;
         }

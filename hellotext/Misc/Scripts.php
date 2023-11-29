@@ -3,6 +3,8 @@
 add_action( 'admin_head', 'hellotext_script' );
 add_action( 'wp_head',	  'hellotext_script' );
 function hellotext_script () {
+    global $HELLOTEXT_DEV_MODE;
+
     ?>
         <script type="module">
             import Hellotext from 'https://unpkg.com/@hellotext/hellotext@latest/src/index.js';
