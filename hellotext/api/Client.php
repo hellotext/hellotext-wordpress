@@ -6,11 +6,7 @@ class Client {
     const DEV_API_URL = 'http://api.lvh.me:4000';
     const API_URL = 'https://api.hellotext.com';
 
-    const DEV_APP_URL = 'https://3587-189-170-6-207.ngrok-free.app/';
-    const APP_URL = 'https://hellotext.com';
-
     public static $sufix = '/v1';
-    public static $use_app_url = false;
 
     public static function with_sufix ($sufix = '') {
         if (strlen($sufix) > 0 && $sufix[0] !== '/') {
@@ -18,12 +14,6 @@ class Client {
         }
 
         self::$sufix = $sufix;
-
-        return new self();
-    }
-
-    public static function use_app_url () {
-        self::$use_app_url = true;
 
         return new self();
     }
@@ -74,12 +64,6 @@ class Client {
         $domain = (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE)
             ? self::DEV_API_URL
             : self::API_URL;
-
-        if (self::$use_app_url) {
-            $domain = (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE)
-                ? self::DEV_APP_URL
-                : self::APP_URL;
-        }
 
         return $domain . self::$sufix;
     }

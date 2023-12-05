@@ -25,7 +25,6 @@ function hellotext_activate () {
 
 add_action('hellotext_create_integration', function ($business_id) {
     Client::with_sufix()
-        ->use_app_url()
         ->post('/integrations/woo', [
             'shop' => [
                 'business_id' => $business_id,
