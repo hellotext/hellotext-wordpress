@@ -23,9 +23,11 @@ function hellotext_deactivate () {
 }
 
 add_action('hellotext_remove_integration', function ($business_id) {
-    Client::with_sufix()->delete('/integrations/woo', [
-        'shop' => [
-            'business_id' => $business_id,
-        ]
-    ]);
+    Client::with_sufix()
+        ->use_app_url()
+        ->delete('/integrations/woo', [
+            'shop' => [
+                'business_id' => $business_id,
+            ]
+        ]);
 });

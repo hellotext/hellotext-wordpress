@@ -24,15 +24,15 @@ function hellotext_activate () {
 }
 
 add_action('hellotext_create_integration', function ($business_id) {
-    $response = Client::with_sufix()->post('/integrations/woo', [
-        'shop' => [
-            'business_id' => $business_id,
-            'name' => get_bloginfo('name'),
-            'url' => get_bloginfo('url'),
-            'email' => get_bloginfo('admin_email'),
-        ]
-    ]);
-
-    setcookie('debug', json_encode($response));
+    Client::with_sufix()
+        ->use_app_url()
+        ->post('/integrations/woo', [
+            'shop' => [
+                'business_id' => $business_id,
+                'name' => get_bloginfo('name'),
+                'url' => get_bloginfo('url'),
+                'email' => get_bloginfo('admin_email'),
+            ]
+        ]);
 });
 
