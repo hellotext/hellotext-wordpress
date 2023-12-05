@@ -42,9 +42,9 @@ class CreateProfile
 
     private function verify_if_profile_exists ()
     {
-        if (get_user_meta($this->user_id, 'hellotext_profile_id', true)) {
-            return true;
-        }
+        $hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+
+        return $hellotext_profile_id != null && $hellotext_profile_id != '';
     }
 
     private function create_hellotext_profile ()
