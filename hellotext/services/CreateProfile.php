@@ -69,14 +69,17 @@ class CreateProfile
         ));
     }
 }
+
 add_action('hellotext_create_profile', function ($user_id = null) {
     if (!is_user_logged_in() && !isset($user_id)) return;
 
-    $user = isset($user_id) ? get_user_by('id', $user_id) : wp_get_current_user();
+    $user = ($user_id != null)
+        ? get_user_by('id', $user_id)
+        : wp_get_current_user();
 
     if (!$user) return;
 
-    if (get_user_meta($user->get_id(), 'hellotext_profile_id', true) == null) {
-        (new CreateProfile($user->get_id()))->process();
+    if (get_user_meta($user->ID, 'hellotext_profile_id', true) == null) {
+        (new CreateProfile($user->ID))->process();
     }
 }, 10, 1);
