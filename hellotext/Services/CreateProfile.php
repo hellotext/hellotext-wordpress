@@ -22,7 +22,9 @@ class CreateProfile
 
     public function process ()
     {
-        if (!$this->verify_if_profile_exists();) {
+        if (! $this->user_id) return;
+
+        if (! $this->verify_if_profile_exists()) {
             $this->get_user();
             $this->create_hellotext_profile();
         }
