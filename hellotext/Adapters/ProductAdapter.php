@@ -34,6 +34,10 @@ class ProductAdapter {
                 : $this->item->get_quantity();
         }
 
+        $response = array_filter($response, function ($value) {
+            return $value != null && $value != [];
+        });
+
         return $response;
     }
 

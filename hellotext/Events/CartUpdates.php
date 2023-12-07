@@ -7,6 +7,9 @@ use Hellotext\Api\Event;
 // triggered too many times per cart update. Instead, we listen for the
 // cart page load and trigger our own event.
 add_action( 'woocommerce_after_cart', 'hellotext_trigger_cart_updated' );
+add_action( 'woocommerce_add_to_cart', 'hellotext_trigger_cart_updated' );
+add_action( 'woocommerce_cart_item_removed', 'hellotext_trigger_cart_updated' );
+add_action( 'woocommerce_after_cart_item_quantity_update', 'hellotext_trigger_cart_updated' );
 
 function hellotext_trigger_cart_updated () {
     do_action('hellotext_create_profile');
@@ -33,8 +36,7 @@ function hellotext_cart_updated () {
 
     // Parse current cart items with the ProductAdapter
     foreach ( $current_cart_items as $key => $cart_item ) {
-        $product = new ProductAdapter( $cart_item['product_id'], $cart_item);
-        $cart_items[] = $product->get();
+        $cart_items[] = (new ProductAdapter( $cart_item['product_id'], $cart_item))->get();
     }
 
     // Save current cart items to session
@@ -70,10 +72,10 @@ function hellotext_cart_updated () {
 
     // Trigger events, one for added and one for removed items
     foreach ($changes as $event => $items) {
-        if (count($items) > 0) {
-            (new Event())->track("cart.{$event}", array(
-                'products' => $items
-            ));
-        }
+        if (count($changes[$event]) == 0)  continue;
+
+        (new Event())->track("cart.{$event}", array(
+            'products' => $items
+        ));
     }
 }

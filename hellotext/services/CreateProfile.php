@@ -22,13 +22,14 @@ class CreateProfile
 
     public function process ()
     {
-        $exists = $this->verify_if_profile_exists();
+        if (!$this->verify_if_profile_exists();) {
+            $this->get_user();
+            $this->create_hellotext_profile();
+        }
 
-        if ($exists) return false;
-
-        $this->get_user();
-        $this->create_hellotext_profile();
-        $this->attach_profile_to_session();
+        if ($this->session_changed()) {
+            $this->attach_profile_to_session();
+        }
     }
 
     private function get_user ()
@@ -45,6 +46,11 @@ class CreateProfile
         $hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
 
         return $hellotext_profile_id != null && $hellotext_profile_id != '';
+    }
+
+    private function session_changed ()
+    {
+        return $this->session != get_user_meta($this->user_id, 'hellotext_session', true);
     }
 
     private function create_hellotext_profile ()
@@ -79,7 +85,5 @@ add_action('hellotext_create_profile', function ($user_id = null) {
 
     if (!$user) return;
 
-    if (get_user_meta($user->ID, 'hellotext_profile_id', true) == null) {
-        (new CreateProfile($user->ID))->process();
-    }
+    (new CreateProfile($user->ID))->process();
 }, 10, 1);
