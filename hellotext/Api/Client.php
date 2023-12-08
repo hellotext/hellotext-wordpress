@@ -9,7 +9,7 @@ class Client {
 	public static $sufix = '/v1';
 
 	public static function with_sufix ($sufix = '') {
-		if (strlen($sufix) > 0 && $sufix[0] !== '/') {
+		if (0 < strlen($sufix) && '/' !== $sufix[0]) {
 			$sufix = '/' . $sufix;
 		}
 
@@ -39,29 +39,29 @@ class Client {
 	}
 
 	public static function get ($path = '/', $data = null) {
-		return Client::request('GET', $path, $data);
+		return self::request('GET', $path, $data);
 	}
 
 	public static function post ($path = '/', $data = null) {
-		return Client::request('POST', $path, $data);
+		return self::request('POST', $path, $data);
 	}
 
 	public static function patch ($path = '/', $data = null) {
-		return Client::request('PATCH', $path, $data);
+		return self::request('PATCH', $path, $data);
 	}
 
 	public static function put ($path = '/', $data = null) {
-		return Client::request('PUT', $path, $data);
+		return self::request('PUT', $path, $data);
 	}
 
 	public static function delete ($path = '/', $data = null) {
-		return Client::request('DELETE', $path, $data);
+		return self::request('DELETE', $path, $data);
 	}
 
 	private static function get_api_url () {
 		global $HELLOTEXT_DEV_MODE;
 
-		$domain = (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE)
+		$domain = ( isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE )
 			? self::DEV_API_URL
 			: self::API_URL;
 

@@ -5,7 +5,7 @@ use Hellotext\Api\Event;
 
 function hellotext_deactivate () {
 	$hellotext_business_id = get_option('hellotext_business_id');
-	if (!$hellotext_business_id) return;
+	if (!$hellotext_business_id) { return; }
 
 	do_action('hellotext_remove_integration', $hellotext_business_id);
 

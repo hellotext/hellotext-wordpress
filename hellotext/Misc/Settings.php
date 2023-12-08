@@ -41,13 +41,13 @@ function hellotext_description_section_callback () {
 
 function hellotext_business_id_field () {
 	?>
-		<input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?= get_option( 'hellotext_business_id' ); ?>" style="width: 400px;" />
+		<input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?php echo esc_html(get_option('hellotext_business_id')); ?>" style="width: 400px;" />
 	<?php
 }
 
 function hellotext_access_token_field () {
 	?>
-		<textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5"><?= get_option( 'hellotext_access_token' ) ?></textarea>
+		<textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5"><?php echo esc_html(get_option('hellotext_access_token')) ?></textarea>
 	<?php
 }
 

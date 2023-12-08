@@ -14,14 +14,12 @@ class OrderAdapter {
 	}
 
 	public function get () {
-		if (is_null($this->order)) {
-			return throw new \Exception('Order not found');
-		}
+		if (is_null($this->order)) { return; }
 
 		return array(
 			'reference' => $this->order->get_id(),
 			'type' => 'order',
-			'products' => (isset($this->products) && sizeof($this->products) > 0)
+			'products' => ( isset($this->products) && 0 < count($this->products) )
 				? $this->products
 				: $this->adapted_products(),
 			'amount' => $this->order->get_total(),
@@ -35,7 +33,7 @@ class OrderAdapter {
 		foreach ($items as $item) {
 			$product = $item->get_product();
 
-			$this->products[] = (new ProductAdapter($product))->get();
+			$this->products[] = ( new ProductAdapter($product) )->get();
 		}
 
 		return $this->products;

@@ -29,14 +29,14 @@ function hellotext_cart_updated () {
 
 	// Set previous cart items and current cart items
 	$previous_cart_items = isset($_SESSION['hellotext_cart_items'])
-		? $_SESSION['hellotext_cart_items']
+		? sanitize_text_field($_SESSION['hellotext_cart_items'])
 		: array();
 	$current_cart_items = WC()->cart->get_cart();
 	$cart_items = array();
 
 	// Parse current cart items with the ProductAdapter
 	foreach ( $current_cart_items as $key => $cart_item ) {
-		$cart_items[] = (new ProductAdapter( $cart_item['product_id'], $cart_item))->get();
+		$cart_items[] = ( new ProductAdapter( $cart_item['product_id'], $cart_item) )->get();
 	}
 
 	// Save current cart items to session
@@ -72,9 +72,9 @@ function hellotext_cart_updated () {
 
 	// Trigger events, one for added and one for removed items
 	foreach ($changes as $event => $items) {
-		if (count($changes[$event]) == 0)  continue;
+		if (0 == count($changes[$event])) { continue; }
 
-		(new Event())->track("cart.{$event}", array(
+		( new Event() )->track("cart.{$event}", array(
 			'products' => $items
 		));
 	}

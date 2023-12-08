@@ -35,7 +35,7 @@ class ProductAdapter {
 		}
 
 		$response = array_filter($response, function ($value) {
-			return $value != null && $value != [];
+			return null != $value && [] != $value;
 		});
 
 		return $response;

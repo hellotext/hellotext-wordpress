@@ -17,7 +17,7 @@ class Event {
 		$body = array_merge(
 			array(
 				'action' => $action,
-				'session' => (isset($this->session) && $this->session)
+				'session' => ( isset($this->session) && $this->session )
 					? $this->session
 					: $this->browser_session(),
 			),
@@ -33,7 +33,7 @@ class Event {
 
 	private function set_curl_options () {
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
 
 		// Headers
 		curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
@@ -54,7 +54,7 @@ class Event {
 
 	private function browser_session () {
 		if (isset($_COOKIE['hello_session'])) {
-			return $_COOKIE['hello_session'];
+			return sanitize_text_field($_COOKIE['hello_session']);
 		}
 
 		return null;

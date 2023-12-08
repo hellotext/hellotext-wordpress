@@ -3,9 +3,6 @@
  * Hellotext
  *
  * @package Hellotext
- * @author Hellotext
- * @copyright 2020 Hellotext
- * @license GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Hellotext
@@ -28,11 +25,11 @@ $paths = [
 	'Services',
 ];
 
-foreach ($paths as $path) {
-	$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $path . '/' );
+foreach ($paths as $current_path) {
+	$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $current_path . '/' );
 	foreach ($scan as $file) {
 		if (strpos($file, '.php') !== false) {
-			include('hellotext/' . $path . '/' . $file);
+			include('hellotext/' . $current_path . '/' . $file);
 		}
 	}
 }

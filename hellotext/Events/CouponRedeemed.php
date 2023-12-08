@@ -14,7 +14,7 @@ function hellotext_coupon_redeemed ($code) {
 
 
 	if ($valid) {
-		(new Event())->track('coupon.redeemed', [
+		( new Event() )->track('coupon.redeemed', [
 			'coupon_parameters' => [
 				'type' => 'coupon',
 				'reference' => $coupon->get_id(),

@@ -4,8 +4,7 @@ namespace Hellotext\Services;
 
 use Hellotext\Api\Client;
 
-class CreateProfile
-{
+class CreateProfile {
 	public $user;
 	public $hellotext_profile_id;
 
@@ -16,13 +15,12 @@ class CreateProfile
 	public function __construct($user_id)
 	{
 		$this->user_id = $user_id;
-		$this->session = $_COOKIE['hello_session'];
+		$this->session = isset($_COOKIE['hello_session']) ? sanitize_text_field($_COOKIE['hello_session']) : null;
 		$this->client = Client::class;
 	}
 
-	public function process ()
-	{
-		if (! $this->user_id) return;
+	public function process () {
+		if (! $this->user_id) { return; }
 
 		if (! $this->verify_if_profile_exists()) {
 			$this->get_user();
@@ -34,8 +32,7 @@ class CreateProfile
 		}
 	}
 
-	private function get_user ()
-	{
+	private function get_user () {
 		$this->user = get_user_by('id', $this->user_id);
 
 		if (!$this->user) {
@@ -43,20 +40,17 @@ class CreateProfile
 		}
 	}
 
-	private function verify_if_profile_exists ()
-	{
+	private function verify_if_profile_exists () {
 		$hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
 
-		return $hellotext_profile_id != null && $hellotext_profile_id != '';
+		return null != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
 
-	private function session_changed ()
-	{
-		return $this->session != get_user_meta($this->user_id, 'hellotext_session', true);
+	private function session_changed () {
+		return get_user_meta($this->user_id, 'hellotext_session', true) != $this->session;
 	}
 
-	private function create_hellotext_profile ()
-	{
+	private function create_hellotext_profile () {
 		$response = $this->client::post('/profiles', array(
 			'session' => $this->session,
 			'reference' => $this->user->ID,
@@ -68,8 +62,7 @@ class CreateProfile
 		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'] );
 	}
 
-	private function attach_profile_to_session ()
-	{
+	private function attach_profile_to_session () {
 		$profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
 		$response = $this->client::patch("/sessions/{$this->session}", array(
 			'session' => $this->session,
@@ -79,13 +72,13 @@ class CreateProfile
 }
 
 add_action('hellotext_create_profile', function ($user_id = null) {
-	if (!is_user_logged_in() && !isset($user_id)) return;
+	if (!is_user_logged_in() && !isset($user_id)) { return; }
 
-	$user = ($user_id != null)
+	$user = ( null != $user_id )
 		? get_user_by('id', $user_id)
 		: wp_get_current_user();
 
-	if (!$user) return;
+	if (!$user) { return; }
 
-	(new CreateProfile($user->ID))->process();
+	( new CreateProfile($user->ID) )->process();
 }, 10, 1);
