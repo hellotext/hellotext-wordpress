@@ -6,86 +6,86 @@ use Hellotext\Api\Client;
 
 class CreateProfile
 {
-    public $user;
-    public $hellotext_profile_id;
+	public $user;
+	public $hellotext_profile_id;
 
-    public $client;
+	public $client;
 
-    public $user_id;
-    public $session;
-    public function __construct($user_id)
-    {
-        $this->user_id = $user_id;
-        $this->session = $_COOKIE['hello_session'];
-        $this->client = Client::class;
-    }
+	public $user_id;
+	public $session;
+	public function __construct($user_id)
+	{
+		$this->user_id = $user_id;
+		$this->session = $_COOKIE['hello_session'];
+		$this->client = Client::class;
+	}
 
-    public function process ()
-    {
-        if (! $this->user_id) return;
+	public function process ()
+	{
+		if (! $this->user_id) return;
 
-        if (! $this->verify_if_profile_exists()) {
-            $this->get_user();
-            $this->create_hellotext_profile();
-        }
+		if (! $this->verify_if_profile_exists()) {
+			$this->get_user();
+			$this->create_hellotext_profile();
+		}
 
-        if ($this->session_changed()) {
-            $this->attach_profile_to_session();
-        }
-    }
+		if ($this->session_changed()) {
+			$this->attach_profile_to_session();
+		}
+	}
 
-    private function get_user ()
-    {
-        $this->user = get_user_by('id', $this->user_id);
+	private function get_user ()
+	{
+		$this->user = get_user_by('id', $this->user_id);
 
-        if (!$this->user) {
-            throw new \Exception("User with id {$this->user_id} not found");
-        }
-    }
+		if (!$this->user) {
+			throw new \Exception("User with id {$this->user_id} not found");
+		}
+	}
 
-    private function verify_if_profile_exists ()
-    {
-        $hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+	private function verify_if_profile_exists ()
+	{
+		$hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
 
-        return $hellotext_profile_id != null && $hellotext_profile_id != '';
-    }
+		return $hellotext_profile_id != null && $hellotext_profile_id != '';
+	}
 
-    private function session_changed ()
-    {
-        return $this->session != get_user_meta($this->user_id, 'hellotext_session', true);
-    }
+	private function session_changed ()
+	{
+		return $this->session != get_user_meta($this->user_id, 'hellotext_session', true);
+	}
 
-    private function create_hellotext_profile ()
-    {
-        $response = $this->client::post('/profiles', array(
-            'session' => $this->session,
-            'reference' => $this->user->ID,
-            'first_name' => $this->user->nickname,
-            'email' => $this->user->user_email,
-            'lists' => array('WooCommerce'),
-        ));
+	private function create_hellotext_profile ()
+	{
+		$response = $this->client::post('/profiles', array(
+			'session' => $this->session,
+			'reference' => $this->user->ID,
+			'first_name' => $this->user->nickname,
+			'email' => $this->user->user_email,
+			'lists' => array('WooCommerce'),
+		));
 
-        add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'] );
-    }
+		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'] );
+	}
 
-    private function attach_profile_to_session ()
-    {
-        $profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
-        $response = $this->client::patch("/sessions/{$this->session}", array(
-            'session' => $this->session,
-            'profile' => $profile_id,
-        ));
-    }
+	private function attach_profile_to_session ()
+	{
+		$profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+		$response = $this->client::patch("/sessions/{$this->session}", array(
+			'session' => $this->session,
+			'profile' => $profile_id,
+		));
+	}
 }
 
 add_action('hellotext_create_profile', function ($user_id = null) {
-    if (!is_user_logged_in() && !isset($user_id)) return;
+	if (!is_user_logged_in() && !isset($user_id)) return;
 
-    $user = ($user_id != null)
-        ? get_user_by('id', $user_id)
-        : wp_get_current_user();
+	$user = ($user_id != null)
+		? get_user_by('id', $user_id)
+		: wp_get_current_user();
 
-    if (!$user) return;
+	if (!$user) return;
 
-    (new CreateProfile($user->ID))->process();
+	(new CreateProfile($user->ID))->process();
 }, 10, 1);

@@ -21,20 +21,20 @@
 $HELLOTEXT_DEV_MODE = false;
 
 $paths = [
-    'Adapters',
-    'Api',
-    'Events',
-    'Misc',
-    'Services',
+	'Adapters',
+	'Api',
+	'Events',
+	'Misc',
+	'Services',
 ];
 
 foreach ($paths as $path) {
-    $scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $path . '/' );
-    foreach ($scan as $file) {
-        if (strpos($file, '.php') !== false) {
-            include('hellotext/' . $path . '/' . $file);
-        }
-    }
+	$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $path . '/' );
+	foreach ($scan as $file) {
+		if (strpos($file, '.php') !== false) {
+			include('hellotext/' . $path . '/' . $file);
+		}
+	}
 }
 
 // Function on Events/AppInstalled.php
