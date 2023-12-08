@@ -12,15 +12,17 @@ class CreateProfile {
 
 	public $user_id;
 	public $session;
-	public function __construct($user_id)
-	{
+
+	public function __construct($user_id) {
 		$this->user_id = $user_id;
 		$this->session = isset($_COOKIE['hello_session']) ? sanitize_text_field($_COOKIE['hello_session']) : null;
 		$this->client = Client::class;
 	}
 
 	public function process () {
-		if (! $this->user_id) { return; }
+		if (! $this->user_id) {
+			return;
+		}
 
 		if (! $this->verify_if_profile_exists()) {
 			$this->get_user();
@@ -72,13 +74,17 @@ class CreateProfile {
 }
 
 add_action('hellotext_create_profile', function ($user_id = null) {
-	if (!is_user_logged_in() && !isset($user_id)) { return; }
+	if (!is_user_logged_in() && !isset($user_id)) {
+		return;
+	}
 
 	$user = ( null != $user_id )
 		? get_user_by('id', $user_id)
 		: wp_get_current_user();
 
-	if (!$user) { return; }
+	if (!$user) {
+		return;
+	}
 
 	( new CreateProfile($user->ID) )->process();
 }, 10, 1);

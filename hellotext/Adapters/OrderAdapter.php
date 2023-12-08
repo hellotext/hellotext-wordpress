@@ -14,7 +14,9 @@ class OrderAdapter {
 	}
 
 	public function get () {
-		if (is_null($this->order)) { return; }
+		if (is_null($this->order)) {
+			return;
+		}
 
 		return array(
 			'reference' => $this->order->get_id(),

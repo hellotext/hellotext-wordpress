@@ -12,7 +12,7 @@ function hellotext_order_placed ( $order ) {
 	$event = new Event();
 	$parsedOrder = ( new OrderAdapter($order) )->get();
 
-	$session = isset($_COOKIE['hellotext_session'])
+	$session = isset($_COOKIE['hello_session'])
 		? sanitize_text_field($_COOKIE['hello_session'])
 		: null;
 	$encrypted_session = Session::encrypt($session);

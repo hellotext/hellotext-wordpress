@@ -5,7 +5,9 @@ use Hellotext\Api\Event;
 
 function hellotext_activate () {
 	$hellotext_business_id = get_option('hellotext_business_id');
-	if (!$hellotext_business_id) { return; }
+	if (!$hellotext_business_id) {
+		return;
+	}
 
 	do_action('hellotext_create_profile');
 	do_action('hellotext_create_integration', $hellotext_business_id);

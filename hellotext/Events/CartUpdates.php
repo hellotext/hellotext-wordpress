@@ -72,7 +72,9 @@ function hellotext_cart_updated () {
 
 	// Trigger events, one for added and one for removed items
 	foreach ($changes as $event => $items) {
-		if (0 == count($changes[$event])) { continue; }
+		if (0 == count($changes[$event])) {
+			continue;
+		}
 
 		( new Event() )->track("cart.{$event}", array(
 			'products' => $items

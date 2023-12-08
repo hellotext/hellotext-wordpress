@@ -3,12 +3,12 @@
 add_action( 'admin_init', 'hellotext_settings_init' );
 function hellotext_settings_init() {
 
-    add_settings_section(
-        'hellotext_setting_section',
-        __( 'Settings', 'hellotext_settings' ),
-        'hellotext_description_section_callback',
-        'hellotext-form'
-    );
+	add_settings_section(
+		'hellotext_setting_section',
+		__( 'Settings', 'hellotext_settings' ),
+		'hellotext_description_section_callback',
+		'hellotext-form'
+	);
 
 	// Hellotext business ID
 	add_settings_field(
@@ -17,16 +17,16 @@ function hellotext_settings_init() {
 		'hellotext_business_id_field',
 		'hellotext-form',
 		'hellotext_setting_section'
-    );
+	);
 
-    // Helloteext Access Token
+	// Helloteext Access Token
 	add_settings_field(
 		'hellotext_access_token',
 		__( 'Access Token', 'hellotext_access_token' ),
 		'hellotext_access_token_field',
 		'hellotext-form',
 		'hellotext_setting_section'
-    );
+	);
 
 	register_setting( 'hellotext-form', 'hellotext_business_id' );
 	register_setting( 'hellotext-form', 'hellotext_access_token' );
@@ -47,7 +47,7 @@ function hellotext_business_id_field () {
 
 function hellotext_access_token_field () {
 	?>
-		<textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5"><?php echo esc_html(get_option('hellotext_access_token')) ?></textarea>
+		<textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5"><?php echo esc_html(get_option('hellotext_access_token')); ?></textarea>
 	<?php
 }
 
