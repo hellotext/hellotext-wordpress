@@ -1,0 +1,25 @@
+=== Hellotext ===
+Contributors: Ricardo Villagrana
+Tags: marketing, analytics, leads
+
+== Changelog ==
+
+= Version 0.1.4
+* Date: December 7, 2023
+* Remove profile create with no user
+
+= Version 0.1.3
+* Date: December 5, 2023
+* Fix create profile function
+
+= Version 0.1.2
+* Date: December 5, 2023
+* Fix app url on extension activate and deactivate
+
+= Version 0.1.1
+* Date: November 30, 2023
+* Added Hellotext Integration creation on extension install/activate and remove/deactivate.
+
+= Version 0.1.0
+* Date: November 28, 2023
+* Ships all basic features to track activities on the WooCommerce store.
