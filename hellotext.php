@@ -26,10 +26,10 @@ $paths = [
 ];
 
 foreach ($paths as $current_path) {
-	$scan = scandir( plugin_dir_path( __FILE__ ) . 'hellotext/' . $current_path . '/' );
+	$scan = scandir( plugin_dir_path( __FILE__ ) . 'src/' . $current_path . '/' );
 	foreach ($scan as $file) {
 		if (strpos($file, '.php') !== false) {
-			include('hellotext/' . $current_path . '/' . $file);
+			include('src/' . $current_path . '/' . $file);
 		}
 	}
 }
