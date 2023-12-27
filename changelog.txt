@@ -1,26 +1,17 @@
-# Hellotext for WooCommerce Changelog
+** Hellotext for WooCommerce Changelog **
 
-## [0.1.4] - 2023-12-05
+2023-12-05 - version 0.1.4
+* Remove profile create with no user
 
-### Fixed
-- Remove profile create with no user
+2023-12-05 - version 0.1.3
+* Fix the create profile function
 
-## [0.1.3] - 2023-12-05
+2023-12-05 - version 0.1.2
+* Fix app url on extension activate and deactivate
 
-### Fixed
-- Fix the create profile function
+2023-11-30 - version 0.1.1
+* Add Hellotext Integration creation on extension install/activate and remove/deactivate.
 
-## [0.1.2] - 2023-12-05
-
-### Fixed
-- Fix app url on extension activate and deactivate
-
-## [0.1.1] - 2023-11-30
-
-### Added
-- Add Hellotext Integration creation on extension install/activate and remove/deactivate.
-
-## [0.1.0] - 2023-11-28
-### Added
-- Ship all basic features to track activities on the WooCommerce store.
+2023-11-28 - version 0.1.0
+* Ship all basic features to track activities on the WooCommerce store.
 
