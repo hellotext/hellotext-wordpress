@@ -45,7 +45,7 @@ class CreateProfile {
 	private function verify_if_profile_exists () {
 		$hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
 
-		return null != $hellotext_profile_id && '' != $hellotext_profile_id;
+		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
 
 	private function session_changed () {
@@ -61,7 +61,8 @@ class CreateProfile {
 			'lists' => array('WooCommerce'),
 		));
 
-		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'] );
+		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'], true );
+
 	}
 
 	private function attach_profile_to_session () {

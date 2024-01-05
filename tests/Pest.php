@@ -1,8 +1,10 @@
 <?php
 
 $ds = DIRECTORY_SEPARATOR;
-require_once dirname( __FILE__, 2 ) . $ds . '../../../wp-load.php';
+// require_once dirname( __FILE__, 2 ) . $ds . '../../../wp-load.php';
 require_once dirname( __FILE__, 2 ) . $ds . 'vendor' . $ds . 'autoload.php';
+require_once dirname( __FILE__, 2 ) . $ds . 'vendor' . $ds . 'php-stubs' . $ds . 'wordpress-stubs' . $ds . 'wordpress-stubs.php';
+require_once dirname( __FILE__, 2 ) . $ds . 'tests'. $ds . 'Mocks.php';
 require_once dirname( __FILE__, 2 ) . $ds . 'hellotext.php';
 
 /*
@@ -15,8 +17,6 @@ require_once dirname( __FILE__, 2 ) . $ds . 'hellotext.php';
 | need to change it using the "uses()" function to bind a different classes or traits.
 |
  */
-
-// uses(Tests\TestCase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +48,7 @@ class TestHelper {
 	public static function find_or_create_user ($name = 'Jane Doe', $email = 'jane@doe.com', $password = 'doe') {
 		$user = get_user_by('email', $email);
 
-		if (! $user) {
+		if (! isset($user)) {
 			$user = wp_create_user($name, $password, $email);
 		}
 

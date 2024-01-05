@@ -19,7 +19,6 @@ function hellotext_trigger_cart_updated () {
 add_action('hellotext_woocommerce_cart_updated', 'hellotext_cart_updated');
 
 function hellotext_cart_updated () {
-	session_start();
 	wc_load_cart();
 
 	$changes = array(
@@ -29,8 +28,9 @@ function hellotext_cart_updated () {
 
 	// Set previous cart items and current cart items
 	$previous_cart_items = isset($_SESSION['hellotext_cart_items'])
-		? sanitize_text_field($_SESSION['hellotext_cart_items'])
+		? json_decode(sanitize_text_field($_SESSION['hellotext_cart_items']), true)
 		: array();
+
 	$current_cart_items = WC()->cart->get_cart();
 	$cart_items = array();
 
@@ -40,7 +40,7 @@ function hellotext_cart_updated () {
 	}
 
 	// Save current cart items to session
-	$_SESSION['hellotext_cart_items'] = $cart_items;
+	$_SESSION['hellotext_cart_items'] = json_encode($cart_items);
 
 	// Add items that were added to the cart
 	foreach ($cart_items as $cart_item) {

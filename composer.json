@@ -6,10 +6,15 @@
         "allow-plugins": {
             "alleyinteractive/composer-wordpress-autoloader": true,
             "pestphp/pest-plugin": true
+        },
+        "platform": {
+            "php": "8.2.12"
         }
     },
     "require-dev": {
         "pestphp/pest": "*",
-        "mockery/mockery": "^1.6"
+        "mockery/mockery": "^1.6",
+        "php-stubs/wordpress-stubs": "^5.0@stable",
+        "php-stubs/woocommerce-stubs": "^5.0@stable"
     }
 }

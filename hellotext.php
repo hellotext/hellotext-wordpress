@@ -15,7 +15,16 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+// TODO: Refactor this to use the APP_ENV variable
 $HELLOTEXT_DEV_MODE = false;
+
+if (! isset($_ENV['APP_ENV'])) {
+	$_ENV['APP_ENV'] = 'production';
+}
+
+$TEST = $_ENV['APP_ENV'] === 'test';
+
+session_start();
 
 $paths = [
 	'Adapters',
@@ -26,7 +35,8 @@ $paths = [
 ];
 
 foreach ($paths as $current_path) {
-	$scan = scandir( plugin_dir_path( __FILE__ ) . 'src/' . $current_path . '/' );
+	$scan = scandir(plugin_dir_path( __FILE__ ) . 'src/' . $current_path . '/');
+
 	foreach ($scan as $file) {
 		if (strpos($file, '.php') !== false) {
 			include('src/' . $current_path . '/' . $file);

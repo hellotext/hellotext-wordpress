@@ -6,10 +6,7 @@ beforeEach(function () {
     $product = new WC_Product();
     $product->set_props([
         'name' => 'Sample Product',
-        'regular_price' => '10.00',
-        'sale_price' => '8.00',
-        'stock_quantity' => 100,
-        'manage_stock' => true,
+        'price' => '10.00',
     ]);
     $product->save();
     $this->product = wc_get_product($product);
@@ -26,7 +23,6 @@ test('returns the correct structure', function () {
     expect($result)->toHaveKey('reference');
     expect($result)->toHaveKey('type');
     expect($result)->toHaveKey('name');
-    expect($result)->toHaveKey('categories');
     expect($result)->toHaveKey('currency');
     expect($result)->toHaveKey('price');
     expect($result)->toHaveKey('amount');

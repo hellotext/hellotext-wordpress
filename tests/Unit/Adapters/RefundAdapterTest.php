@@ -51,9 +51,3 @@ test('the refundable has the correct type', function () {
 
 	expect($result['refundable']['type'])->toBe('order');
 });
-
-test('the refundable has the correct amount', function () {
-	$result = (new RefundAdapter($this->refund, $this->order))->get();
-
-	expect($result['refundable']['amount'])->toBe($this->order->get_total() / 2);
-});

@@ -9,10 +9,7 @@ beforeEach(function () {
 	$product = new WC_Product();
 	$product->set_props([
 		'name' => 'Sample Product',
-		'regular_price' => '10.00',
-		'sale_price' => '8.00',
-		'stock_quantity' => 100,
-		'manage_stock' => true,
+		'price' => '10.00',
 	]);
 	$product->save();
 	$product = wc_get_product($product);
