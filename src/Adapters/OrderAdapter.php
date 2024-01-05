@@ -14,8 +14,8 @@ class OrderAdapter {
 	}
 
 	public function get () {
-		if (is_null($this->order)) {
-			return;
+		if (!$this->order) {
+			throw new \Exception('Order not found');
 		}
 
 		return array(
