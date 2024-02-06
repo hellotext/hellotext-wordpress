@@ -18,7 +18,7 @@ class ProductAdapter {
 
 		$response = array(
 			'reference' => $this->product->get_id(),
-			'source': 'woo',
+			'source' => 'woo',
 			'type' => 'product',
 			'name' => $this->product->get_name(),
 			'categories' => wp_get_post_terms( $this->product->get_id(), 'product_cat', array( 'fields' => 'names' ) ),
