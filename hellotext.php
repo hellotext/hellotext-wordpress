@@ -9,9 +9,9 @@
  * Plugin URI: https://hellotext.com
  * Description: Integrates Hellotext tracking to WooCommerce.
  * Version: 0.1.4
- * Author: Hellotext
- * Author URI: https://hellotext.com
- * License: GPL v2 or later
+ * Author: Hellotext Team
+ * Author URI: https://github.com/hellotext
+ * License: GPL v2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 

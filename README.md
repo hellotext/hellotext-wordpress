@@ -42,3 +42,7 @@ https://youtu.be/-jYsuHwA8MM?t=14
 ![image](https://github.com/hellotext/hellotext-wordpress/assets/9273142/436650c0-5c7e-48cc-b5f5-1f6a34ab3b94)
 
 ---
+
+## License
+
+This plugin is licensed under the [GPLv2](https://www.gnu.org/licenses/gpl-2.0.html) License.
