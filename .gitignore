@@ -49,3 +49,4 @@ wp-config.php
 #/wp-content/themes
 
 .DS_Store
+wp-cli.phar
