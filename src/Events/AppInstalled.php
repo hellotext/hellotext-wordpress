@@ -26,6 +26,29 @@ function hellotext_activate () {
 }
 
 add_action('hellotext_create_integration', function ($business_id) {
+	global $wpdb;
+	$api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
+	$api_keys = $wpdb->get_row("SELECT * FROM $api_keys_table WHERE description = 'Hellotext'");
+	if (!$api_keys) {
+		// Create a new API key
+		$api_keys = (object) [
+			'consumer_key' => 'ck_' . wc_rand_hash(),
+			'consumer_secret' => 'cs_' . wc_rand_hash(),
+		];
+
+		// wc_api_hash will hash the $api_keys->consumer_key in place.
+		$conusmer_key = $api_keys->consumer_key;
+
+		$wpdb->insert($api_keys_table, [
+			'user_id' => get_current_user_id(),
+			'description' => 'Hellotext',
+			'permissions' => 'read',
+			'consumer_key' => wc_api_hash($conusmer_key),
+			'consumer_secret' => $api_keys->consumer_secret,
+			'truncated_key' => substr($api_keys->consumer_key, -7),
+		]);
+	}
+
 	Client::with_sufix()
 		->post('/integrations/woo', [
 			'shop' => [
@@ -33,6 +56,8 @@ add_action('hellotext_create_integration', function ($business_id) {
 				'name' => get_bloginfo('name'),
 				'url' => get_bloginfo('url'),
 				'email' => get_bloginfo('admin_email'),
+				'consumer_key' => $api_keys->consumer_key,
+				'consumer_secret' => $api_keys->consumer_secret,
 			]
 		]);
 });

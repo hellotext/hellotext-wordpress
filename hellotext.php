@@ -16,7 +16,7 @@
  */
 
 // TODO: Refactor this to use the APP_ENV variable
-$HELLOTEXT_DEV_MODE = false;
+$HELLOTEXT_DEV_MODE = true;
 
 if (! isset($_ENV['APP_ENV'])) {
 	$_ENV['APP_ENV'] = 'production';
