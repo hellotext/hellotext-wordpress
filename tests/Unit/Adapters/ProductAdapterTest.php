@@ -24,9 +24,7 @@ test('returns the correct structure', function () {
     expect($result)->toHaveKey('source');
     expect($result)->toHaveKey('type');
     expect($result)->toHaveKey('name');
-    expect($result)->toHaveKey('currency');
     expect($result)->toHaveKey('price');
-    expect($result)->toHaveKey('amount');
 });
 
 test('has the correct type', function () {

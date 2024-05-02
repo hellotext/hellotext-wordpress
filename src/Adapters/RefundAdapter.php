@@ -2,6 +2,8 @@
 
 namespace Hellotext\Adapters;
 
+use Hellotext\Adapters\PriceAdapter;
+
 class RefundAdapter {
 	public $refund; // WooCommerce Refund
 
@@ -24,6 +26,7 @@ class RefundAdapter {
 			'type' => 'refund',
 			'amount' => $this->refund->get_amount(),
 			'currency' => $this->refund->get_currency(),
+			'total' => ( new PriceAdapter($this->order->get_total(), $this->order->get_currency()) )->get(),
 			'refundable' => [
 				'type' => 'order',
 				'amount' => $this->order->get_total(),

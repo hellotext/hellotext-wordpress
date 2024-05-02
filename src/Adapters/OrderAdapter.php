@@ -3,6 +3,7 @@
 namespace Hellotext\Adapters;
 
 use Hellotext\Adapters\ProductAdapter;
+use Hellotext\Adapters\PriceAdapter;
 
 class OrderAdapter {
 	public $order;    // WooCommerce Order
@@ -24,8 +25,7 @@ class OrderAdapter {
 			'products' => ( isset($this->products) && 0 < count($this->products) )
 				? $this->products
 				: $this->adapted_products(),
-			'amount' => $this->order->get_total(),
-			'currency' => $this->order->get_currency(),
+			'total' => ( new PriceAdapter($this->order->get_total(), $this->order->get_currency()) )->get(),
 		);
 	}
 

@@ -30,8 +30,7 @@ test('returns the correct structure', function () {
 	expect($result)->toHaveKey('reference');
 	expect($result)->toHaveKey('type');
 	expect($result)->toHaveKey('products');
-	expect($result)->toHaveKey('amount');
-	expect($result)->toHaveKey('currency');
+	expect($result)->toHaveKey('total');
 });
 
 test('has the correct type', function () {

@@ -2,6 +2,8 @@
 
 namespace Hellotext\Adapters;
 
+use Hellotext\Adapters\PriceAdapter;
+
 class ProductAdapter {
 	public $product; // WooCommerce product
 	public $item;    // Cart/Order item
@@ -22,9 +24,7 @@ class ProductAdapter {
 			'type' => 'product',
 			'name' => $this->product->get_name(),
 			'categories' => wp_get_post_terms( $this->product->get_id(), 'product_cat', array( 'fields' => 'names' ) ),
-			'currency' => get_woocommerce_currency(),
-			'price' => $this->product->get_price(),
-			'amount' => $this->product->get_price(),
+			'price' => ( new PriceAdapter($this->product->get_price()) )->get(),
 			'tags' => wp_get_post_terms( $this->product->get_id(), 'product_tag', array( 'fields' => 'names' ) ),
 			'image_url' => wp_get_attachment_url( $this->product->get_image_id() ),
 		);
