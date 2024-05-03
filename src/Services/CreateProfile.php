@@ -53,11 +53,14 @@ class CreateProfile {
 	}
 
 	private function create_hellotext_profile () {
+		$phone = get_user_meta($this->user_id, 'billing_phone', true);
+
 		$response = $this->client::post('/profiles', array(
 			'session' => $this->session,
 			'reference' => $this->user->ID,
 			'first_name' => $this->user->nickname,
 			'email' => $this->user->user_email,
+			'phone' => $phone,
 			'lists' => array('WooCommerce'),
 		));
 
