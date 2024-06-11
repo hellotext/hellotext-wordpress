@@ -27,6 +27,7 @@ class CreateProfile {
 		if (! $this->verify_if_profile_exists()) {
 			$this->get_user();
 			$this->create_hellotext_profile();
+			$this->attach_profile_to_session();
 		}
 
 		if ($this->session_changed()) {

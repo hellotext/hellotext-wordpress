@@ -13,7 +13,7 @@ function hellotext_script () {
 			window.Hellotext = Hellotext;
 
 			<?php if ($HELLOTEXT_DEV_MODE) { ?>
-			window.Hellotext.__apiURL = 'http://api.lvh.me:4000/v1/';
+			window.Hellotext.__apiURL = 'http://api.lvh.me:3000/v1/';
 			<?php } ?>
 
 			window.Hellotext.initialize('<?php echo esc_html(get_option('hellotext_business_id')); ?>');
