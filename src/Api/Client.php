@@ -3,9 +3,6 @@
 namespace Hellotext\Api;
 
 class Client {
-	const DEV_API_URL = $_ENV['DEV_API_URL'];
-	const API_URL = 'https://api.hellotext.com';
-
 	public static $sufix = '/v1';
 
 	public static function with_sufix ($sufix = '') {
@@ -59,13 +56,9 @@ class Client {
 	}
 
 	private static function get_api_url () {
-		global $HELLOTEXT_DEV_MODE;
+		global $HELLOTEXT_API_URL;
 
-		$domain = ( isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE )
-			? self::DEV_API_URL
-			: self::API_URL;
-
-		return $domain . self::$sufix;
+		return $HELLOTEXT_API_URL . self::$sufix;
 	}
 
 	private static function set_curl_options ($curl, $method) {

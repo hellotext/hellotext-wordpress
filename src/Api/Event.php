@@ -3,9 +3,6 @@
 namespace Hellotext\Api;
 
 class Event {
-	private $DEV_URL = $_ENV['DEV_API_URL'] . '/v1/track/events';
-	private $API_URL = 'https://api.hellotext.com/v1/track/events';
-
 	public function __construct ($session = null) {
 		$this->hellotext_business_id = get_option('hellotext_business_id');
 		$this->session = $session;
@@ -43,13 +40,9 @@ class Event {
 	}
 
 	private function get_api_url () {
-		global $HELLOTEXT_DEV_MODE;
+		global $HELLOTEXT_API_URL;
 
-		if (isset($HELLOTEXT_DEV_MODE) && $HELLOTEXT_DEV_MODE) {
-			return $this->DEV_URL;
-		}
-
-		return $this->API_URL;
+		return $HELLOTEXT_API_URL . '/v1/track/events';
 	}
 
 	private function browser_session () {

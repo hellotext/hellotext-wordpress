@@ -4,7 +4,7 @@ add_action( 'admin_head', 'hellotext_script' );
 add_action( 'wp_head', 'hellotext_script' );
 
 function hellotext_script () {
-	global $HELLOTEXT_DEV_MODE;
+	global $HELLOTEXT_API_URL;
 
 	?>
 		<script type="module">
@@ -12,9 +12,7 @@ function hellotext_script () {
 
 			window.Hellotext = Hellotext;
 
-			<?php if ($HELLOTEXT_DEV_MODE) { ?>
-			window.Hellotext.__apiURL = $_ENV['DEV_API_URL'] . '/v1/';
-			<?php } ?>
+			window.Hellotext.__apiURL = <?php echo $HELLOTEXT_API_URL . '/v1' ?>;
 
 			window.Hellotext.initialize('<?php echo esc_html(get_option('hellotext_business_id')); ?>');
 		</script>
