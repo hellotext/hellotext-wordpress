@@ -3,7 +3,7 @@
 namespace Hellotext\Api;
 
 class Client {
-	const DEV_API_URL = 'http://api.lvh.me:3000';
+	const DEV_API_URL = $_ENV['DEV_API_URL'];
 	const API_URL = 'https://api.hellotext.com';
 
 	public static $sufix = '/v1';

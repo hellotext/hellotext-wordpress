@@ -16,13 +16,13 @@
  */
 
 // TODO: Refactor this to use the APP_ENV variable
-$HELLOTEXT_DEV_MODE = true;
-
 if (! isset($_ENV['APP_ENV'])) {
 	$_ENV['APP_ENV'] = 'production';
 }
 
 $TEST = $_ENV['APP_ENV'] === 'test';
+$HELLOTEXT_DEV_MODE = $_ENV['APP_ENV'] === 'development';
+
 
 session_start();
 

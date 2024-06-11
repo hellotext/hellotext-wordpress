@@ -3,7 +3,7 @@
 namespace Hellotext\Api;
 
 class Event {
-	private $DEV_URL = 'http://api.lvh.me:3000/v1/track/events';
+	private $DEV_URL = $_ENV['DEV_API_URL'] . '/v1/track/events';
 	private $API_URL = 'https://api.hellotext.com/v1/track/events';
 
 	public function __construct ($session = null) {
