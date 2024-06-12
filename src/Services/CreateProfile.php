@@ -56,21 +56,21 @@ class CreateProfile {
 	private function create_hellotext_profile () {
 		$phone = get_user_meta($this->user_id, 'billing_phone', true);
 
-		$response = $this->client::post('/profiles', array(
+		$response = $this->client::post('/profiles', array_filter(array(
 			'session' => $this->session,
 			'reference' => $this->user->ID,
 			'first_name' => $this->user->nickname,
 			'email' => $this->user->user_email,
 			'phone' => $phone,
 			'lists' => array('WooCommerce'),
-		));
+		)));
 
 		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'], true );
-
 	}
 
 	private function attach_profile_to_session () {
 		$profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+
 		$response = $this->client::patch("/sessions/{$this->session}", array(
 			'session' => $this->session,
 			'profile' => $profile_id,
