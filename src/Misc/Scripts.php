@@ -12,7 +12,7 @@ function hellotext_script () {
 
 			window.Hellotext = Hellotext;
 
-			window.Hellotext.__apiURL = '<?php echo $HELLOTEXT_API_URL . '/v1' ?>';
+			window.Hellotext.__apiURL = '<?php echo $HELLOTEXT_API_URL . '/v1/' ?>';
 
 			window.Hellotext.initialize('<?php echo esc_html(get_option('hellotext_business_id')); ?>');
 		</script>
