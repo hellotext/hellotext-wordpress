@@ -24,6 +24,7 @@ class CreateProfile {
 	public function process () {
 		if (isset($this->billing) && !empty($this->billing)) {
 			$this->create_hellotext_profile();
+			$this->attach_profile_to_session();
 			return;
 		}
 
@@ -51,7 +52,7 @@ class CreateProfile {
 	}
 
 	private function verify_if_profile_exists () {
-		$hellotext_profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
 
 		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
@@ -61,6 +62,16 @@ class CreateProfile {
 	}
 
 	private function create_hellotext_profile () {
+		$profile = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
+
+		if ($profile) {
+			if (isset($this->user)) {
+				update_user_meta($this->user->ID, 'hellotext_profile_id', $profile);
+			}
+
+			return;
+		}
+
 		$phone = get_user_meta($this->user_id, 'billing_phone', true);
 
 		$response = $this->client::post('/profiles', array_filter(array(
@@ -73,13 +84,11 @@ class CreateProfile {
 			'lists' => array('WooCommerce'),
 		)));
 
-		var_dump(json_encode($response));
-
-		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'], true );
+		add_user_meta( $this->user_id ?? $this->session, 'hellotext_profile_id', $response['body']['id'], true );
 	}
 
 	private function attach_profile_to_session () {
-		$profile_id = get_user_meta($this->user_id, 'hellotext_profile_id', true);
+		$profile_id = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
 
 		$response = $this->client::patch("/sessions/{$this->session}", array(
 			'session' => $this->session,

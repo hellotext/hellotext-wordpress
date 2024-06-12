@@ -23,7 +23,6 @@ class Client {
 		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
 
 		$result = curl_exec($curl);
-		var_dump($result);
 
 		return array(
 			'request' => array(
