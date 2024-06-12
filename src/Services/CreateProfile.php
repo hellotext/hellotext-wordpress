@@ -9,17 +9,24 @@ class CreateProfile {
 	public $hellotext_profile_id;
 
 	public $client;
+	public $billing;
 
 	public $user_id;
 	public $session;
 
-	public function __construct($user_id) {
+	public function __construct($user_id, $billing = []) {
 		$this->user_id = $user_id;
 		$this->session = isset($_COOKIE['hello_session']) ? sanitize_text_field($_COOKIE['hello_session']) : null;
 		$this->client = Client::class;
+		$this->billing = $billing;
 	}
 
 	public function process () {
+		if (isset($this->billing) && !empty($this->billing)) {
+			$this->create_hellotext_profile();
+			return;
+		}
+
 		if (! $this->user_id) {
 			return;
 		}
@@ -58,12 +65,15 @@ class CreateProfile {
 
 		$response = $this->client::post('/profiles', array_filter(array(
 			'session' => $this->session,
-			'reference' => $this->user->ID,
-			'first_name' => $this->user->nickname,
-			'email' => $this->user->user_email,
-			'phone' => $phone,
+			'reference' => isset($this->user) ? $this->user->ID : null,
+			'first_name' => $this->user->nickname ?? $this->billing['first_name'],
+			'last_name' => $this->user->last_name ?? $this->billing['last_name'],
+			'email' => $this->user->user_email ?? $this->billing['email'],
+			'phone' => $phone ?? $this->billing['phone'],
 			'lists' => array('WooCommerce'),
 		)));
+
+		var_dump(json_encode($response));
 
 		add_user_meta( $this->user_id, 'hellotext_profile_id', $response['body']['id'], true );
 	}
@@ -78,7 +88,11 @@ class CreateProfile {
 	}
 }
 
-add_action('hellotext_create_profile', function ($user_id = null) {
+add_action('hellotext_create_profile', function ($payload = null) {
+	if (is_array($payload)) {
+		( new CreateProfile(null, $payload) )->process();
+	}
+
 	if (!is_user_logged_in() && !isset($user_id)) {
 		return;
 	}

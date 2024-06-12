@@ -7,7 +7,10 @@ use Hellotext\Api\Event;
 add_action( 'woocommerce_after_order_details', 'hellotext_order_placed' );
 
 function hellotext_order_placed ( $order ) {
-	do_action('hellotext_create_profile', $order->get_user_id());
+	$userId = $order->get_user_id();
+	$userId = $userId > 0 ? $userId : $order->data['billing'];
+
+	do_action('hellotext_create_profile', $userId ?? $order->data['billing']);
 
 	$event = new Event();
 	$parsedOrder = ( new OrderAdapter($order) )->get();
