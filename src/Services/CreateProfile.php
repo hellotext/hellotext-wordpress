@@ -61,7 +61,7 @@ class CreateProfile {
 		return get_user_meta($this->user_id, 'hellotext_session', true) != $this->session;
 	}
 
-	private function create_hellotext_profile () {
+	public function create_hellotext_profile () {
 		$profile = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
 
 		if ($profile) {
