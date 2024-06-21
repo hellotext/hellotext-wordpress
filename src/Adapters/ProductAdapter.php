@@ -27,6 +27,7 @@ class ProductAdapter {
 			'price' => ( new PriceAdapter($this->product->get_price()) )->get(),
 			'tags' => wp_get_post_terms( $this->product->get_id(), 'product_tag', array( 'fields' => 'names' ) ),
 			'image_url' => wp_get_attachment_url( $this->product->get_image_id() ),
+			'url' => get_permalink( $this->product->get_id() ),
 		);
 
 		if (isset($this->item)) {
