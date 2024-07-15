@@ -1,5 +1,9 @@
 ** Hellotext for WooCommerce Changelog **
 
+2024-07-12 - version 1.0.9
+
+* Update import statement for Hellotext.js
+
 2023-12-05 - version 0.1.4
 * Remove profile create with no user
 
@@ -14,4 +18,3 @@
 
 2023-11-28 - version 0.1.0
 * Ship all basic features to track activities on the WooCommerce store.
-

@@ -8,14 +8,8 @@ function hellotext_script () {
 
 	?>
 		<script type="module">
-			import Hellotext from 'https://unpkg.com/@hellotext/hellotext@latest/src/index.js';
-
-			window.Hellotext = Hellotext;
-
-			window.Hellotext.__apiURL = '<?php echo $HELLOTEXT_API_URL . '/v1/' ?>';
-
-			window.Hellotext.initialize('<?php echo esc_html(get_option('hellotext_business_id')); ?>');
+            import 'https://unpkg.com/@hellotext/hellotext@latest/dist/hellotext.js';
+            Hellotext.initialize('<?php echo esc_html(get_option('hellotext_business_id')); ?>');
 		</script>
 	<?php
 }
-

@@ -19,7 +19,7 @@ function hellotext_settings_init() {
 		'hellotext_setting_section'
 	);
 
-	// Helloteext Access Token
+	// Hellotext Access Token
 	add_settings_field(
 		'hellotext_access_token',
 		__( 'Access Token', 'hellotext_access_token' ),
