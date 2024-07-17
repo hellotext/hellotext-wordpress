@@ -1,5 +1,10 @@
 ** Hellotext for WooCommerce Changelog **
 
+2024-07-17 - version 1.1.0
+
+* Fixes wrong check for phone attribute of the user once an order is placed when creating a profile.
+* Attaches the session to the created profile object in the same method.
+
 2024-07-12 - version 1.0.9
 
 * Update import statement for Hellotext.js
