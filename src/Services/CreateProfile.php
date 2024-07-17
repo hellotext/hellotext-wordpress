@@ -80,11 +80,16 @@ class CreateProfile {
 			'first_name' => $this->user->nickname ?? $this->billing['first_name'],
 			'last_name' => $this->user->last_name ?? $this->billing['last_name'],
 			'email' => $this->user->user_email ?? $this->billing['email'],
-			'phone' => $phone ?? $this->billing['phone'],
+			'phone' => empty($phone) ? $this->billing['phone'] : $phone,
 			'lists' => array('WooCommerce'),
 		)));
 
 		add_user_meta( $this->user_id ?? $this->session, 'hellotext_profile_id', $response['body']['id'], true );
+
+		$this->client::patch("/sessions/{$this->session}", array(
+           'session' => $this->session,
+           'profile' => $response['body']['id'],
+        ));
 	}
 
 	private function attach_profile_to_session () {
