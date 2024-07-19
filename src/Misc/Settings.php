@@ -74,9 +74,15 @@ function init_hellotext () {
 				</svg>
 			</h1>
 
-			<div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
-				Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="/wp-admin/options-permalink.php" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
-			</div>
+            <?php
+              if (empty($structure)) {
+                echo <<<HTML
+                    <div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
+                        Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="/wp-admin/options-permalink.php" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
+                    </div>
+                HTML;
+              }
+            ?>
 
 			<form method="POST" action="options.php">
 			<?php
