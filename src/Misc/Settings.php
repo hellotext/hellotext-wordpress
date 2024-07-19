@@ -75,7 +75,7 @@ function init_hellotext () {
 			</h1>
 
             <?php
-              if (empty($structure)) {
+              if (empty(get_option( 'permalink_structure' ))) {
                 echo <<<HTML
                     <div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
                         Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="/wp-admin/options-permalink.php" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
@@ -83,7 +83,6 @@ function init_hellotext () {
                 HTML;
               }
             ?>
-
 			<form method="POST" action="options.php">
 			<?php
 				settings_fields( 'hellotext-form' );
