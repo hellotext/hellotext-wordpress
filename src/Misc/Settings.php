@@ -38,6 +38,23 @@ function hellotext_settings_init() {
         'hellotext_setting_section'
     );
 
+    add_settings_field(
+        'hellotext_webchat_placement',
+        __( 'Webchat Placement', 'hellotext' ),
+        'hellotext_webchat_placement_field',
+        'hellotext-form',
+        'hellotext_setting_section'
+    );
+
+    add_settings_field(
+        'hellotext_webchat_behaviour',
+        __( 'Webchat Behaviour', 'hellotext' ),
+        'hellotext_webchat_behaviour_field',
+        'hellotext-form',
+        'hellotext_setting_section'
+    );
+
+
     // Register settings
     register_setting( 'hellotext-form', 'hellotext_business_id' );
     register_setting( 'hellotext-form', 'hellotext_access_token' );
@@ -72,6 +89,30 @@ function hellotext_webchat_id_field() {
     <input type="text" id="hellotext_webchat" name="hellotext_webchat_id"
            value="<?php echo esc_attr( get_option('hellotext_webchat_id') ); ?>"
            style="width: 400px;" />
+    <?php
+}
+
+function hellotext_webchat_placement_field() {
+    $placement = get_option('hellotext_webchat_placement', 'bottom-right'); // 'bottom-right' is the default value
+
+    ?>
+    <select id="hellotext_webchat_placement" name="hellotext_webchat_placement" style="width: 400px;">
+        <option value="top-left" <?php selected( $placement, 'top-left' ); ?>>Top Left</option>
+        <option value="top-right" <?php selected( $placement, 'top-right' ); ?>>Top Right</option>
+        <option value="bottom-left" <?php selected( $placement, 'bottom-left' ); ?>>Bottom Left</option>
+        <option value="bottom-right" <?php selected( $placement, 'bottom-right' ); ?>>Bottom Right</option>
+    </select>
+    <?php
+}
+
+function hellotext_webchat_behaviour_field() {
+    $behaviour = get_option('hellotext_webchat_behaviour', 'popover'); // 'popover' is the default value
+
+    ?>
+    <select id="hellotext_webchat_behaviour" name="hellotext_webchat_behaviour" style="width: 400px;">
+        <option value="popover" <?php selected( $behaviour, 'popover' ); ?>>Popover</option>
+        <option value="modal" <?php selected( $behaviour, 'modal' ); ?>>Modal</option>
+    </select>
     <?php
 }
 

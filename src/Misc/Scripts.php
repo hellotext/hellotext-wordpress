@@ -8,6 +8,8 @@ function hellotext_script () {
 
     $business_id = get_option('hellotext_business_id');
     $webchat_id = get_option('hellotext_webchat_id');
+    $placement = get_option('hellotext_webchat_placement', 'bottom-right');
+    $behaviour = get_option('hellotext_webchat_behaviour', 'popover');
 
     ?>
         <script type="module">
@@ -17,7 +19,9 @@ function hellotext_script () {
 
             <?php if ($webchat_id) : ?>
                 config.webChat = {
-                    id: '<?php echo esc_html($webchat_id); ?>'
+                    id: '<?php echo esc_html($webchat_id); ?>',
+                    placement: '<?php echo esc_html($placement); ?>',
+                    behaviour: '<?php echo esc_html($behaviour); ?>',
                 };
             <?php endif; ?>
 
