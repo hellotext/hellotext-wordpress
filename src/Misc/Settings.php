@@ -3,53 +3,78 @@
 add_action( 'admin_init', 'hellotext_settings_init' );
 function hellotext_settings_init() {
 
-	add_settings_section(
-		'hellotext_setting_section',
-		__( 'Settings', 'hellotext_settings' ),
-		'hellotext_description_section_callback',
-		'hellotext-form'
-	);
+    // Add settings section
+    add_settings_section(
+        'hellotext_setting_section',
+        __( 'Settings', 'hellotext' ),
+        'hellotext_description_section_callback',
+        'hellotext-form'
+    );
 
-	// Hellotext business ID
-	add_settings_field(
-		'hellotext_business_id',
-		__( 'Business ID', 'hellotext_business_id' ),
-		'hellotext_business_id_field',
-		'hellotext-form',
-		'hellotext_setting_section'
-	);
+    // Hellotext Business ID
+    add_settings_field(
+        'hellotext_business_id',
+        __( 'Business ID', 'hellotext' ),
+        'hellotext_business_id_field',
+        'hellotext-form',
+        'hellotext_setting_section'
+    );
 
-	// Hellotext Access Token
-	add_settings_field(
-		'hellotext_access_token',
-		__( 'Access Token', 'hellotext_access_token' ),
-		'hellotext_access_token_field',
-		'hellotext-form',
-		'hellotext_setting_section'
-	);
+    // Hellotext Access Token
+    add_settings_field(
+        'hellotext_access_token',
+        __( 'Access Token', 'hellotext' ),
+        'hellotext_access_token_field',
+        'hellotext-form',
+        'hellotext_setting_section'
+    );
 
-	register_setting( 'hellotext-form', 'hellotext_business_id' );
-	register_setting( 'hellotext-form', 'hellotext_access_token' );
+    // Hellotext Webchat ID
+    add_settings_field(
+        'hellotext_webchat_id',
+        __( 'Webchat', 'hellotext' ),
+        'hellotext_webchat_id_field',
+        'hellotext-form',
+        'hellotext_setting_section'
+    );
+
+    // Register settings
+    register_setting( 'hellotext-form', 'hellotext_business_id' );
+    register_setting( 'hellotext-form', 'hellotext_access_token' );
+    register_setting( 'hellotext-form', 'hellotext_webchat_id' ); // Corrected ID
 }
 
-function hellotext_description_section_callback () {
-	?>
-		<p>You can find your Business ID on the <a href="https://hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings</a>.</p>
-		<p>You can create a new Access Token on the <a href="https://hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings > Authorizations</a>.</p>
-	<?php
+
+function hellotext_description_section_callback() {
+    ?>
+    <p>You can find your Business ID on the <a href="https://www.hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings</a>.</p>
+    <p>You can create a new Access Token on the <a href="https://www.hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings > Authorizations</a>.</p>
+    <?php
 }
 
-function hellotext_business_id_field () {
-	?>
-		<input type="text" id="hellotext_business_id" name="hellotext_business_id" value="<?php echo esc_html(get_option('hellotext_business_id')); ?>" style="width: 400px;" required />
-	<?php
+function hellotext_business_id_field() {
+    ?>
+    <input type="text" id="hellotext_business_id" name="hellotext_business_id"
+           value="<?php echo esc_attr( get_option('hellotext_business_id') ); ?>"
+           style="width: 400px;" />
+    <?php
 }
 
-function hellotext_access_token_field () {
-	?>
-		<textarea id="hellotext_access_token" name="hellotext_access_token" style="width: 400px;" rows="5" required><?php echo esc_html(get_option('hellotext_access_token')); ?></textarea>
-	<?php
+function hellotext_access_token_field() {
+    ?>
+    <textarea id="hellotext_access_token" name="hellotext_access_token"
+              style="width: 400px;" rows="5"><?php echo esc_html( get_option('hellotext_access_token') ); ?></textarea>
+    <?php
 }
+
+function hellotext_webchat_id_field() {
+    ?>
+    <input type="text" id="hellotext_webchat" name="hellotext_webchat_id"
+           value="<?php echo esc_attr( get_option('hellotext_webchat_id') ); ?>"
+           style="width: 400px;" />
+    <?php
+}
+
 
 add_action('plugins_loaded', 'init_hellotext');
 function init_hellotext () {
