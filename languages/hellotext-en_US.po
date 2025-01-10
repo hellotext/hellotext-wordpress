@@ -64,3 +64,9 @@ msgstr "Top Left"
 
 msgid "settings.webchat_behaviour"
 msgstr "Webchat Behaviour"
+
+msgid "description.paragraphs.one"
+msgstr "You can find your Business ID on the <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">Hellotext business settings</a>."
+
+msgid "description.paragraphs.two"
+msgstr "You can create a new Access Token on the <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">Hellotext business settings > Authorizations</a>."

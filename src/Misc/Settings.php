@@ -66,8 +66,8 @@ function hellotext_settings_init() {
 
 function hellotext_description_section_callback() {
     ?>
-    <p>You can find your Business ID on the <a href="https://www.hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings</a>.</p>
-    <p>You can create a new Access Token on the <a href="https://www.hellotext.com/businesses" target="_blank" style="color: #FF4C00;">Hellotext business settings > Authorizations</a>.</p>
+    <p><?php echo wp_kses( __( 'description.paragraphs.one', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ); ?></p>
+    <p><?php echo wp_kses( __( 'description.paragraphs.two', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ); ?></p>
     <?php
 }
 

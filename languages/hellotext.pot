@@ -64,3 +64,9 @@ msgstr ""
 
 msgid "settings.webchat_behaviour"
 msgstr ""
+
+msgid "description.paragraphs.one"
+msgstr ""
+
+msgid "description.paragraphs.two"
+msgstr ""
