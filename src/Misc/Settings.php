@@ -1,5 +1,7 @@
 <?php
 
+use Hellotext\Api\Webchat;
+
 add_action( 'admin_init', 'hellotext_settings_init' );
 function hellotext_settings_init() {
 
@@ -85,10 +87,24 @@ function hellotext_access_token_field() {
 }
 
 function hellotext_webchat_id_field() {
+    $ids = Webchat::index();
+    $selected = get_option('hellotext_webchat_id', '');
+
+    if (empty($ids)) {
+        echo '<p>No webchat IDs available</p>';
+        return;
+    }
+
     ?>
-    <input type="text" id="hellotext_webchat" name="hellotext_webchat_id"
-           value="<?php echo esc_attr( get_option('hellotext_webchat_id') ); ?>"
-           style="width: 400px;" />
+    <select id="hellotext_webchat" name="hellotext_webchat_id" style="width: 400px;">
+        <option value="" <?php selected($selected, ''); ?>>None Selected</option>
+
+        <?php foreach ($ids as $id): ?>
+            <option value="<?php echo esc_attr($id); ?>" <?php selected($selected, $id); ?>>
+                <?php echo esc_html($id); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
     <?php
 }
 
