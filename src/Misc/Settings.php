@@ -8,7 +8,7 @@ function hellotext_settings_init() {
     // Add settings section
     add_settings_section(
         'hellotext_setting_section',
-        __( 'Settings', 'hellotext' ),
+        __( 'settings.title', 'hellotext' ),
         'hellotext_description_section_callback',
         'hellotext-form'
     );
@@ -16,7 +16,7 @@ function hellotext_settings_init() {
     // Hellotext Business ID
     add_settings_field(
         'hellotext_business_id',
-        __( 'Business ID', 'hellotext' ),
+        __( 'settings.business_id', 'hellotext' ),
         'hellotext_business_id_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -25,7 +25,7 @@ function hellotext_settings_init() {
     // Hellotext Access Token
     add_settings_field(
         'hellotext_access_token',
-        __( 'Access Token', 'hellotext' ),
+        __( 'settings.access_token', 'hellotext' ),
         'hellotext_access_token_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -34,7 +34,7 @@ function hellotext_settings_init() {
     // Hellotext Webchat ID
     add_settings_field(
         'hellotext_webchat_id',
-        __( 'Webchat', 'hellotext' ),
+        __( 'settings.webchat_id', 'hellotext' ),
         'hellotext_webchat_id_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -42,7 +42,7 @@ function hellotext_settings_init() {
 
     add_settings_field(
         'hellotext_webchat_placement',
-        __( 'Webchat Placement', 'hellotext' ),
+        __( 'settings.webchat_placement', 'hellotext' ),
         'hellotext_webchat_placement_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -50,7 +50,7 @@ function hellotext_settings_init() {
 
     add_settings_field(
         'hellotext_webchat_behaviour',
-        __( 'Webchat Behaviour', 'hellotext' ),
+        __( 'settings.webchat_behaviour', 'hellotext' ),
         'hellotext_webchat_behaviour_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -113,10 +113,18 @@ function hellotext_webchat_placement_field() {
 
     ?>
     <select id="hellotext_webchat_placement" name="hellotext_webchat_placement" style="width: 400px;">
-        <option value="top-left" <?php selected( $placement, 'top-left' ); ?>>Top Left</option>
-        <option value="top-right" <?php selected( $placement, 'top-right' ); ?>>Top Right</option>
-        <option value="bottom-left" <?php selected( $placement, 'bottom-left' ); ?>>Bottom Left</option>
-        <option value="bottom-right" <?php selected( $placement, 'bottom-right' ); ?>>Bottom Right</option>
+        <option value="top-left" <?php selected( $placement, 'top-left' ); ?>>
+            <?php _e( 'settings.webchat_placement_top-left', 'hellotext' ); ?>
+        </option>
+        <option value="top-right" <?php selected( $placement, 'top-right' ); ?>>
+           <?php _e( 'settings.webchat_placement_top-right', 'hellotext' ); ?>
+        </option>
+        <option value="bottom-left" <?php selected( $placement, 'bottom-left' ); ?>>
+              <?php _e( 'settings.webchat_placement_bottom-left', 'hellotext' ); ?>
+        </option>
+        <option value="bottom-right" <?php selected( $placement, 'bottom-right' ); ?>>
+             <?php _e( 'settings.webchat_placement_bottom-right', 'hellotext' ); ?>
+        </option>
     </select>
     <?php
 }
