@@ -47,6 +47,9 @@ msgstr ""
 msgid "settings.webchat_id"
 msgstr ""
 
+msgid "webchat_unavailable"
+msgstr ""
+
 msgid "settings.webchat_placement"
 msgstr ""
 

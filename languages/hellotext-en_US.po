@@ -47,6 +47,9 @@ msgstr "Access Token"
 msgid "settings.webchat_id"
 msgstr "Webchat ID"
 
+msgid "webchat_unavailable"
+msgstr "No active Webchat found."
+
 msgid "settings.webchat_placement"
 msgstr "Webchat Placement"
 

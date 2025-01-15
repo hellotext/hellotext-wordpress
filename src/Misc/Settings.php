@@ -97,7 +97,7 @@ function hellotext_webchat_id_field() {
     $selected = get_option('hellotext_webchat_id', '');
 
     if (empty($ids)) {
-        echo '<p>No webchat IDs available</p>';
+        echo '<p>' . __('webchat_unavailable', 'hellotext') . '</p>';
         return;
     }
 
