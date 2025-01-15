@@ -6,13 +6,15 @@
  *
  * @wordpress-plugin
  * Plugin Name: Hellotext
- * Plugin URI: https://hellotext.com
+ * Plugin URI: https://github.com/hellotext/hellotext-wordpress
  * Description: Integrates Hellotext tracking to WooCommerce.
  * Version: 1.1.2
- * Author: Hellotext Team
- * Author URI: https://github.com/hellotext
+ * Author: Hellotext
+ * Author URI: https://www.hellotext.com
  * License: GPL v2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain: hellotext
+ * Domain Path: /languages
  */
 
 // TODO: Refactor this to use the APP_ENV variable
@@ -81,3 +83,8 @@ function version_check() {
     }
 }
 add_action( 'admin_notices', 'version_check' );
+
+function hellotext_load_textdomain() {
+    load_plugin_textdomain( 'hellotext', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'hellotext_load_textdomain' );

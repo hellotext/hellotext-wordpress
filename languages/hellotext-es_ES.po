@@ -1,0 +1,75 @@
+# Copyright (C) 2025 Hellotext
+# This file is distributed under the GPL v2.
+msgid ""
+msgstr ""
+"Project-Id-Version: Hellotext 1.1.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/hellotext-wordpress\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-01-10T14:15:22+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: hellotext\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: hellotext.php
+msgid "Hellotext"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: hellotext.php
+msgid "https://www.hellotext.com"
+msgstr ""
+
+#. Description of the plugin
+#: hellotext.php
+msgid "Integrates Hellotext tracking to WooCommerce."
+msgstr "Integra el seguimiento de Hellotext en WooCommerce."
+
+#. Author URI of the plugin
+#: hellotext.php
+msgid "https://github.com/hellotext/hellotext-wordpress"
+msgstr ""
+
+msgid "settings.title"
+msgstr "Configuración"
+
+msgid "settings.business_id"
+msgstr "ID del negiocio"
+
+msgid "settings.access_token"
+msgstr "Token de acceso"
+
+msgid "settings.webchat_id"
+msgstr "ID del Webchat"
+
+msgid "webchat_unavailable"
+msgstr "No se encontró ningún Webchat activo."
+
+msgid "settings.webchat_placement"
+msgstr "Ubicación del Webchat"
+
+msgid "settings.webchat_placement_bottom-right"
+msgstr "Abajo a la derecha"
+
+msgid "settings.webchat_placement_bottom-left"
+msgstr "Abajo a la izquierda"
+
+msgid "settings.webchat_placement_top-right"
+msgstr "Arriba a la derecha"
+
+msgid "settings.webchat_placement_top-left"
+msgstr "Arriba a la izquierda"
+
+msgid "settings.webchat_behaviour"
+msgstr "Comportamiento del Webchat"
+
+msgid "description.paragraphs.one"
+msgstr "Puedes encontrar tu ID de negocio en la <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">configuración de negocios de Hellotext</a>."
+
+msgid "description.paragraphs.two"
+msgstr "Puedes crear un nuevo Token de Acceso en la <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">configuración de negocios de Hellotext > Autorizaciones</a>."
