@@ -26,7 +26,7 @@ $TEST = $_ENV['APP_ENV'] === 'test';
 $HELLOTEXT_DEV_MODE = $_ENV['APP_ENV'] === 'development';
 $HELLOTEXT_API_URL = $HELLOTEXT_DEV_MODE
  ? $_ENV['HELLOTEXT_API_URL'] ?? ''
- : 'http://api.lvh.me:3000';
+ : 'https://api.hellotext.com';
 
 
 session_start();
