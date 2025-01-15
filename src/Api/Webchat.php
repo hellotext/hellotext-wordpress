@@ -13,6 +13,6 @@ class Webchat {
         }
 
         $body = Client::with_sufix()->get('/v1/wordpress/webchats');
-        return $body['body']['ids'];
+        return is_array($body['body']) && isset($body['body']['ids']) ? $body['body']['ids'] : [];
     }
 }
