@@ -183,7 +183,13 @@ function init_hellotext () {
 			<?php
 				settings_fields( 'hellotext-form' );
 				do_settings_sections( 'hellotext-form' );
-				submit_button('Save Changes', null, null, false, array('style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;'));
+				submit_button(
+				    __('settings.submit', 'hellotext'),
+				    null,
+				    null,
+				    false,
+				    array('style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;')
+                );
 			?>
 			</form>
 		</div>

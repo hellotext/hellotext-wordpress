@@ -65,6 +65,9 @@ msgstr ""
 msgid "settings.webchat_placement_top-left"
 msgstr ""
 
+msgid "settings.submit"
+msgstr ""
+
 msgid "settings.webchat_behaviour"
 msgstr ""
 

@@ -68,6 +68,9 @@ msgstr "Arriba a la izquierda"
 msgid "settings.webchat_behaviour"
 msgstr "Comportamiento del Webchat"
 
+msgid "settings.submit"
+msgstr "Guardar cambios"
+
 msgid "description.paragraphs.one"
 msgstr "Puedes encontrar tu ID de negocio en la <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">configuración de negocios de Hellotext</a>."
 
