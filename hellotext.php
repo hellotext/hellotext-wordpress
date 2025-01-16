@@ -49,9 +49,6 @@ foreach ($paths as $current_path) {
 	}
 }
 
-// Function on Events/AppInstalled.php
-register_activation_hook( __FILE__, 'hellotext_activate' );
-
 // Function on Events/AppRemoved.php
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
 
