@@ -68,11 +68,11 @@ function hellotext_description_section_callback() {
     $business_id = get_option('hellotext_business_id', null);
     $access_token = get_option('hellotext_access_token', null);
 
-    if ($business_id) {
+    if (!$business_id) {
         echo '<p>' . wp_kses( __( 'description.paragraphs.one', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
     }
 
-    if ($access_token) {
+    if (!$access_token) {
         echo '<p>' . wp_kses( __( 'description.paragraphs.two', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
     }
 }
