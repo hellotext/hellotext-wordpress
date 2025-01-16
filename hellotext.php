@@ -49,9 +49,6 @@ foreach ($paths as $current_path) {
 	}
 }
 
-// Function on Events/AppInstalled.php
-register_activation_hook( __FILE__, 'hellotext_activate' );
-
 // Function on Events/AppRemoved.php
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
 
@@ -88,3 +85,20 @@ function hellotext_load_textdomain() {
     load_plugin_textdomain( 'hellotext', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'hellotext_load_textdomain' );
+
+function uninstall() {
+    global $wpdb;
+
+    delete_option('hellotext_business_id');
+    delete_option('hellotext_webchat_id');
+    delete_option('hellotext_webchat_placement');
+    delete_option('hellotext_webchat_behaviour');
+    delete_option('hellotext_access_token');
+
+    $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
+    if ($wpdb->get_var("SHOW TABLES LIKE '$api_keys_table'") === $api_keys_table) {
+        $wpdb->delete($api_keys_table, ['description' => 'Hellotext']);
+    }
+}
+
+register_uninstall_hook(__FILE__, 'uninstall');

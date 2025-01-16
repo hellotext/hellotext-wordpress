@@ -9,23 +9,14 @@ function hellotext_activate () {
 		return;
 	}
 
-	do_action('hellotext_create_profile');
 	do_action('hellotext_create_integration', $hellotext_business_id);
-
-	// Disbaled for now
-	// $store_image_id = get_option('woocommerce_email_header_image_id');
-	// $store_image_url = wp_get_attachment_image_url($store_image_id, 'full');
-
-	// (new Event())->track('app.installed', array(
-	//     'app_parameters' => array(
-	//         'type' => 'app',
-	//         'name' => get_bloginfo('name'),
-	//         'image_url' => $store_image_url,
-	//     )
-	// ));
 }
 
 add_action('hellotext_create_integration', function ($business_id) {
+   if(!$business_id) {
+     $business_id = get_option('hellotext_business_id');
+   }
+
 	global $wpdb;
 	$api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
 	$api_keys = $wpdb->get_row("SELECT * FROM $api_keys_table WHERE description = 'Hellotext'");
@@ -52,7 +43,6 @@ add_action('hellotext_create_integration', function ($business_id) {
 	Client::with_sufix()
 		->post('/integrations/woo', [
 			'shop' => [
-				'business_id' => $business_id,
 				'name' => get_bloginfo('name'),
 				'url' => get_bloginfo('url'),
 				'email' => get_bloginfo('admin_email'),
@@ -62,3 +52,29 @@ add_action('hellotext_create_integration', function ($business_id) {
 		]);
 });
 
+function after_business_id_save($old_value, $new_value) {
+    if ($old_value !== $new_value) {
+        maybe_trigger_integration($new_value);
+    }
+}
+
+function after_business_id_set($value) {
+    maybe_trigger_integration($value);
+}
+
+function maybe_trigger_integration($business_id) {
+    $hellotext_access_token = get_option('hellotext_access_token');
+    if ($hellotext_access_token && $business_id) {
+        do_action('hellotext_create_integration');
+    } else {
+        add_action('shutdown', function () {
+            $hellotext_access_token = get_option('hellotext_access_token');
+            if ($hellotext_access_token) {
+                do_action('hellotext_create_integration');
+            }
+        });
+    }
+}
+
+add_action('update_option_hellotext_business_id', 'after_business_id_save', 10, 2);
+add_action('add_option_hellotext_business_id', 'after_business_id_set', 10, 1);

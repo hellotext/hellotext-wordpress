@@ -68,11 +68,11 @@ function hellotext_description_section_callback() {
     $business_id = get_option('hellotext_business_id', null);
     $access_token = get_option('hellotext_access_token', null);
 
-    if ($business_id) {
+    if (!$business_id) {
         echo '<p>' . wp_kses( __( 'description.paragraphs.one', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
     }
 
-    if ($access_token) {
+    if (!$access_token) {
         echo '<p>' . wp_kses( __( 'description.paragraphs.two', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
     }
 }
@@ -183,7 +183,13 @@ function init_hellotext () {
 			<?php
 				settings_fields( 'hellotext-form' );
 				do_settings_sections( 'hellotext-form' );
-				submit_button('Save Changes', null, null, false, array('style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;'));
+				submit_button(
+				    __('settings.submit', 'hellotext'),
+				    null,
+				    null,
+				    false,
+				    array('style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;')
+                );
 			?>
 			</form>
 		</div>
