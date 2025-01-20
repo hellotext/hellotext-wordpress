@@ -76,5 +76,7 @@ function maybe_trigger_integration($business_id) {
     }
 }
 
-add_action('update_option_hellotext_business_id', 'after_business_id_save', 10, 2);
 add_action('add_option_hellotext_business_id', 'after_business_id_set', 10, 1);
+add_action('add_option_hellotext_access_token', 'maybe_trigger_integration', 10, 1);
+add_action('update_option_hellotext_business_id', 'after_business_id_save', 10, 2);
+add_action('update_option_hellotext_access_token', 'maybe_trigger_integration', 10, 2);

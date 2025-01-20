@@ -8,7 +8,7 @@
  * Plugin Name: Hellotext
  * Plugin URI: https://github.com/hellotext/hellotext-wordpress
  * Description: Integrates Hellotext tracking to WooCommerce.
- * Version: 1.1.2
+ * Version: 1.1.5
  * Author: Hellotext
  * Author URI: https://www.hellotext.com
  * License: GPL v2
