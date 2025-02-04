@@ -1,5 +1,9 @@
 ** Hellotext for WooCommerce Changelog **
 
+2025-02-04 - version 1.1.7
+
+* Fixes the order adapter payload to be API compatible to avoid dropping requests with unprocessable entity status code.
+
 2024-07-19 - version 1.1.1
 
 * Ensures fields are required when setting up the plugin.
