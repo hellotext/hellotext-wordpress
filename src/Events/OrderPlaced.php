@@ -24,10 +24,4 @@ function hellotext_order_placed ( $order ) {
 	$event->track('order.placed', array(
 		'order_parameters' => $parsedOrder,
 	));
-
-	foreach ($parsedOrder['products'] as $product) {
-		$event->track('product.purchased', array(
-			'product_parameters' => $product,
-		));
-	}
 }
