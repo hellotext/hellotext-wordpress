@@ -20,11 +20,10 @@ class OrderAdapter {
 		}
 
 		return array(
+            'source' => 'woo',
+            'delivery' => 'deliver',
 			'reference' => $this->order->get_id(),
-			'type' => 'order',
-			'products' => ( isset($this->products) && 0 < count($this->products) )
-				? $this->products
-				: $this->adapted_products(),
+			'items' => $this->adapted_products(),
 			'total' => ( new PriceAdapter($this->order->get_total(), $this->order->get_currency()) )->get(),
 		);
 	}
@@ -35,7 +34,10 @@ class OrderAdapter {
 		foreach ($items as $item) {
 			$product = $item->get_product();
 
-			$this->products[] = ( new ProductAdapter($product) )->get();
+            $this->products[] = [
+                'product' => ( new ProductAdapter($product) )->get(),
+                'quantity' => $item->get_quantity(),
+            ];
 		}
 
 		return $this->products;

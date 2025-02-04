@@ -34,20 +34,6 @@ test('returns the correct structure', function () {
 
 	expect($result)->toBeArray();
 	expect($result)->toHaveKey('reference');
-	expect($result)->toHaveKey('type');
 	expect($result)->toHaveKey('amount');
 	expect($result)->toHaveKey('amount');
-	expect($result)->toHaveKey('refundable');
-});
-
-test('has the correct type', function () {
-	$result = (new RefundAdapter($this->refund, $this->order))->get();
-
-	expect($result['type'])->toBe('refund');
-});
-
-test('the refundable has the correct type', function () {
-	$result = (new RefundAdapter($this->refund, $this->order))->get();
-
-	expect($result['refundable']['type'])->toBe('order');
 });

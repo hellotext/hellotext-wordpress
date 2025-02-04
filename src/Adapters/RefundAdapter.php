@@ -23,15 +23,10 @@ class RefundAdapter {
 
 		return array(
 			'reference' => $this->refund->get_id(),
-			'type' => 'refund',
+			'source' => 'woo',
 			'amount' => $this->refund->get_amount(),
 			'currency' => $this->refund->get_currency(),
 			'total' => ( new PriceAdapter($this->order->get_total(), $this->order->get_currency()) )->get(),
-			'refundable' => [
-				'type' => 'order',
-				'amount' => $this->order->get_total(),
-				'currency' => $this->order->get_currency(),
-			]
 		);
 	}
 
