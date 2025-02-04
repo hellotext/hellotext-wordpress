@@ -28,44 +28,32 @@ test('returns the correct structure', function () {
 
 	expect($result)->toBeArray();
 	expect($result)->toHaveKey('reference');
-	expect($result)->toHaveKey('type');
-	expect($result)->toHaveKey('products');
+	expect($result)->toHaveKey('items');
 	expect($result)->toHaveKey('total');
-});
-
-test('has the correct type', function () {
-	$result = (new OrderAdapter($this->order))->get();
-
-	expect($result['type'])->toBe('order');
+	expect($result['source'])->toBe('woo');
 });
 
 test('finds the correct order if passed an ID', function () {
 	$result = (new OrderAdapter($this->order->get_id()))->get();
-
 	expect($result['reference'])->toBe($this->order->get_id());
 });
 
-test('has the products array', function () {
+test('has the products array as items', function () {
 	$result = (new OrderAdapter($this->order))->get();
-
-	expect($result['products'])->toBeArray();
+	expect($result['items'])->toBeArray();
 });
 
 test('has the correct amount of products', function () {
 	$result = (new OrderAdapter($this->order))->get();
-
-	expect($result['products'])->toHaveLength(1);
+	expect($result['items'])->toHaveLength(1);
 });
 
 test('products have the correct type', function () {
 	$result = (new OrderAdapter($this->order))->get();
-
-	expect($result['products'][0]['type'])->toBe('product');
+	expect($result['items'][0])->toHaveKey('product');
 });
 
 test('will return the products passed in the constructor', function () {
 	$result = (new OrderAdapter($this->order, ['test']))->get();
-
-	expect($result['products'][0])->toBe('test');
+	expect($result['items'][0])->toBe('test');
 });
-
