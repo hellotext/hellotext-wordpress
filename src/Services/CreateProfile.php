@@ -71,7 +71,7 @@ class CreateProfile {
 
             $this->client::patch("/sessions/{$this->session}", array(
                'session' => $this->session,
-               'profile' => $response['body']['id'],
+               'profile' => $profile,
             ));
 
 			return;
