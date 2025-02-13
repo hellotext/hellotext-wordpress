@@ -69,6 +69,11 @@ class CreateProfile {
 				update_user_meta($this->user->ID, 'hellotext_profile_id', $profile);
 			}
 
+            $this->client::patch("/sessions/{$this->session}", array(
+               'session' => $this->session,
+               'profile' => $response['body']['id'],
+            ));
+
 			return;
 		}
 
