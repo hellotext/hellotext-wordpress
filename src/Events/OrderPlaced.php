@@ -22,6 +22,6 @@ function hellotext_order_placed ( $order ) {
 	add_post_meta($order->get_id(), 'hellotext_session', $encrypted_session);
 
 	$event->track('order.placed', array(
-		'order_parameters' => $parsedOrder,
+		'object_parameters' => $parsedOrder,
 	));
 }

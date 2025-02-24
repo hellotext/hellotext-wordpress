@@ -16,6 +16,6 @@ function hellotext_refund_created ($order_id, $refund_id) {
 	$session = Session::decrypt($encrypted_session);
 
 	( new Event($session) )->track('refund.received', array(
-		'refund_parameters' => ( new RefundAdapter($refund, $order) )->get(),
+		'object_parameters' => ( new RefundAdapter($refund, $order) )->get(),
 	));
 }

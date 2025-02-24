@@ -11,6 +11,6 @@ function hellotext_product_viewed() {
 	do_action('hellotext_create_profile');
 
 	( new Event() )->track('product.viewed', array(
-		'product_parameters' => ( new ProductAdapter($product) )->get()
+		'object_parameters' => ( new ProductAdapter($product) )->get()
 	));
 }
