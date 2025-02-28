@@ -77,7 +77,7 @@ function hellotext_cart_updated () {
 		}
 
 		( new Event() )->track("cart.{$event}", array(
-			'products' => $items
+			'items' => $items
 		));
 	}
 }
