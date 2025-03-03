@@ -18,66 +18,83 @@ function hellotext_trigger_cart_updated () {
 
 add_action('hellotext_woocommerce_cart_updated', 'hellotext_cart_updated');
 
-function hellotext_cart_updated () {
-	wc_load_cart();
+function hellotext_cart_updated() {
+    wc_load_cart();
 
-	$changes = array(
-		'added' => array(),
-		'removed' => array()
-	);
+    $changes = array(
+       'added' => array(),
+       'removed' => array()
+    );
 
-	// Set previous cart items and current cart items
-	$previous_cart_items = isset($_SESSION['hellotext_cart_items'])
-		? json_decode(sanitize_text_field($_SESSION['hellotext_cart_items']), true)
-		: array();
+    // Set previous cart items and current cart items
+    $previous_cart_items = isset($_SESSION['hellotext_cart_items'])
+       ? json_decode(sanitize_text_field($_SESSION['hellotext_cart_items']), true)
+       : array();
 
-	$current_cart_items = WC()->cart->get_cart();
-	$cart_items = array();
+    $current_cart_items = WC()->cart->get_cart();
+    $cart_items = array();
 
-	// Parse current cart items with the ProductAdapter
-	foreach ( $current_cart_items as $key => $cart_item ) {
-		$cart_items[] = ( new ProductAdapter( $cart_item['product_id'], $cart_item) )->get();
-	}
+    foreach ($current_cart_items as $key => $cart_item) {
+        $product = $cart_item['data']; // WC_Product object
 
-	// Save current cart items to session
-	$_SESSION['hellotext_cart_items'] = json_encode($cart_items);
+        $cart_items[] = [
+            'product' => (new ProductAdapter($product))->get(),
+            'quantity' => $cart_item['quantity'],
+        ];
+    }
 
-	// Add items that were added to the cart
-	foreach ($cart_items as $cart_item) {
-		$match = array_filter(
-			$previous_cart_items,
-			fn($item) => $item['reference'] == $cart_item['reference']
-		);
+    // Save current cart items to session
+    $_SESSION['hellotext_cart_items'] = json_encode($cart_items);
 
-		$previous_item = count($match) > 0 ? array_shift($match) : null;
+    // Calculate total cart value
+    $cart_total = WC()->cart->get_cart_contents_total();
+    $currency = get_woocommerce_currency();
 
-		if (!$previous_item || $previous_item['quantity'] < $cart_item['quantity']) {
-			$changes['added'][] = $cart_item;
-		}
-	}
+    // Get current page URL
+    $current_url = home_url(add_query_arg(array(), $GLOBALS['wp']->request));
 
-	// Add items that were removed from the cart
-	foreach ($previous_cart_items as $previous_item) {
-		$match = array_filter(
-			$cart_items,
-			fn($item) => $item['reference'] == $previous_item['reference']
-		);
+    foreach ($cart_items as $cart_item) {
+       $match = array_filter(
+          $previous_cart_items,
+          fn($item) => $item['product']['reference'] == $cart_item['product']['reference']
+       );
 
-		$cart_item = count($match) > 0 ? array_shift($match) : null;
+       $previous_item = count($match) > 0 ? array_shift($match) : null;
 
-		if (!$cart_item || $previous_item['quantity'] > $cart_item['quantity']) {
-			$changes['removed'][] = $cart_item;
-		}
-	}
+       if (!$previous_item || $previous_item['quantity'] < $cart_item['quantity']) {
+          $changes['added'][] = $cart_item;
+       }
+    }
 
-	// Trigger events, one for added and one for removed items
-	foreach ($changes as $event => $items) {
-		if (0 == count($changes[$event])) {
-			continue;
-		}
+    // Add items that were removed from the cart
+    foreach ($previous_cart_items as $previous_item) {
+       $match = array_filter(
+          $cart_items,
+          fn($item) => $item['product']['reference'] == $previous_item['product']['reference']
+       );
 
-		( new Event() )->track("cart.{$event}", array(
-			'products' => $items
-		));
-	}
+       $cart_item = count($match) > 0 ? array_shift($match) : null;
+
+       if (!$cart_item || $previous_item['quantity'] > $cart_item['quantity']) {
+          $changes['removed'][] = $previous_item; // Use previous_item here as it's the removed item
+       }
+    }
+
+    // Trigger events, one for added and one for removed items
+    foreach ($changes as $event => $items) {
+       if (0 == count($items)) {
+          continue;
+       }
+
+       $event_data = array(
+          'amount' => $cart_total,
+          'currency' => $currency,
+          'url' => $current_url,
+          'object_parameters' => array(
+             'items' => $items
+          )
+       );
+
+       (new Event())->track("cart.{$event}", $event_data);
+    }
 }

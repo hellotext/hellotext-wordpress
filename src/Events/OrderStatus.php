@@ -18,19 +18,19 @@ function track_order_status ($order_id, $old_status, $new_status, $order) {
 	switch ($new_status) {
 		case 'processing':
 			$event->track('order.confirmed', array(
-				'order_parameters' => $orderAdapter->get(),
+				'object_parameters' => $orderAdapter->get(),
 				));
 			break;
 
 		case 'cancelled':
 			$event->track('order.cancelled', array(
-				'order_parameters' => $orderAdapter->get(),
+				'object_parameters' => $orderAdapter->get(),
 				));
 			break;
 
 		case 'completed':
 			$event->track('order.delivered', array(
-				'order_parameters' => $orderAdapter->get(),
+				'object_parameters' => $orderAdapter->get(),
 				));
 			break;
 	}
