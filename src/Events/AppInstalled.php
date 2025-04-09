@@ -47,6 +47,7 @@ add_action('hellotext_create_integration', function ($business_id) {
                     'email' => get_bloginfo('admin_email'),
                     'consumer_key' => $api_keys->consumer_key,
                     'consumer_secret' => $api_keys->consumer_secret,
+                    'currency' => get_woocommerce_currency(),
                 ]
             ]);
 
