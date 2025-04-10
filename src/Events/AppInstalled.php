@@ -33,7 +33,7 @@ add_action('hellotext_create_integration', function ($business_id) {
 		$wpdb->insert($api_keys_table, [
 			'user_id' => get_current_user_id(),
 			'description' => 'Hellotext',
-			'permissions' => 'read',
+			'permissions' => 'read_write',
 			'consumer_key' => wc_api_hash($conusmer_key),
 			'consumer_secret' => $api_keys->consumer_secret,
 			'truncated_key' => substr($api_keys->consumer_key, -7),

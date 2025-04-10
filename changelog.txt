@@ -1,5 +1,9 @@
 ** Hellotext for WooCommerce Changelog **
 
+2025-04-10 - version 1.2.2
+
+* The generated Hellotext API key has read/write access to allow Hellotext to subscribe to webhooks.
+
 2025-04-9 - version 1.2.1
 
 * Passes the shop's currency to Hellotext API when the plugin is installed.
