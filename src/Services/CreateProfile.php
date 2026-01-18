@@ -6,16 +6,16 @@ use Hellotext\Api\Client;
 use Hellotext\Constants;
 
 class CreateProfile {
-	public $user;
-	public $hellotext_profile_id;
+	public \WP_User|false|null $user = null;
+	public ?string $hellotext_profile_id = null;
 
-	public $client;
-	public $billing;
+	public string $client;
+	public array $billing;
 
-	public $user_id;
-	public $session;
+	public ?int $user_id;
+	public ?string $session;
 
-	public function __construct($user_id, $billing = []) {
+	public function __construct(?int $user_id, array $billing = []) {
 		$this->user_id = $user_id;
 		$this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
 			? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
@@ -24,7 +24,7 @@ class CreateProfile {
 		$this->billing = $billing;
 	}
 
-	public function process () {
+	public function process (): void {
 		if (isset($this->billing) && !empty($this->billing)) {
 			$this->create_hellotext_profile();
 			$this->attach_profile_to_session();
@@ -46,7 +46,7 @@ class CreateProfile {
 		}
 	}
 
-	private function get_user () {
+	private function get_user (): void {
 		$this->user = get_user_by('id', $this->user_id);
 
 		if (!$this->user) {
@@ -54,17 +54,17 @@ class CreateProfile {
 		}
 	}
 
-	private function verify_if_profile_exists () {
+	private function verify_if_profile_exists (): bool {
 		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
 
-	private function session_changed () {
+	private function session_changed (): bool {
 		return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
 	}
 
-	public function create_hellotext_profile () {
+	public function create_hellotext_profile (): void {
 		$profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		if ($profile) {
@@ -100,7 +100,7 @@ class CreateProfile {
         ));
 	}
 
-	private function attach_profile_to_session () {
+	private function attach_profile_to_session (): void {
 		$profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		$response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
@@ -110,7 +110,7 @@ class CreateProfile {
 	}
 }
 
-add_action('hellotext_create_profile', function ($payload = null) {
+add_action('hellotext_create_profile', function (mixed $payload = null): void {
 	if (is_array($payload)) {
 		( new CreateProfile(null, $payload) )->process();
 	}

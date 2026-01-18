@@ -5,14 +5,15 @@ namespace Hellotext\Adapters;
 use Hellotext\Adapters\PriceAdapter;
 
 class RefundAdapter {
-	public $refund; // WooCommerce Refund
+	public \WC_Order_Refund $refund; // WooCommerce Refund
+	public \WC_Order $order;
 
-	public function __construct ($refund, $order) {
+	public function __construct (\WC_Order_Refund $refund, \WC_Order $order) {
 		$this->refund = $refund;
 		$this->order = $order;
 	}
 
-	public function get () {
+	public function get (): array {
 		if (!$this->refund) {
 			throw new \Exception('Refund not found');
 		}

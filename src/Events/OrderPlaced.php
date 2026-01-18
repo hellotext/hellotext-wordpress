@@ -7,7 +7,7 @@ use Hellotext\Constants;
 
 add_action( 'woocommerce_after_order_details', 'hellotext_order_placed' );
 
-function hellotext_order_placed ( $order ) {
+function hellotext_order_placed ( \WC_Order $order ): void {
 	$userId = $order->get_user_id();
 	$userId = $userId > 0 ? $userId : $order->data['billing'];
 

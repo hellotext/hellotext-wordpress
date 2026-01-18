@@ -4,7 +4,7 @@ use Hellotext\Api\Webchat;
 use Hellotext\Constants;
 
 add_action( 'admin_init', 'hellotext_settings_init' );
-function hellotext_settings_init() {
+function hellotext_settings_init(): void {
 
     // Add settings section
     add_settings_section(
@@ -65,7 +65,7 @@ function hellotext_settings_init() {
 }
 
 
-function hellotext_description_section_callback() {
+function hellotext_description_section_callback(): void {
     $business_id = get_option(Constants::OPTION_BUSINESS_ID, null);
     $access_token = get_option(Constants::OPTION_ACCESS_TOKEN, null);
 
@@ -78,7 +78,7 @@ function hellotext_description_section_callback() {
     }
 }
 
-function hellotext_business_id_field() {
+function hellotext_business_id_field(): void {
     ?>
     <input type="text" id="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
            name="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
@@ -87,7 +87,7 @@ function hellotext_business_id_field() {
     <?php
 }
 
-function hellotext_access_token_field() {
+function hellotext_access_token_field(): void {
     ?>
     <textarea id="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
               name="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
@@ -95,7 +95,7 @@ function hellotext_access_token_field() {
     <?php
 }
 
-function hellotext_webchat_id_field() {
+function hellotext_webchat_id_field(): void {
     $ids = Webchat::index();
     $selected = get_option(Constants::OPTION_WEBCHAT_ID, '');
 
@@ -119,7 +119,7 @@ function hellotext_webchat_id_field() {
     <?php
 }
 
-function hellotext_webchat_placement_field() {
+function hellotext_webchat_placement_field(): void {
     $placement = get_option(Constants::OPTION_WEBCHAT_PLACEMENT, 'bottom-right'); // 'bottom-right' is the default value
 
     ?>
@@ -142,7 +142,7 @@ function hellotext_webchat_placement_field() {
     <?php
 }
 
-function hellotext_webchat_behaviour_field() {
+function hellotext_webchat_behaviour_field(): void {
     $behaviour = get_option(Constants::OPTION_WEBCHAT_BEHAVIOUR, 'popover'); // 'popover' is the default value
 
     ?>
@@ -157,8 +157,8 @@ function hellotext_webchat_behaviour_field() {
 
 
 add_action('plugins_loaded', 'init_hellotext');
-function init_hellotext () {
-	function custom_woocommerce_menu() {
+function init_hellotext (): void {
+	function custom_woocommerce_menu(): void {
 		add_submenu_page(
 			'woocommerce',
 			'Hellotext',
@@ -170,7 +170,7 @@ function init_hellotext () {
 	}
 	add_action('admin_menu', 'custom_woocommerce_menu');
 
-	function hellotext_submenu_page_callback () {
+	function hellotext_submenu_page_callback (): void {
 		?>
 		<div class="wrap" style="background: white; padding: 32px; padding-top: 8px; border-radius: 8px;">
 			<h1 style="color: #FF4C00;">

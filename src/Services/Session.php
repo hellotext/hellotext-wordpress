@@ -6,7 +6,7 @@ use Hellotext\Constants;
 
 class Session {
 
-	public static function encrypt ($session = null) {
+	public static function encrypt (?string $session = null): string {
 		$key = get_option(Constants::OPTION_BUSINESS_ID);
 
 		// Generate an initialization vector (IV)
@@ -18,7 +18,7 @@ class Session {
 		return base64_encode($encrypted . '::' . $iv);
 	}
 
-	public static function decrypt ($encrypted_data = null) {
+	public static function decrypt (?string $encrypted_data = null): string|false {
 		$key = get_option(Constants::OPTION_BUSINESS_ID);
 		$parts = explode('::', base64_decode($encrypted_data));
 

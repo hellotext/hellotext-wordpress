@@ -6,15 +6,15 @@ use Hellotext\Adapters\ProductAdapter;
 use Hellotext\Adapters\PriceAdapter;
 
 class OrderAdapter {
-	public $order;    // WooCommerce Order
-	public $products; // Order items
+	public \WC_Order|false $order;    // WooCommerce Order
+	public array $products; // Order items
 
-	public function __construct ($order, $products = []) {
+	public function __construct (int|\WC_Order $order, array $products = []) {
 		$this->order = is_numeric($order) ? wc_get_order( $order ) : $order;
 		$this->products = $products;
 	}
 
-	public function get () {
+	public function get (): array {
 		if (!$this->order) {
 			throw new \Exception('Order not found');
 		}
@@ -28,7 +28,7 @@ class OrderAdapter {
 		);
 	}
 
-	public function adapted_products () {
+	public function adapted_products (): array {
 		$items = $this->order->get_items();
 
 		foreach ($items as $item) {

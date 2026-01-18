@@ -6,7 +6,7 @@ use Hellotext\Api\Client;
 use Hellotext\Constants;
 
 class Webchat {
-    public static function index() {
+    public static function index(): array {
         $hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
         if(!$hellotext_access_token) {

@@ -12,14 +12,14 @@ add_action( 'woocommerce_add_to_cart', 'hellotext_trigger_cart_updated' );
 add_action( 'woocommerce_cart_item_removed', 'hellotext_trigger_cart_updated' );
 add_action( 'woocommerce_after_cart_item_quantity_update', 'hellotext_trigger_cart_updated' );
 
-function hellotext_trigger_cart_updated () {
+function hellotext_trigger_cart_updated (): void {
 	do_action('hellotext_create_profile');
 	do_action('hellotext_woocommerce_cart_updated');
 }
 
 add_action('hellotext_woocommerce_cart_updated', 'hellotext_cart_updated');
 
-function hellotext_cart_updated() {
+function hellotext_cart_updated(): void {
     wc_load_cart();
 
     $changes = array(

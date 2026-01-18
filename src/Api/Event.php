@@ -5,14 +5,18 @@ namespace Hellotext\Api;
 use Hellotext\Constants;
 
 class Event {
-	public function __construct ($session = null) {
+	private string $hellotext_business_id;
+	private ?string $session;
+	private $curl;
+
+	public function __construct (?string $session = null) {
 		$this->hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
 		$this->session = $session;
 		$this->curl = curl_init($this->get_api_url());
 		$this->set_curl_options();
 	}
 
-	public function track ($action, $payload) {
+	public function track (string $action, array $payload): void {
 		$body = array_merge(
 			array(
 				'action' => $action,
@@ -30,7 +34,7 @@ class Event {
 		curl_close($this->curl);
 	}
 
-	private function set_curl_options () {
+	private function set_curl_options (): void {
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
 
@@ -41,13 +45,13 @@ class Event {
 		));
 	}
 
-	private function get_api_url () {
+	private function get_api_url (): string {
 		global $HELLOTEXT_API_URL;
 
 		return $HELLOTEXT_API_URL . Constants::API_ENDPOINT_TRACK;
 	}
 
-	private function browser_session () {
+	private function browser_session (): ?string {
 		if (isset($_COOKIE[Constants::SESSION_COOKIE_NAME])) {
 			return sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME]);
 		}

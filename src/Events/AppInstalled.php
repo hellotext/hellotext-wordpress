@@ -4,7 +4,7 @@ use Hellotext\Api\Client;
 use Hellotext\Api\Event;
 use Hellotext\Constants;
 
-function hellotext_activate () {
+function hellotext_activate (): void {
 	$hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
 	if (!$hellotext_business_id) {
 		return;
@@ -13,7 +13,7 @@ function hellotext_activate () {
 	do_action('hellotext_create_integration', $hellotext_business_id);
 }
 
-add_action('hellotext_create_integration', function ($business_id) {
+add_action('hellotext_create_integration', function (mixed $business_id): void {
    if(!$business_id) {
      $business_id = get_option(Constants::OPTION_BUSINESS_ID);
    }
@@ -56,17 +56,17 @@ add_action('hellotext_create_integration', function ($business_id) {
 	}
 });
 
-function after_business_id_save($old_value, $new_value) {
+function after_business_id_save(mixed $old_value, mixed $new_value): void {
     if ($old_value !== $new_value) {
         maybe_trigger_integration($new_value);
     }
 }
 
-function after_business_id_set($value) {
+function after_business_id_set(mixed $value): void {
     maybe_trigger_integration($value);
 }
 
-function maybe_trigger_integration($business_id) {
+function maybe_trigger_integration(mixed $business_id): void {
     $integration_flag = get_transient('hellotext_integration_triggered');
 
     if ($integration_flag) {
@@ -78,7 +78,7 @@ function maybe_trigger_integration($business_id) {
         set_transient('hellotext_integration_triggered', true, 10);
         do_action('hellotext_create_integration');
     } else {
-        add_action('shutdown', function () {
+        add_action('shutdown', function (): void {
             $integration_flag = get_transient('hellotext_integration_triggered');
             $hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 

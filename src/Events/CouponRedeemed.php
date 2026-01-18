@@ -5,7 +5,7 @@ use Hellotext\Constants;
 
 add_action( 'woocommerce_applied_coupon', 'hellotext_coupon_redeemed', 10, 1 );
 
-function hellotext_coupon_redeemed ($code) {
+function hellotext_coupon_redeemed (string $code): void {
 	do_action('hellotext_create_profile');
 
 	$coupon = new \WC_Coupon($code);

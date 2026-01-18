@@ -3,7 +3,7 @@
 add_action( 'admin_head', 'hellotext_script' );
 add_action( 'wp_head', 'hellotext_script' );
 
-function hellotext_script () {
+function hellotext_script (): void {
 	global $HELLOTEXT_API_URL;
 
     $business_id = get_option('hellotext_business_id');

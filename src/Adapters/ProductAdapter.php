@@ -5,13 +5,13 @@ namespace Hellotext\Adapters;
 use Hellotext\Adapters\PriceAdapter;
 
 class ProductAdapter {
-	public $product; // WooCommerce product
+	public \WC_Product|false $product; // WooCommerce product
 
-	public function __construct ($product) {
+	public function __construct (int|\WC_Product $product) {
 		$this->product = is_numeric($product) ? wc_get_product( $product ) : $product;
 	}
 
-	public function get () {
+	public function get (): array {
 		if (!$this->product) {
 			throw new \Exception('Product not found');
 		}

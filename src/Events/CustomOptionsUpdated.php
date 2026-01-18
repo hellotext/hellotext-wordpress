@@ -2,7 +2,7 @@
 
 use Hellotext\Constants;
 
-function custom_field_updated($option, $old_value, $new_value) {
+function custom_field_updated(string $option, mixed $old_value, mixed $new_value): void {
 	switch ($option) {
 		case Constants::OPTION_BUSINESS_ID:
 			do_action('hellotext_remove_integration', $old_value);

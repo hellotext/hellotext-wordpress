@@ -7,7 +7,7 @@ use Hellotext\Constants;
 
 add_action('woocommerce_order_status_changed', 'track_order_status', 10, 4);
 
-function track_order_status ($order_id, $old_status, $new_status, $order) {
+function track_order_status (int $order_id, string $old_status, string $new_status, \WC_Order $order): void {
 	$encrypted_session = get_post_meta($order_id, Constants::META_SESSION, true);
 	$session = Session::decrypt($encrypted_session);
 
