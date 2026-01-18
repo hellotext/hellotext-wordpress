@@ -1,4 +1,22 @@
 <?php
+/**
+ * Hellotext
+ *
+ * @package Hellotext
+ *
+ * @wordpress-plugin
+ * Plugin Name: Hellotext
+ * Plugin URI: https://github.com/hellotext/hellotext-wordpress
+ * Description: Integrates Hellotext tracking to WooCommerce.
+ * Version: 1.2.0
+ * Author: Hellotext
+ * Author URI: https://www.hellotext.com
+ * License: GPL v2
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain: hellotext
+ * Domain Path: /languages
+ */
+
 use Hellotext\Constants;
 
 require_once plugin_dir_path(__FILE__) . 'src/Constants.php';
