@@ -2,6 +2,11 @@
     "name": "hellotext/wordpress-plugin",
     "description": "We help eCommerce and retail brands improve their revenues and simplify their marketing.",
     "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Hellotext\\": "src/"
+        }
+    },
     "config": {
         "allow-plugins": {
             "alleyinteractive/composer-wordpress-autoloader": true,

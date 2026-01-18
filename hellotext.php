@@ -19,8 +19,6 @@
 
 use Hellotext\Constants;
 
-require_once plugin_dir_path(__FILE__) . 'src/Constants.php';
-
 // TODO: Refactor this to use the APP_ENV variable
 if (! isset($_ENV['APP_ENV'])) {
 	$_ENV['APP_ENV'] = 'production';
@@ -37,22 +35,19 @@ if (session_status() === PHP_SESSION_NONE) {
 	session_start();
 }
 
-$paths = [
-	'Adapters',
-	'Api',
-	'Events',
-	'Misc',
-	'Services',
-];
+// Load Composer autoloader (handles all classes)
+require_once __DIR__ . '/vendor/autoload.php';
 
-foreach ($paths as $current_path) {
-	$scan = scandir(plugin_dir_path( __FILE__ ) . 'src/' . $current_path . '/');
+// Load event handlers (contain functions, not classes)
+$event_files = glob(__DIR__ . '/src/Events/*.php');
+foreach ($event_files as $file) {
+	require_once $file;
+}
 
-	foreach ($scan as $file) {
-		if (strpos($file, '.php') !== false) {
-			include('src/' . $current_path . '/' . $file);
-		}
-	}
+// Load misc files (Settings, Scripts contain functions)
+$misc_files = glob(__DIR__ . '/src/Misc/*.php');
+foreach ($misc_files as $file) {
+	require_once $file;
 }
 
 // Function on Events/AppRemoved.php
