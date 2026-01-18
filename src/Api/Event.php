@@ -2,54 +2,101 @@
 
 namespace Hellotext\Api;
 
+use Hellotext\Constants;
+
+/**
+ * Event
+ *
+ * Tracks events by posting to the Hellotext API.
+ *
+ * @package Hellotext\Api
+ */
 class Event {
-	public function __construct ($session = null) {
-		$this->hellotext_business_id = get_option('hellotext_business_id');
-		$this->session = $session;
-		$this->curl = curl_init($this->get_api_url());
-		$this->set_curl_options();
-	}
+    /**
+     * Hellotext business ID token.
+     *
+     * @var string
+     */
+    private string $hellotext_business_id;
 
-	public function track ($action, $payload) {
-		$body = array_merge(
-			array(
-				'action' => $action,
-				'session' => ( isset($this->session) && $this->session )
-					? $this->session
-					: $this->browser_session(),
-			),
-			$payload
-		);
+    /**
+     * Session identifier.
+     *
+     * @var string|null
+     */
+    private ?string $session;
 
-		curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($body));
+    /**
+     * Create a new event tracker.
+     *
+     * @param string|null $session Optional session identifier.
+     */
+    public function __construct(?string $session = null) {
+        $this->hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
+        $this->session = $session;
+    }
 
-		$result = curl_exec($this->curl);
+    /**
+     * Track an event.
+     *
+     * @param string $action Event action name.
+     * @param array $payload Event payload data.
+     * @return void
+     */
+    public function track(string $action, array $payload): void {
+        $body = array_merge(
+            [
+                'action' => $action,
+                'session' => $this->session ?? $this->browser_session(),
+            ],
+            $payload
+        );
 
-		curl_close($this->curl);
-	}
+        $response = wp_remote_post(
+            $this->get_api_url(),
+            [
+                'timeout' => 10,
+                'blocking' => false,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $this->hellotext_business_id,
+                ],
+                'body' => json_encode($body),
+                'sslverify' => true,
+            ]
+        );
 
-	private function set_curl_options () {
-		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        // Only log if there's an error and debug is enabled
+        if (is_wp_error($response) && defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                '[Hellotext] Event tracking failed for action "%s": %s',
+                $action,
+                $response->get_error_message()
+            ));
+        }
+    }
 
-		// Headers
-		curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $this->hellotext_business_id,
-		));
-	}
+    /**
+     * Get the event tracking API URL.
+     *
+     * @return string
+     */
+    private function get_api_url(): string {
+        global $HELLOTEXT_API_URL;
 
-	private function get_api_url () {
-		global $HELLOTEXT_API_URL;
+        return $HELLOTEXT_API_URL . Constants::API_ENDPOINT_TRACK;
+    }
 
-		return $HELLOTEXT_API_URL . '/v1/track/events';
-	}
+    /**
+     * Retrieve session from browser cookie.
+     *
+     * @return string|null
+     */
+    private function browser_session(): ?string {
+        if (isset($_COOKIE[Constants::SESSION_COOKIE_NAME])) {
+            return sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME]);
+        }
 
-	private function browser_session () {
-		if (isset($_COOKIE['hello_session'])) {
-			return sanitize_text_field($_COOKIE['hello_session']);
-		}
-
-		return null;
-	}
+        return null;
+    }
 }

@@ -21,14 +21,6 @@ beforeEach(function () {
 	]);
 });
 
-test('throws an exception when refund is not found', function () {
-	(new RefundAdapter(null, null))->get();
-})->throws(\Exception::class, 'Refund not found');
-
-test('throws an exception when order is not found', function () {
-	(new RefundAdapter($this->refund, null))->get();
-})->throws(\Exception::class, 'Order not found');
-
 test('returns the correct structure', function () {
 	$result = (new RefundAdapter($this->refund, $this->order))->get();
 

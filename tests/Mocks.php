@@ -12,10 +12,30 @@ function wc_create_refund ($args = array()) {
 
 // Mock WooCommerce wc_get_product function
 function wc_get_product ($id = 0) {
+	// If already a WC_Product, return it
+	if ($id instanceof WC_Product) {
+		return $id;
+	}
+
+	// If invalid ID, return false
+	if (!is_numeric($id) || $id <= 0) {
+		return false;
+	}
+
 	return new WC_Product();
 }
 
 function wc_get_order ($id = 0) {
+	// If already a WC_Order, return it
+	if ($id instanceof WC_Order) {
+		return $id;
+	}
+
+	// If invalid ID, return false
+	if (!is_numeric($id) || $id <= 0) {
+		return false;
+	}
+
 	return new WC_Order();
 }
 
@@ -61,6 +81,7 @@ class WC_Order {
 class WC_Order_Refund {
 
 	public $amount;
+	public $order_id;
 
 	public function __construct ($args) {
 		$this->amount = $args['amount'];
@@ -148,5 +169,45 @@ class User {
 
 	public function get_id () {
 		return $this->ID;
+	}
+}
+
+// Mock WordPress HTTP API functions
+if (!function_exists('wp_remote_request')) {
+	function wp_remote_request ($url, $args = array()) {
+		return array(
+			'response' => array('code' => 200),
+			'body' => json_encode(array('success' => true)),
+		);
+	}
+}
+
+if (!function_exists('wp_remote_post')) {
+	function wp_remote_post ($url, $args = array()) {
+		return wp_remote_request($url, $args);
+	}
+}
+
+if (!function_exists('wp_remote_get')) {
+	function wp_remote_get ($url, $args = array()) {
+		return wp_remote_request($url, $args);
+	}
+}
+
+if (!function_exists('is_wp_error')) {
+	function is_wp_error ($thing) {
+		return $thing instanceof WP_Error;
+	}
+}
+
+if (!function_exists('wp_remote_retrieve_response_code')) {
+	function wp_remote_retrieve_response_code ($response) {
+		return $response['response']['code'] ?? 200;
+	}
+}
+
+if (!function_exists('wp_remote_retrieve_body')) {
+	function wp_remote_retrieve_body ($response) {
+		return $response['body'] ?? '';
 	}
 }

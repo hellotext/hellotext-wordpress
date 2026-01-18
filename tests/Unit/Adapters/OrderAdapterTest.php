@@ -20,7 +20,7 @@ beforeEach(function () {
 });
 
 test('throws an exception when order is not found', function () {
-	(new OrderAdapter(null))->get();
+	(new OrderAdapter(0))->get();
 })->throws(\Exception::class, 'Order not found');
 
 test('returns the correct structure', function () {

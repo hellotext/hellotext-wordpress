@@ -2,73 +2,180 @@
 
 namespace Hellotext\Api;
 
+use Hellotext\Constants;
+
+/**
+ * Client
+ *
+ * HTTP client for communicating with the Hellotext API.
+ *
+ * @package Hellotext\Api
+ */
 class Client {
-	public static $sufix = '/v1';
+    /**
+     * API URL suffix.
+     *
+     * @var string
+     */
+    public static string $sufix = '/' . Constants::API_VERSION;
 
-	public static function with_sufix ($sufix = '') {
-		if (0 < strlen($sufix) && '/' !== $sufix[0]) {
-			$sufix = '/' . $sufix;
-		}
+    /**
+     * Set a custom API suffix and return a client instance.
+     *
+     * @param string $sufix Suffix to append to API URL.
+     * @return self
+     */
+    public static function with_sufix(string $sufix = ''): self {
+        if (0 < strlen($sufix) && '/' !== $sufix[0]) {
+            $sufix = '/' . $sufix;
+        }
 
-		self::$sufix = $sufix;
+        self::$sufix = $sufix;
 
-		return new self();
-	}
+        return new self();
+    }
 
-	public static function request ($method = 'GET', $path = '/', $data = []) {
-		$request_url = self::get_api_url() . $path;
-		$curl = curl_init($request_url);
-		self::set_curl_options($curl, $method);
+    /**
+     * Make an HTTP request to the Hellotext API.
+     *
+     * @param string $method HTTP method.
+     * @param string $path API endpoint path.
+     * @param array $data Request payload.
+     * @return array
+     */
+    public static function request(string $method = 'GET', string $path = '/', array $data = []): array {
+        $request_url = self::get_api_url() . $path;
+        $access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        $args = [
+            'method' => strtoupper($method),
+            'timeout' => 15,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token,
+            ],
+            'sslverify' => true,
+        ];
 
-		$result = curl_exec($curl);
+        // Add body for non-GET requests
+        if (!empty($data) && 'GET' !== $method) {
+            $args['body'] = json_encode($data);
+        }
 
-		return array(
-			'request' => array(
-				'method' => $method,
-				'path' => $request_url,
-				'data' => $data,
-			),
-			'status' => curl_getinfo($curl, CURLINFO_HTTP_CODE),
-			'body' => json_decode($result, true)
-		);
-	}
+        $response = wp_remote_request($request_url, $args);
 
-	public static function get ($path = '/', $data = null) {
-		return self::request('GET', $path, $data);
-	}
+        // Handle errors
+        if (is_wp_error($response)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log(sprintf(
+                    '[Hellotext] API request failed: %s %s - Error: %s',
+                    $method,
+                    $request_url,
+                    $response->get_error_message()
+                ));
+            }
 
-	public static function post ($path = '/', $data = null) {
-		return self::request('POST', $path, $data);
-	}
+            return [
+                'request' => [
+                    'method' => $method,
+                    'path' => $request_url,
+                    'data' => $data,
+                ],
+                'status' => 0,
+                'body' => null,
+                'error' => $response->get_error_message(),
+            ];
+        }
 
-	public static function patch ($path = '/', $data = null) {
-		return self::request('PATCH', $path, $data);
-	}
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body_raw = wp_remote_retrieve_body($response);
 
-	public static function put ($path = '/', $data = null) {
-		return self::request('PUT', $path, $data);
-	}
+        // Log non-2xx responses
+        if (defined('WP_DEBUG') && WP_DEBUG && ($status_code < 200 || $status_code >= 300)) {
+            error_log(sprintf(
+                '[Hellotext] API request returned %d: %s %s',
+                $status_code,
+                $method,
+                $request_url
+            ));
+        }
 
-	public static function delete ($path = '/', $data = null) {
-		return self::request('DELETE', $path, $data);
-	}
+        return [
+            'request' => [
+                'method' => $method,
+                'path' => $request_url,
+                'data' => $data,
+            ],
+            'status' => $status_code,
+            'body' => !empty($body_raw) ? json_decode($body_raw, true) : null,
+            'error' => null,
+        ];
+    }
 
-	private static function get_api_url () {
-		global $HELLOTEXT_API_URL;
+    /**
+     * Make a GET request.
+     *
+     * @param string $path API endpoint path.
+     * @param array|null $data Request payload.
+     * @return array
+     */
+    public static function get(string $path = '/', ?array $data = null): array {
+        return self::request('GET', $path, $data ?? []);
+    }
 
-		return $HELLOTEXT_API_URL . self::$sufix;
-	}
+    /**
+     * Make a POST request.
+     *
+     * @param string $path API endpoint path.
+     * @param array|null $data Request payload.
+     * @return array
+     */
+    public static function post(string $path = '/', ?array $data = null): array {
+        return self::request('POST', $path, $data ?? []);
+    }
 
-	private static function set_curl_options ($curl, $method) {
-		$hellotext_access_token = get_option('hellotext_access_token');
+    /**
+     * Make a PATCH request.
+     *
+     * @param string $path API endpoint path.
+     * @param array|null $data Request payload.
+     * @return array
+     */
+    public static function patch(string $path = '/', ?array $data = null): array {
+        return self::request('PATCH', $path, $data ?? []);
+    }
 
-		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $hellotext_access_token,
-		));
-	}
+    /**
+     * Make a PUT request.
+     *
+     * @param string $path API endpoint path.
+     * @param array|null $data Request payload.
+     * @return array
+     */
+    public static function put(string $path = '/', ?array $data = null): array {
+        return self::request('PUT', $path, $data ?? []);
+    }
+
+    /**
+     * Make a DELETE request.
+     *
+     * @param string $path API endpoint path.
+     * @param array|null $data Request payload.
+     * @return array
+     */
+    public static function delete(string $path = '/', ?array $data = null): array {
+        return self::request('DELETE', $path, $data ?? []);
+    }
+
+    /**
+     * Get base API URL.
+     *
+     * @return string
+     */
+    private static function get_api_url(): string {
+        global $HELLOTEXT_API_URL;
+
+        return $HELLOTEXT_API_URL . self::$sufix;
+    }
+
 }

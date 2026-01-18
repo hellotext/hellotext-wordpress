@@ -13,7 +13,7 @@ beforeEach(function () {
 });
 
 test('throws an exception when product is not found', function () {
-    (new ProductAdapter(null))->get();
+    (new ProductAdapter(0))->get();
 })->throws(\Exception::class, 'Product not found');
 
 test('returns the correct structure', function () {

@@ -8,7 +8,7 @@
  * Plugin Name: Hellotext
  * Plugin URI: https://github.com/hellotext/hellotext-wordpress
  * Description: Integrates Hellotext tracking to WooCommerce.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Hellotext
  * Author URI: https://www.hellotext.com
  * License: GPL v2
@@ -16,6 +16,8 @@
  * Text Domain: hellotext
  * Domain Path: /languages
  */
+
+use Hellotext\Constants;
 
 // TODO: Refactor this to use the APP_ENV variable
 if (! isset($_ENV['APP_ENV'])) {
@@ -29,71 +31,104 @@ $HELLOTEXT_API_URL = $HELLOTEXT_DEV_MODE
  : 'https://api.hellotext.com';
 
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
+}
 
-$paths = [
-	'Adapters',
-	'Api',
-	'Events',
-	'Misc',
-	'Services',
-];
+// Load Composer autoloader (handles all classes)
+require_once __DIR__ . '/vendor/autoload.php';
 
-foreach ($paths as $current_path) {
-	$scan = scandir(plugin_dir_path( __FILE__ ) . 'src/' . $current_path . '/');
+// Load event handlers (contain functions, not classes)
+$event_files = glob(__DIR__ . '/src/Events/*.php');
+foreach ($event_files as $file) {
+	require_once $file;
+}
 
-	foreach ($scan as $file) {
-		if (strpos($file, '.php') !== false) {
-			include('src/' . $current_path . '/' . $file);
-		}
-	}
+// Load misc files (Settings, Scripts contain functions)
+$misc_files = glob(__DIR__ . '/src/Misc/*.php');
+foreach ($misc_files as $file) {
+	require_once $file;
 }
 
 // Function on Events/AppRemoved.php
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
 
-// New Version Check
-function version_check() {
-	$releases_api_url = 'https://api.github.com/repos/hellotext/hellotext-wordpress/releases';
-	$releases_url = 'https://github.com/hellotext/hellotext-wordpress/releases';
-    $plugin_slug = plugin_basename( __FILE__ );
-    $plugin_data = get_plugin_data( __FILE__ );
+/**
+ * Check for plugin updates from GitHub.
+ * Caches result for 24 hours to avoid rate limiting.
+ *
+ * @return void
+ */
+function hellotext_version_check() {
+	if (!is_admin()) {
+		return;
+	}
 
-    // Check if this plugin is at least partially ours
-    if ( isset( $_GET['page'] ) && $_GET['page'] === 'your-plugin-settings-page' ) {
-        return; // Don't show the notice on your plugin settings page
-    }
+	$cache_key = 'hellotext_version_check';
+	$cached = get_transient($cache_key);
 
-    $response = wp_remote_get( $releases_api_url );
+	if (false !== $cached) {
+		if (isset($cached['message'])) {
+			echo '<div class="notice notice-warning"><p>' . wp_kses_post($cached['message']) . '</p></div>';
+		}
+		return;
+	}
 
-    if ( ! is_wp_error( $response ) ) {
-        $body = wp_remote_retrieve_body( $response );
-        $json = json_decode( $body, true );
-        if ( is_array( $json ) ) {
-            $current_version = $plugin_data['Version'];
-            $latest_version = preg_replace('/[a-zA-Z]/', '', $json[0]['tag_name']);
-            if ( version_compare( $current_version, $latest_version, '<' ) ) {
-                $message = sprintf( __( 'There is a new version of %1$s available. View version %2$s details or <a href="%3$s" target="_blank">update now</a>.' ), $plugin_data['Name'], $latest_version, $releases_url );
-                echo '<div class="notice notice-warning"><p>' . $message . '</p></div>';
-            }
-        }
-    }
+	$response = wp_remote_get(
+		'https://api.github.com/repos/hellotext/hellotext-wordpress/releases/latest',
+		['timeout' => 5]
+	);
+
+	$cache_data = [];
+
+	if (!is_wp_error($response) && 200 === wp_remote_retrieve_response_code($response)) {
+		$release = json_decode(wp_remote_retrieve_body($response), true);
+
+		if (isset($release['tag_name'])) {
+			$current = get_plugin_data(__FILE__)['Version'];
+			$latest = ltrim($release['tag_name'], 'v');
+
+			if (version_compare($current, $latest, '<')) {
+				$cache_data['message'] = sprintf(
+					'New version of Hellotext available: %s. <a href="%s">View details</a>',
+					$latest,
+					$release['html_url']
+				);
+			}
+		}
+	}
+
+	set_transient($cache_key, $cache_data, DAY_IN_SECONDS);
+
+	if (isset($cache_data['message'])) {
+		echo '<div class="notice notice-warning"><p>' . wp_kses_post($cache_data['message']) . '</p></div>';
+	}
 }
-add_action( 'admin_notices', 'version_check' );
+add_action('admin_notices', 'hellotext_version_check');
 
+/**
+ * Load plugin text domain.
+ *
+ * @return void
+ */
 function hellotext_load_textdomain() {
     load_plugin_textdomain( 'hellotext', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'hellotext_load_textdomain' );
 
+/**
+ * Uninstall handler for cleanup.
+ *
+ * @return void
+ */
 function uninstall() {
     global $wpdb;
 
-    delete_option('hellotext_business_id');
-    delete_option('hellotext_webchat_id');
-    delete_option('hellotext_webchat_placement');
-    delete_option('hellotext_webchat_behaviour');
-    delete_option('hellotext_access_token');
+    delete_option(Constants::OPTION_BUSINESS_ID);
+    delete_option(Constants::OPTION_WEBCHAT_ID);
+    delete_option(Constants::OPTION_WEBCHAT_PLACEMENT);
+    delete_option(Constants::OPTION_WEBCHAT_BEHAVIOUR);
+    delete_option(Constants::OPTION_ACCESS_TOKEN);
 
     $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
     if ($wpdb->get_var("SHOW TABLES LIKE '$api_keys_table'") === $api_keys_table) {

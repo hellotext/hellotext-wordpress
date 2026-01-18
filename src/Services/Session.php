@@ -2,25 +2,55 @@
 
 namespace Hellotext\Services;
 
+use Hellotext\Constants;
+
+/**
+ * Session
+ *
+ * Handles encryption and decryption for session identifiers.
+ *
+ * @package Hellotext\Services
+ */
 class Session {
-	const METHOD = 'aes-256-cbc';
+    /**
+     * Encrypt a session identifier.
+     *
+     * @param string|null $session Session identifier.
+     * @return string
+     */
+    public static function encrypt(?string $session = null): string {
+        $key = get_option(Constants::OPTION_BUSINESS_ID);
 
-	public static function encrypt ($session = null) {
-		$key = get_option('hellotext_business_id');
+        // Use empty string as fallback if key is not set
+        if (!$key) {
+            $key = '';
+        }
 
-		// Generate an initialization vector (IV)
-		$iv_length = openssl_cipher_iv_length(self::METHOD);
-		$iv = openssl_random_pseudo_bytes($iv_length);
+        // Generate an initialization vector (IV)
+        $iv_length = openssl_cipher_iv_length(Constants::ENCRYPTION_METHOD);
+        $iv = openssl_random_pseudo_bytes($iv_length);
 
-		$encrypted = openssl_encrypt($session, self::METHOD, $key, 0, $iv);
+        $encrypted = openssl_encrypt($session ?? '', Constants::ENCRYPTION_METHOD, $key, 0, $iv);
 
-		return base64_encode($encrypted . '::' . $iv);
-	}
+        return base64_encode($encrypted . '::' . $iv);
+    }
 
-	public static function decrypt ($encrypted_data = null) {
-		$key = get_option('hellotext_business_id');
-		$parts = explode('::', base64_decode($encrypted_data));
+    /**
+     * Decrypt an encrypted session identifier.
+     *
+     * @param string|null $encrypted_data Encrypted session data.
+     * @return string|false
+     */
+    public static function decrypt(?string $encrypted_data = null): string|false {
+        $key = get_option(Constants::OPTION_BUSINESS_ID);
 
-		return openssl_decrypt($parts[0], self::METHOD, $key, 0, $parts[1]);
-	}
+        // Use empty string as fallback if key is not set
+        if (!$key) {
+            $key = '';
+        }
+
+        $parts = explode('::', base64_decode($encrypted_data ?? ''));
+
+        return openssl_decrypt($parts[0], Constants::ENCRYPTION_METHOD, $key, 0, $parts[1]);
+    }
 }
