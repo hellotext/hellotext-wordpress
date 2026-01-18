@@ -1,6 +1,6 @@
 ** Hellotext for WooCommerce Changelog **
 
-2026-01-18 - version 1.2.3
+2026-01-18 - version 1.3.0
 
 * Add comprehensive type hints to all source files for better IDE support and type safety.
 * Add PHPDoc comments to all classes and methods for improved documentation.

@@ -3,7 +3,7 @@
 use Hellotext\Api\Webchat;
 use Hellotext\Constants;
 
-add_action( 'admin_init', 'hellotext_settings_init' );
+add_action('admin_init', 'hellotext_settings_init');
 /**
  * Register Hellotext admin settings and fields.
  *
@@ -14,7 +14,7 @@ function hellotext_settings_init(): void {
     // Add settings section
     add_settings_section(
         'hellotext_setting_section',
-        __( 'settings.title', 'hellotext' ),
+        __('settings.title', 'hellotext'),
         'hellotext_description_section_callback',
         'hellotext-form'
     );
@@ -22,7 +22,7 @@ function hellotext_settings_init(): void {
     // Hellotext Business ID
     add_settings_field(
         Constants::OPTION_BUSINESS_ID,
-        __( 'settings.business_id', 'hellotext' ),
+        __('settings.business_id', 'hellotext'),
         'hellotext_business_id_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -31,7 +31,7 @@ function hellotext_settings_init(): void {
     // Hellotext Access Token
     add_settings_field(
         Constants::OPTION_ACCESS_TOKEN,
-        __( 'settings.access_token', 'hellotext' ),
+        __('settings.access_token', 'hellotext'),
         'hellotext_access_token_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -40,7 +40,7 @@ function hellotext_settings_init(): void {
     // Hellotext Webchat ID
     add_settings_field(
         Constants::OPTION_WEBCHAT_ID,
-        __( 'settings.webchat_id', 'hellotext' ),
+        __('settings.webchat_id', 'hellotext'),
         'hellotext_webchat_id_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -48,7 +48,7 @@ function hellotext_settings_init(): void {
 
     add_settings_field(
         Constants::OPTION_WEBCHAT_PLACEMENT,
-        __( 'settings.webchat_placement', 'hellotext' ),
+        __('settings.webchat_placement', 'hellotext'),
         'hellotext_webchat_placement_field',
         'hellotext-form',
         'hellotext_setting_section'
@@ -56,19 +56,17 @@ function hellotext_settings_init(): void {
 
     add_settings_field(
         Constants::OPTION_WEBCHAT_BEHAVIOUR,
-        __( 'settings.webchat_behaviour', 'hellotext' ),
+        __('settings.webchat_behaviour', 'hellotext'),
         'hellotext_webchat_behaviour_field',
         'hellotext-form',
         'hellotext_setting_section'
     );
 
-
     // Register settings
-    register_setting( 'hellotext-form', Constants::OPTION_BUSINESS_ID );
-    register_setting( 'hellotext-form', Constants::OPTION_ACCESS_TOKEN );
-    register_setting( 'hellotext-form', Constants::OPTION_WEBCHAT_ID ); // Corrected ID
+    register_setting('hellotext-form', Constants::OPTION_BUSINESS_ID);
+    register_setting('hellotext-form', Constants::OPTION_ACCESS_TOKEN);
+    register_setting('hellotext-form', Constants::OPTION_WEBCHAT_ID); // Corrected ID
 }
-
 
 /**
  * Render the settings description section.
@@ -80,11 +78,11 @@ function hellotext_description_section_callback(): void {
     $access_token = get_option(Constants::OPTION_ACCESS_TOKEN, null);
 
     if (!$business_id) {
-        echo '<p>' . wp_kses( __( 'description.paragraphs.one', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
+        echo '<p>' . wp_kses(__('description.paragraphs.one', 'hellotext'), [ 'a' => [ 'href' => [], 'target' => [], 'style' => [] ] ]) . '</p>';
     }
 
     if (!$access_token) {
-        echo '<p>' . wp_kses( __( 'description.paragraphs.two', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
+        echo '<p>' . wp_kses(__('description.paragraphs.two', 'hellotext'), [ 'a' => [ 'href' => [], 'target' => [], 'style' => [] ] ]) . '</p>';
     }
 }
 
@@ -97,7 +95,7 @@ function hellotext_business_id_field(): void {
     ?>
     <input type="text" id="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
            name="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
-           value="<?php echo esc_attr( get_option(Constants::OPTION_BUSINESS_ID) ); ?>"
+           value="<?php echo esc_attr(get_option(Constants::OPTION_BUSINESS_ID)); ?>"
            style="width: 400px;" />
     <?php
 }
@@ -111,7 +109,7 @@ function hellotext_access_token_field(): void {
     ?>
     <textarea id="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
               name="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
-              style="width: 400px;" rows="5"><?php echo esc_html( get_option(Constants::OPTION_ACCESS_TOKEN) ); ?></textarea>
+              style="width: 400px;" rows="5"><?php echo esc_html(get_option(Constants::OPTION_ACCESS_TOKEN)); ?></textarea>
     <?php
 }
 
@@ -156,17 +154,17 @@ function hellotext_webchat_placement_field(): void {
     <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
             name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
             style="width: 400px;">
-        <option value="top-left" <?php selected( $placement, 'top-left' ); ?>>
-            <?php _e( 'settings.webchat_placement_top-left', 'hellotext' ); ?>
+        <option value="top-left" <?php selected($placement, 'top-left'); ?>>
+            <?php _e('settings.webchat_placement_top-left', 'hellotext'); ?>
         </option>
-        <option value="top-right" <?php selected( $placement, 'top-right' ); ?>>
-           <?php _e( 'settings.webchat_placement_top-right', 'hellotext' ); ?>
+        <option value="top-right" <?php selected($placement, 'top-right'); ?>>
+           <?php _e('settings.webchat_placement_top-right', 'hellotext'); ?>
         </option>
-        <option value="bottom-left" <?php selected( $placement, 'bottom-left' ); ?>>
-              <?php _e( 'settings.webchat_placement_bottom-left', 'hellotext' ); ?>
+        <option value="bottom-left" <?php selected($placement, 'bottom-left'); ?>>
+              <?php _e('settings.webchat_placement_bottom-left', 'hellotext'); ?>
         </option>
-        <option value="bottom-right" <?php selected( $placement, 'bottom-right' ); ?>>
-             <?php _e( 'settings.webchat_placement_bottom-right', 'hellotext' ); ?>
+        <option value="bottom-right" <?php selected($placement, 'bottom-right'); ?>>
+             <?php _e('settings.webchat_placement_bottom-right', 'hellotext'); ?>
         </option>
     </select>
     <?php
@@ -184,12 +182,11 @@ function hellotext_webchat_behaviour_field(): void {
     <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
             name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
             style="width: 400px;">
-        <option value="popover" <?php selected( $behaviour, 'popover' ); ?>>Popover</option>
-        <option value="modal" <?php selected( $behaviour, 'modal' ); ?>>Modal</option>
+        <option value="popover" <?php selected($behaviour, 'popover'); ?>>Popover</option>
+        <option value="modal" <?php selected($behaviour, 'modal'); ?>>Modal</option>
     </select>
     <?php
 }
-
 
 add_action('plugins_loaded', 'init_hellotext');
 /**
@@ -197,31 +194,31 @@ add_action('plugins_loaded', 'init_hellotext');
  *
  * @return void
  */
-function init_hellotext (): void {
-	/**
-	 * Register the WooCommerce submenu for Hellotext.
-	 *
-	 * @return void
-	 */
-	function custom_woocommerce_menu(): void {
-		add_submenu_page(
-			'woocommerce',
-			'Hellotext',
-			'Hellotext',
-			'manage_options',
-			'wc-hellotext',
-			'hellotext_submenu_page_callback'
-		);
-	}
-	add_action('admin_menu', 'custom_woocommerce_menu');
+function init_hellotext(): void {
+    /**
+     * Register the WooCommerce submenu for Hellotext.
+     *
+     * @return void
+     */
+    function custom_woocommerce_menu(): void {
+        add_submenu_page(
+            'woocommerce',
+            'Hellotext',
+            'Hellotext',
+            'manage_options',
+            'wc-hellotext',
+            'hellotext_submenu_page_callback'
+        );
+    }
+    add_action('admin_menu', 'custom_woocommerce_menu');
 
-	/**
-	 * Render the Hellotext settings page.
-	 *
-	 * @return void
-	 */
-	function hellotext_submenu_page_callback (): void {
-		?>
+    /**
+     * Render the Hellotext settings page.
+     *
+     * @return void
+     */
+    function hellotext_submenu_page_callback(): void {
+        ?>
 		<div class="wrap" style="background: white; padding: 32px; padding-top: 8px; border-radius: 8px;">
 			<h1 style="color: #FF4C00;">
 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="130" height="43px" viewBox="0 0 224 43" version="1.1"><title>hellotext</title>
@@ -230,28 +227,28 @@ function init_hellotext (): void {
 			</h1>
 
             <?php
-              if (empty(get_option( 'permalink_structure' ))) {
-                echo <<<HTML
+              if (empty(get_option('permalink_structure'))) {
+                  echo <<<HTML
                     <div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
                         Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="/wp-admin/options-permalink.php" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
                     </div>
                 HTML;
               }
-            ?>
+        ?>
 			<form method="POST" action="options.php">
 			<?php
-				settings_fields( 'hellotext-form' );
-				do_settings_sections( 'hellotext-form' );
-				submit_button(
-				    __('settings.submit', 'hellotext'),
-				    null,
-				    null,
-				    false,
-				    array('style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;')
-                );
-			?>
+            settings_fields('hellotext-form');
+        do_settings_sections('hellotext-form');
+        submit_button(
+            __('settings.submit', 'hellotext'),
+            null,
+            null,
+            false,
+            ['style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;']
+        );
+        ?>
 			</form>
 		</div>
 	<?php
-	}
+    }
 }

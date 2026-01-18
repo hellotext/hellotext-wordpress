@@ -13,178 +13,178 @@ use Hellotext\Constants;
  * @package Hellotext\Services
  */
 class CreateProfile {
-	/**
-	 * WordPress user instance.
-	 *
-	 * @var \WP_User|false|null
-	 */
-	public \WP_User|false|null $user = null;
+    /**
+     * WordPress user instance.
+     *
+     * @var \WP_User|false|null
+     */
+    public \WP_User|false|null $user = null;
 
-	/**
-	 * Hellotext profile ID.
-	 *
-	 * @var string|null
-	 */
-	public ?string $hellotext_profile_id = null;
+    /**
+     * Hellotext profile ID.
+     *
+     * @var string|null
+     */
+    public ?string $hellotext_profile_id = null;
 
-	/**
-	 * API client class name.
-	 *
-	 * @var string
-	 */
-	public string $client;
+    /**
+     * API client class name.
+     *
+     * @var string
+     */
+    public string $client;
 
-	/**
-	 * Billing payload data.
-	 *
-	 * @var array
-	 */
-	public array $billing;
+    /**
+     * Billing payload data.
+     *
+     * @var array
+     */
+    public array $billing;
 
-	/**
-	 * WordPress user ID.
-	 *
-	 * @var int|null
-	 */
-	public ?int $user_id;
+    /**
+     * WordPress user ID.
+     *
+     * @var int|null
+     */
+    public ?int $user_id;
 
-	/**
-	 * Session identifier.
-	 *
-	 * @var string|null
-	 */
-	public ?string $session;
+    /**
+     * Session identifier.
+     *
+     * @var string|null
+     */
+    public ?string $session;
 
-	/**
-	 * Create a new profile service instance.
-	 *
-	 * @param int|null $user_id WordPress user ID.
-	 * @param array $billing Billing payload data.
-	 */
-	public function __construct(?int $user_id, array $billing = []) {
-		$this->user_id = $user_id;
-		$this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
-			? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
-			: null;
-		$this->client = Client::class;
-		$this->billing = $billing;
-	}
+    /**
+     * Create a new profile service instance.
+     *
+     * @param int|null $user_id WordPress user ID.
+     * @param array $billing Billing payload data.
+     */
+    public function __construct(?int $user_id, array $billing = []) {
+        $this->user_id = $user_id;
+        $this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
+            ? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
+            : null;
+        $this->client = Client::class;
+        $this->billing = $billing;
+    }
 
-	/**
-	 * Process profile creation/association flow.
-	 *
-	 * @return void
-	 */
-	public function process (): void {
-		if (isset($this->billing) && !empty($this->billing)) {
-			$this->create_hellotext_profile();
-			$this->attach_profile_to_session();
-			return;
-		}
+    /**
+     * Process profile creation/association flow.
+     *
+     * @return void
+     */
+    public function process(): void {
+        if (isset($this->billing) && !empty($this->billing)) {
+            $this->create_hellotext_profile();
+            $this->attach_profile_to_session();
+            return;
+        }
 
-		if (! $this->user_id) {
-			return;
-		}
+        if (! $this->user_id) {
+            return;
+        }
 
-		if (! $this->verify_if_profile_exists()) {
-			$this->get_user();
-			$this->create_hellotext_profile();
-			$this->attach_profile_to_session();
-		}
+        if (! $this->verify_if_profile_exists()) {
+            $this->get_user();
+            $this->create_hellotext_profile();
+            $this->attach_profile_to_session();
+        }
 
-		if ($this->session_changed()) {
-			$this->attach_profile_to_session();
-		}
-	}
+        if ($this->session_changed()) {
+            $this->attach_profile_to_session();
+        }
+    }
 
-	/**
-	 * Load the WordPress user by ID.
-	 *
-	 * @return void
-	 * @throws \Exception When user is not found.
-	 */
-	private function get_user (): void {
-		$this->user = get_user_by('id', $this->user_id);
+    /**
+     * Load the WordPress user by ID.
+     *
+     * @return void
+     * @throws \Exception When user is not found.
+     */
+    private function get_user(): void {
+        $this->user = get_user_by('id', $this->user_id);
 
-		if (!$this->user) {
-			throw new \Exception("User with id {$this->user_id} not found");
-		}
-	}
+        if (!$this->user) {
+            throw new \Exception("User with id {$this->user_id} not found");
+        }
+    }
 
-	/**
-	 * Check if a Hellotext profile already exists.
-	 *
-	 * @return bool
-	 */
-	private function verify_if_profile_exists (): bool {
-		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
+    /**
+     * Check if a Hellotext profile already exists.
+     *
+     * @return bool
+     */
+    private function verify_if_profile_exists(): bool {
+        $hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
-		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
-	}
+        return false != $hellotext_profile_id && '' != $hellotext_profile_id;
+    }
 
-	/**
-	 * Determine if the session value has changed.
-	 *
-	 * @return bool
-	 */
-	private function session_changed (): bool {
-		return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
-	}
+    /**
+     * Determine if the session value has changed.
+     *
+     * @return bool
+     */
+    private function session_changed(): bool {
+        return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
+    }
 
-	/**
-	 * Create a Hellotext profile or reuse existing one.
-	 *
-	 * @return void
-	 */
-	public function create_hellotext_profile (): void {
-		$profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
+    /**
+     * Create a Hellotext profile or reuse existing one.
+     *
+     * @return void
+     */
+    public function create_hellotext_profile(): void {
+        $profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
-		if ($profile) {
-			if (isset($this->user)) {
-				update_user_meta($this->user->ID, Constants::META_PROFILE_ID, $profile);
-			}
+        if ($profile) {
+            if (isset($this->user)) {
+                update_user_meta($this->user->ID, Constants::META_PROFILE_ID, $profile);
+            }
 
-            $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
+            $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
                'session' => $this->session,
                'profile' => $profile,
-            ));
+            ]);
 
-			return;
-		}
+            return;
+        }
 
-		$phone = get_user_meta($this->user_id, 'billing_phone', true);
+        $phone = get_user_meta($this->user_id, 'billing_phone', true);
 
-		$response = $this->client::post(Constants::API_ENDPOINT_PROFILES, array_filter(array(
-			'session' => $this->session,
-			'reference' => isset($this->user) ? $this->user->ID : null,
-			'first_name' => $this->user->nickname ?? $this->billing['first_name'],
-			'last_name' => $this->user->last_name ?? $this->billing['last_name'],
-			'email' => $this->user->user_email ?? $this->billing['email'],
-			'phone' => empty($phone) ? $this->billing['phone'] : $phone,
-			'lists' => array('WooCommerce'),
-		)));
+        $response = $this->client::post(Constants::API_ENDPOINT_PROFILES, array_filter([
+            'session' => $this->session,
+            'reference' => isset($this->user) ? $this->user->ID : null,
+            'first_name' => $this->user->nickname ?? $this->billing['first_name'],
+            'last_name' => $this->user->last_name ?? $this->billing['last_name'],
+            'email' => $this->user->user_email ?? $this->billing['email'],
+            'phone' => empty($phone) ? $this->billing['phone'] : $phone,
+            'lists' => ['WooCommerce'],
+        ]));
 
-		add_user_meta( $this->user_id ?? $this->session, Constants::META_PROFILE_ID, $response['body']['id'], true );
+        add_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, $response['body']['id'], true);
 
-		$this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
+        $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
            'session' => $this->session,
            'profile' => $response['body']['id'],
-        ));
-	}
+        ]);
+    }
 
-	/**
-	 * Attach profile ID to current session.
-	 *
-	 * @return void
-	 */
-	private function attach_profile_to_session (): void {
-		$profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
+    /**
+     * Attach profile ID to current session.
+     *
+     * @return void
+     */
+    private function attach_profile_to_session(): void {
+        $profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
-		$response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
-			'session' => $this->session,
-			'profile' => $profile_id,
-		));
-	}
+        $response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
+            'session' => $this->session,
+            'profile' => $profile_id,
+        ]);
+    }
 }
 
 /**
@@ -194,21 +194,21 @@ class CreateProfile {
  * @return void
  */
 add_action('hellotext_create_profile', function (mixed $payload = null): void {
-	if (is_array($payload)) {
-		( new CreateProfile(null, $payload) )->process();
-	}
+    if (is_array($payload)) {
+        (new CreateProfile(null, $payload))->process();
+    }
 
-	if (!is_user_logged_in() && !isset($user_id)) {
-		return;
-	}
+    if (!is_user_logged_in() && !isset($user_id)) {
+        return;
+    }
 
-	$user = ( null != $user_id )
-		? get_user_by('id', $user_id)
-		: wp_get_current_user();
+    $user = (null != $user_id)
+        ? get_user_by('id', $user_id)
+        : wp_get_current_user();
 
-	if (!$user) {
-		return;
-	}
+    if (!$user) {
+        return;
+    }
 
-	( new CreateProfile($user->ID) )->process();
+    (new CreateProfile($user->ID))->process();
 }, 10, 1);

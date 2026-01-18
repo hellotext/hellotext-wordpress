@@ -17,5 +17,9 @@ return (new PhpCsFixer\Config())
         'phpdoc_var_without_name' => true,
         'single_quote' => true,
         'no_extra_blank_lines' => true,
+        'braces_position' => [
+            'classes_opening_brace' => 'same_line',
+            'functions_opening_brace' => 'same_line',
+        ],
     ])
     ->setFinder($finder);

@@ -1,15 +1,15 @@
 <?php
 
-add_action( 'admin_head', 'hellotext_script' );
-add_action( 'wp_head', 'hellotext_script' );
+add_action('admin_head', 'hellotext_script');
+add_action('wp_head', 'hellotext_script');
 
 /**
  * Output Hellotext embed script in the page head.
  *
  * @return void
  */
-function hellotext_script (): void {
-	global $HELLOTEXT_API_URL;
+function hellotext_script(): void {
+    global $HELLOTEXT_API_URL;
 
     $business_id = get_option('hellotext_business_id');
     $webchat_id = get_option('hellotext_webchat_id');
