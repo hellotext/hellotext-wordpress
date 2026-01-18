@@ -2,25 +2,26 @@
 
 namespace Hellotext\Services;
 
+use Hellotext\Constants;
+
 class Session {
-	const METHOD = 'aes-256-cbc';
 
 	public static function encrypt ($session = null) {
-		$key = get_option('hellotext_business_id');
+		$key = get_option(Constants::OPTION_BUSINESS_ID);
 
 		// Generate an initialization vector (IV)
-		$iv_length = openssl_cipher_iv_length(self::METHOD);
+		$iv_length = openssl_cipher_iv_length(Constants::ENCRYPTION_METHOD);
 		$iv = openssl_random_pseudo_bytes($iv_length);
 
-		$encrypted = openssl_encrypt($session, self::METHOD, $key, 0, $iv);
+		$encrypted = openssl_encrypt($session, Constants::ENCRYPTION_METHOD, $key, 0, $iv);
 
 		return base64_encode($encrypted . '::' . $iv);
 	}
 
 	public static function decrypt ($encrypted_data = null) {
-		$key = get_option('hellotext_business_id');
+		$key = get_option(Constants::OPTION_BUSINESS_ID);
 		$parts = explode('::', base64_decode($encrypted_data));
 
-		return openssl_decrypt($parts[0], self::METHOD, $key, 0, $parts[1]);
+		return openssl_decrypt($parts[0], Constants::ENCRYPTION_METHOD, $key, 0, $parts[1]);
 	}
 }

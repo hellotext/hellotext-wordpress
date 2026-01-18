@@ -2,9 +2,10 @@
 
 use Hellotext\Api\Client;
 use Hellotext\Api\Event;
+use Hellotext\Constants;
 
 function hellotext_activate () {
-	$hellotext_business_id = get_option('hellotext_business_id');
+	$hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
 	if (!$hellotext_business_id) {
 		return;
 	}
@@ -14,7 +15,7 @@ function hellotext_activate () {
 
 add_action('hellotext_create_integration', function ($business_id) {
    if(!$business_id) {
-     $business_id = get_option('hellotext_business_id');
+     $business_id = get_option(Constants::OPTION_BUSINESS_ID);
    }
 
 	global $wpdb;
@@ -40,7 +41,7 @@ add_action('hellotext_create_integration', function ($business_id) {
 		]);
 
         Client::with_sufix()
-            ->post('/integrations/woo', [
+            ->post(Constants::API_ENDPOINT_INTEGRATIONS_WOO, [
                 'shop' => [
                     'name' => get_bloginfo('name'),
                     'url' => get_bloginfo('url'),
@@ -72,14 +73,14 @@ function maybe_trigger_integration($business_id) {
         return;
     }
 
-    $hellotext_access_token = get_option('hellotext_access_token');
+    $hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
     if ($hellotext_access_token && $business_id) {
         set_transient('hellotext_integration_triggered', true, 10);
         do_action('hellotext_create_integration');
     } else {
         add_action('shutdown', function () {
             $integration_flag = get_transient('hellotext_integration_triggered');
-            $hellotext_access_token = get_option('hellotext_access_token');
+            $hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
             if ($hellotext_access_token && !$integration_flag) {
                 set_transient('hellotext_integration_triggered', true, 10); // Expires in 10 seconds.
@@ -89,7 +90,7 @@ function maybe_trigger_integration($business_id) {
     }
 }
 
-add_action('add_option_hellotext_business_id', 'after_business_id_set', 10, 1);
-add_action('add_option_hellotext_access_token', 'maybe_trigger_integration', 10, 3);
-add_action('update_option_hellotext_business_id', 'after_business_id_save', 10, 3);
-add_action('update_option_hellotext_access_token', 'maybe_trigger_integration', 10, 4);
+add_action('add_option_' . Constants::OPTION_BUSINESS_ID, 'after_business_id_set', 10, 1);
+add_action('add_option_' . Constants::OPTION_ACCESS_TOKEN, 'maybe_trigger_integration', 10, 3);
+add_action('update_option_' . Constants::OPTION_BUSINESS_ID, 'after_business_id_save', 10, 3);
+add_action('update_option_' . Constants::OPTION_ACCESS_TOKEN, 'maybe_trigger_integration', 10, 4);

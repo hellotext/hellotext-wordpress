@@ -17,6 +17,10 @@
  * Domain Path: /languages
  */
 
+use Hellotext\Constants;
+
+require_once plugin_dir_path(__FILE__) . 'src/Constants.php';
+
 // TODO: Refactor this to use the APP_ENV variable
 if (! isset($_ENV['APP_ENV'])) {
 	$_ENV['APP_ENV'] = 'production';
@@ -89,11 +93,11 @@ add_action( 'plugins_loaded', 'hellotext_load_textdomain' );
 function uninstall() {
     global $wpdb;
 
-    delete_option('hellotext_business_id');
-    delete_option('hellotext_webchat_id');
-    delete_option('hellotext_webchat_placement');
-    delete_option('hellotext_webchat_behaviour');
-    delete_option('hellotext_access_token');
+    delete_option(Constants::OPTION_BUSINESS_ID);
+    delete_option(Constants::OPTION_WEBCHAT_ID);
+    delete_option(Constants::OPTION_WEBCHAT_PLACEMENT);
+    delete_option(Constants::OPTION_WEBCHAT_BEHAVIOUR);
+    delete_option(Constants::OPTION_ACCESS_TOKEN);
 
     $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
     if ($wpdb->get_var("SHOW TABLES LIKE '$api_keys_table'") === $api_keys_table) {

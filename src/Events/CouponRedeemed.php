@@ -1,6 +1,7 @@
 <?php
 
 use Hellotext\Api\Event;
+use Hellotext\Constants;
 
 add_action( 'woocommerce_applied_coupon', 'hellotext_coupon_redeemed', 10, 1 );
 
@@ -14,7 +15,7 @@ function hellotext_coupon_redeemed ($code) {
 
 
 	if ($valid) {
-		( new Event() )->track('coupon.redeemed', [
+		( new Event() )->track(Constants::EVENT_COUPON_REDEEMED, [
 			'object_parameters' => [
 				'type' => 'coupon',
 				'reference' => $coupon->get_id(),

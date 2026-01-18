@@ -1,6 +1,7 @@
 <?php
 
 use Hellotext\Api\Webchat;
+use Hellotext\Constants;
 
 add_action( 'admin_init', 'hellotext_settings_init' );
 function hellotext_settings_init() {
@@ -15,7 +16,7 @@ function hellotext_settings_init() {
 
     // Hellotext Business ID
     add_settings_field(
-        'hellotext_business_id',
+        Constants::OPTION_BUSINESS_ID,
         __( 'settings.business_id', 'hellotext' ),
         'hellotext_business_id_field',
         'hellotext-form',
@@ -24,7 +25,7 @@ function hellotext_settings_init() {
 
     // Hellotext Access Token
     add_settings_field(
-        'hellotext_access_token',
+        Constants::OPTION_ACCESS_TOKEN,
         __( 'settings.access_token', 'hellotext' ),
         'hellotext_access_token_field',
         'hellotext-form',
@@ -33,7 +34,7 @@ function hellotext_settings_init() {
 
     // Hellotext Webchat ID
     add_settings_field(
-        'hellotext_webchat_id',
+        Constants::OPTION_WEBCHAT_ID,
         __( 'settings.webchat_id', 'hellotext' ),
         'hellotext_webchat_id_field',
         'hellotext-form',
@@ -41,7 +42,7 @@ function hellotext_settings_init() {
     );
 
     add_settings_field(
-        'hellotext_webchat_placement',
+        Constants::OPTION_WEBCHAT_PLACEMENT,
         __( 'settings.webchat_placement', 'hellotext' ),
         'hellotext_webchat_placement_field',
         'hellotext-form',
@@ -49,7 +50,7 @@ function hellotext_settings_init() {
     );
 
     add_settings_field(
-        'hellotext_webchat_behaviour',
+        Constants::OPTION_WEBCHAT_BEHAVIOUR,
         __( 'settings.webchat_behaviour', 'hellotext' ),
         'hellotext_webchat_behaviour_field',
         'hellotext-form',
@@ -58,15 +59,15 @@ function hellotext_settings_init() {
 
 
     // Register settings
-    register_setting( 'hellotext-form', 'hellotext_business_id' );
-    register_setting( 'hellotext-form', 'hellotext_access_token' );
-    register_setting( 'hellotext-form', 'hellotext_webchat_id' ); // Corrected ID
+    register_setting( 'hellotext-form', Constants::OPTION_BUSINESS_ID );
+    register_setting( 'hellotext-form', Constants::OPTION_ACCESS_TOKEN );
+    register_setting( 'hellotext-form', Constants::OPTION_WEBCHAT_ID ); // Corrected ID
 }
 
 
 function hellotext_description_section_callback() {
-    $business_id = get_option('hellotext_business_id', null);
-    $access_token = get_option('hellotext_access_token', null);
+    $business_id = get_option(Constants::OPTION_BUSINESS_ID, null);
+    $access_token = get_option(Constants::OPTION_ACCESS_TOKEN, null);
 
     if (!$business_id) {
         echo '<p>' . wp_kses( __( 'description.paragraphs.one', 'hellotext' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'style' => array() ) ) ) . '</p>';
@@ -79,22 +80,24 @@ function hellotext_description_section_callback() {
 
 function hellotext_business_id_field() {
     ?>
-    <input type="text" id="hellotext_business_id" name="hellotext_business_id"
-           value="<?php echo esc_attr( get_option('hellotext_business_id') ); ?>"
+    <input type="text" id="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
+           name="<?php echo esc_attr(Constants::OPTION_BUSINESS_ID); ?>"
+           value="<?php echo esc_attr( get_option(Constants::OPTION_BUSINESS_ID) ); ?>"
            style="width: 400px;" />
     <?php
 }
 
 function hellotext_access_token_field() {
     ?>
-    <textarea id="hellotext_access_token" name="hellotext_access_token"
-              style="width: 400px;" rows="5"><?php echo esc_html( get_option('hellotext_access_token') ); ?></textarea>
+    <textarea id="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
+              name="<?php echo esc_attr(Constants::OPTION_ACCESS_TOKEN); ?>"
+              style="width: 400px;" rows="5"><?php echo esc_html( get_option(Constants::OPTION_ACCESS_TOKEN) ); ?></textarea>
     <?php
 }
 
 function hellotext_webchat_id_field() {
     $ids = Webchat::index();
-    $selected = get_option('hellotext_webchat_id', '');
+    $selected = get_option(Constants::OPTION_WEBCHAT_ID, '');
 
     if (empty($ids)) {
         echo '<p>' . __('webchat_unavailable', 'hellotext') . '</p>';
@@ -102,7 +105,9 @@ function hellotext_webchat_id_field() {
     }
 
     ?>
-    <select id="hellotext_webchat" name="hellotext_webchat_id" style="width: 400px;">
+    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_ID); ?>"
+            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_ID); ?>"
+            style="width: 400px;">
         <option value="" <?php selected($selected, ''); ?>>None Selected</option>
 
         <?php foreach ($ids as $id): ?>
@@ -115,10 +120,12 @@ function hellotext_webchat_id_field() {
 }
 
 function hellotext_webchat_placement_field() {
-    $placement = get_option('hellotext_webchat_placement', 'bottom-right'); // 'bottom-right' is the default value
+    $placement = get_option(Constants::OPTION_WEBCHAT_PLACEMENT, 'bottom-right'); // 'bottom-right' is the default value
 
     ?>
-    <select id="hellotext_webchat_placement" name="hellotext_webchat_placement" style="width: 400px;">
+    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
+            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
+            style="width: 400px;">
         <option value="top-left" <?php selected( $placement, 'top-left' ); ?>>
             <?php _e( 'settings.webchat_placement_top-left', 'hellotext' ); ?>
         </option>
@@ -136,10 +143,12 @@ function hellotext_webchat_placement_field() {
 }
 
 function hellotext_webchat_behaviour_field() {
-    $behaviour = get_option('hellotext_webchat_behaviour', 'popover'); // 'popover' is the default value
+    $behaviour = get_option(Constants::OPTION_WEBCHAT_BEHAVIOUR, 'popover'); // 'popover' is the default value
 
     ?>
-    <select id="hellotext_webchat_behaviour" name="hellotext_webchat_behaviour" style="width: 400px;">
+    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
+            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
+            style="width: 400px;">
         <option value="popover" <?php selected( $behaviour, 'popover' ); ?>>Popover</option>
         <option value="modal" <?php selected( $behaviour, 'modal' ); ?>>Modal</option>
     </select>

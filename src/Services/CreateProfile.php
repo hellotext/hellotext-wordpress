@@ -3,6 +3,7 @@
 namespace Hellotext\Services;
 
 use Hellotext\Api\Client;
+use Hellotext\Constants;
 
 class CreateProfile {
 	public $user;
@@ -16,7 +17,9 @@ class CreateProfile {
 
 	public function __construct($user_id, $billing = []) {
 		$this->user_id = $user_id;
-		$this->session = isset($_COOKIE['hello_session']) ? sanitize_text_field($_COOKIE['hello_session']) : null;
+		$this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
+			? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
+			: null;
 		$this->client = Client::class;
 		$this->billing = $billing;
 	}
@@ -52,24 +55,24 @@ class CreateProfile {
 	}
 
 	private function verify_if_profile_exists () {
-		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
+		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
 
 	private function session_changed () {
-		return get_user_meta($this->user_id, 'hellotext_session', true) != $this->session;
+		return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
 	}
 
 	public function create_hellotext_profile () {
-		$profile = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
+		$profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		if ($profile) {
 			if (isset($this->user)) {
-				update_user_meta($this->user->ID, 'hellotext_profile_id', $profile);
+				update_user_meta($this->user->ID, Constants::META_PROFILE_ID, $profile);
 			}
 
-            $this->client::patch("/sessions/{$this->session}", array(
+            $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
                'session' => $this->session,
                'profile' => $profile,
             ));
@@ -79,7 +82,7 @@ class CreateProfile {
 
 		$phone = get_user_meta($this->user_id, 'billing_phone', true);
 
-		$response = $this->client::post('/profiles', array_filter(array(
+		$response = $this->client::post(Constants::API_ENDPOINT_PROFILES, array_filter(array(
 			'session' => $this->session,
 			'reference' => isset($this->user) ? $this->user->ID : null,
 			'first_name' => $this->user->nickname ?? $this->billing['first_name'],
@@ -89,18 +92,18 @@ class CreateProfile {
 			'lists' => array('WooCommerce'),
 		)));
 
-		add_user_meta( $this->user_id ?? $this->session, 'hellotext_profile_id', $response['body']['id'], true );
+		add_user_meta( $this->user_id ?? $this->session, Constants::META_PROFILE_ID, $response['body']['id'], true );
 
-		$this->client::patch("/sessions/{$this->session}", array(
+		$this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
            'session' => $this->session,
            'profile' => $response['body']['id'],
         ));
 	}
 
 	private function attach_profile_to_session () {
-		$profile_id = get_user_meta($this->user_id ?? $this->session, 'hellotext_profile_id', true);
+		$profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
-		$response = $this->client::patch("/sessions/{$this->session}", array(
+		$response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", array(
 			'session' => $this->session,
 			'profile' => $profile_id,
 		));

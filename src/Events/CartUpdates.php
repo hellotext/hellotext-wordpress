@@ -2,6 +2,7 @@
 
 use Hellotext\Adapters\ProductAdapter;
 use Hellotext\Api\Event;
+use Hellotext\Constants;
 
 // We could listen for woocommerce_cart_updated event but this event is
 // triggered too many times per cart update. Instead, we listen for the
@@ -27,8 +28,8 @@ function hellotext_cart_updated() {
     );
 
     // Set previous cart items and current cart items
-    $previous_cart_items = isset($_SESSION['hellotext_cart_items'])
-       ? json_decode(sanitize_text_field($_SESSION['hellotext_cart_items']), true)
+    $previous_cart_items = isset($_SESSION[Constants::SESSION_CART_ITEMS])
+       ? json_decode(sanitize_text_field($_SESSION[Constants::SESSION_CART_ITEMS]), true)
        : array();
 
     $current_cart_items = WC()->cart->get_cart();
@@ -44,7 +45,7 @@ function hellotext_cart_updated() {
     }
 
     // Save current cart items to session
-    $_SESSION['hellotext_cart_items'] = json_encode($cart_items);
+    $_SESSION[Constants::SESSION_CART_ITEMS] = json_encode($cart_items);
 
     // Calculate total cart value
     $cart_total = WC()->cart->get_cart_contents_total();
@@ -81,8 +82,17 @@ function hellotext_cart_updated() {
     }
 
     // Trigger events, one for added and one for removed items
+    $event_map = [
+       'added' => Constants::EVENT_CART_ADDED,
+       'removed' => Constants::EVENT_CART_REMOVED,
+    ];
+
     foreach ($changes as $event => $items) {
        if (0 == count($items)) {
+          continue;
+       }
+
+       if (!isset($event_map[$event])) {
           continue;
        }
 
@@ -95,6 +105,6 @@ function hellotext_cart_updated() {
           )
        );
 
-       (new Event())->track("cart.{$event}", $event_data);
+       (new Event())->track($event_map[$event], $event_data);
     }
 }

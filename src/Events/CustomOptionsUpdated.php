@@ -1,8 +1,10 @@
 <?php
 
+use Hellotext\Constants;
+
 function custom_field_updated($option, $old_value, $new_value) {
 	switch ($option) {
-		case 'hellotext_business_id':
+		case Constants::OPTION_BUSINESS_ID:
 			do_action('hellotext_remove_integration', $old_value);
 			do_action('hellotext_create_integration', $new_value);
 			break;

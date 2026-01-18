@@ -2,8 +2,10 @@
 
 namespace Hellotext\Api;
 
+use Hellotext\Constants;
+
 class Client {
-	public static $sufix = '/v1';
+	public static $sufix = '/' . Constants::API_VERSION;
 
 	public static function with_sufix ($sufix = '') {
 		if (0 < strlen($sufix) && '/' !== $sufix[0]) {
@@ -62,7 +64,7 @@ class Client {
 	}
 
 	private static function set_curl_options ($curl, $method) {
-		$hellotext_access_token = get_option('hellotext_access_token');
+		$hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
 		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
