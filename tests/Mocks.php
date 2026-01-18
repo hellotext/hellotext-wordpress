@@ -12,10 +12,30 @@ function wc_create_refund ($args = array()) {
 
 // Mock WooCommerce wc_get_product function
 function wc_get_product ($id = 0) {
+	// If already a WC_Product, return it
+	if ($id instanceof WC_Product) {
+		return $id;
+	}
+
+	// If invalid ID, return false
+	if (!is_numeric($id) || $id <= 0) {
+		return false;
+	}
+
 	return new WC_Product();
 }
 
 function wc_get_order ($id = 0) {
+	// If already a WC_Order, return it
+	if ($id instanceof WC_Order) {
+		return $id;
+	}
+
+	// If invalid ID, return false
+	if (!is_numeric($id) || $id <= 0) {
+		return false;
+	}
+
 	return new WC_Order();
 }
 
@@ -61,6 +81,7 @@ class WC_Order {
 class WC_Order_Refund {
 
 	public $amount;
+	public $order_id;
 
 	public function __construct ($args) {
 		$this->amount = $args['amount'];

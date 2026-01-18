@@ -45,7 +45,7 @@ Once installed, click on *Activate Plugin* to activate it.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-activate.jpeg" alt="" width="768" />
 
-Your plugin is now activated. You can check that it has been correctly installed and activated from *Plugins* by clicking on *Installed Plugins*. 
+Your plugin is now activated. You can check that it has been correctly installed and activated from *Plugins* by clicking on *Installed Plugins*.
 
 You should see Hellotext as shown in the image below.
 
@@ -55,9 +55,9 @@ You should see Hellotext as shown in the image below.
 
 With the Hellotext plugin already installed, let's configure it.
 
-The first thing you need to do is obtain your business identifier in Hellotext. 
+The first thing you need to do is obtain your business identifier in Hellotext.
 
-From your Hellotext business panel, visit the *Settings* section and you will find it below your business name. 
+From your Hellotext business panel, visit the *Settings* section and you will find it below your business name.
 
 Select and copy this identifier as you will need to add it to your WooCommerce site.
 
@@ -83,7 +83,7 @@ Once created, click on the indicated icon to copy your created token.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/hellotext-tokens-created.jpeg" alt="" width="768" />
 
-Now, go back to your WooCommerce panel and paste the authorization token into the *Access Token* field. 
+Now, go back to your WooCommerce panel and paste the authorization token into the *Access Token* field.
 
 Click on *Save Changes* to save the changes.
 
@@ -93,11 +93,43 @@ Done! Your WooCommerce store is now connected to Hellotext.
 
 ## Next Steps
 
-From now on, you will start seeing your customers' activity reflected in the Audience section or from the Inbox. 
+From now on, you will start seeing your customers' activity reflected in the Audience section or from the Inbox.
 
-You can click on each profile to see the activity history they perform in your eCommerce. 
+You can click on each profile to see the activity history they perform in your eCommerce.
 
 With this information, you can create segments for sending campaigns and automations from the Routes section.
+
+## Tracked Events
+
+The plugin automatically tracks the following customer activities:
+
+- **Product Viewed** - When a customer views a product page
+- **Cart Added/Removed** - Items added to or removed from cart
+- **Coupon Redeemed** - When a customer applies a coupon code
+- **Order Placed** - When an order is successfully created
+- **Order Status Updates** - Order confirmation, cancellation, delivery
+- **Refund Received** - When orders are refunded
+- **User Registration** - When new customers register
+
+## Developer Documentation
+
+For developers looking to integrate, extend, or contribute to this plugin:
+
+- **[API Documentation](API.md)** - Complete API reference for classes, methods, and hooks
+- **[Development Guide](DEVELOPMENT.md)** - Setup, testing, and contribution guidelines
+### Requirements
+
+- PHP 8.2 or higher
+- WordPress 5.0 or higher
+- WooCommerce 5.0 or higher
+
+## Support
+
+Need help?
+
+- **Documentation**: See [API.md](API.md) and [DEVELOPMENT.md](DEVELOPMENT.md)
+- **Issues**: [GitHub Issues](https://github.com/hellotext/hellotext-wordpress/issues)
+- **Website**: [www.hellotext.com](https://www.hellotext.com)
 
 ## License
 

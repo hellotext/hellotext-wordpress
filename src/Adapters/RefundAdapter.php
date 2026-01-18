@@ -41,17 +41,8 @@ class RefundAdapter {
 	 * Get the adapted refund payload.
 	 *
 	 * @return array
-	 * @throws \Exception When refund or order is not found.
 	 */
 	public function get (): array {
-		if (!$this->refund) {
-			throw new \Exception('Refund not found');
-		}
-
-		if (!$this->order) {
-			throw new \Exception('Order not found');
-		}
-
 		return array(
 			'reference' => $this->refund->get_id(),
 			'source' => 'woo',

@@ -1,5 +1,14 @@
 ** Hellotext for WooCommerce Changelog **
 
+2026-01-18 - version 1.2.3
+
+* Add comprehensive type hints to all source files for better IDE support and type safety.
+* Add PHPDoc comments to all classes and methods for improved documentation.
+* Create centralized Constants.php file to eliminate magic strings.
+* Expand test coverage with new unit tests for adapters and services.
+* Add comprehensive developer documentation (API.md and DEVELOPMENT.md).
+* Improve code quality and maintainability across the codebase.
+
 2025-04-10 - version 1.2.2
 
 * The generated Hellotext API key has read/write access to allow Hellotext to subscribe to webhooks.
