@@ -26,6 +26,7 @@
     "scripts": {
         "test": "vendor/bin/pest",
         "format": "vendor/bin/php-cs-fixer fix",
-        "format:check": "vendor/bin/php-cs-fixer fix --dry-run --diff"
+        "format:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "build": "composer install --no-dev --optimize-autoloader"
     }
 }

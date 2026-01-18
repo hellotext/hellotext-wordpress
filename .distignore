@@ -1,0 +1,26 @@
+# Version control
+.git
+.github
+.gitignore
+.distignore
+
+# Development
+tests
+phpunit.xml
+composer.json
+composer.lock
+DEVELOPMENT.md
+API.md
+
+# Build tools
+node_modules
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Logs
+*.log
