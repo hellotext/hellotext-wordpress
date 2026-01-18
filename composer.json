@@ -12,9 +12,15 @@
         }
     },
     "require-dev": {
-        "pestphp/pest": "*",
+        "pestphp/pest": "^3.8",
         "mockery/mockery": "^1.6",
-        "php-stubs/wordpress-stubs": "^5.0@stable",
-        "php-stubs/woocommerce-stubs": "^5.0@stable"
+        "php-stubs/wordpress-stubs": "^6.9",
+        "php-stubs/woocommerce-stubs": "^10.4",
+        "friendsofphp/php-cs-fixer": "^3.92"
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/php-cs-fixer fix",
+        "format:check": "vendor/bin/php-cs-fixer fix --dry-run --diff"
     }
 }

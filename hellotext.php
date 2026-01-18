@@ -58,39 +58,58 @@ foreach ($paths as $current_path) {
 // Function on Events/AppRemoved.php
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
 
-// New Version Check
 /**
- * Show admin notice when a newer version is available.
+ * Check for plugin updates from GitHub.
+ * Caches result for 24 hours to avoid rate limiting.
  *
  * @return void
  */
-function version_check() {
-	$releases_api_url = 'https://api.github.com/repos/hellotext/hellotext-wordpress/releases';
-	$releases_url = 'https://github.com/hellotext/hellotext-wordpress/releases';
-    $plugin_slug = plugin_basename( __FILE__ );
-    $plugin_data = get_plugin_data( __FILE__ );
+function hellotext_version_check() {
+	if (!is_admin()) {
+		return;
+	}
 
-    // Check if this plugin is at least partially ours
-    if ( isset( $_GET['page'] ) && $_GET['page'] === 'your-plugin-settings-page' ) {
-        return; // Don't show the notice on your plugin settings page
-    }
+	$cache_key = 'hellotext_version_check';
+	$cached = get_transient($cache_key);
 
-    $response = wp_remote_get( $releases_api_url );
+	if (false !== $cached) {
+		if (isset($cached['message'])) {
+			echo '<div class="notice notice-warning"><p>' . wp_kses_post($cached['message']) . '</p></div>';
+		}
+		return;
+	}
 
-    if ( ! is_wp_error( $response ) ) {
-        $body = wp_remote_retrieve_body( $response );
-        $json = json_decode( $body, true );
-        if ( is_array( $json ) ) {
-            $current_version = $plugin_data['Version'];
-            $latest_version = preg_replace('/[a-zA-Z]/', '', $json[0]['tag_name']);
-            if ( version_compare( $current_version, $latest_version, '<' ) ) {
-                $message = sprintf( __( 'There is a new version of %1$s available. View version %2$s details or <a href="%3$s" target="_blank">update now</a>.' ), $plugin_data['Name'], $latest_version, $releases_url );
-                echo '<div class="notice notice-warning"><p>' . $message . '</p></div>';
-            }
-        }
-    }
+	$response = wp_remote_get(
+		'https://api.github.com/repos/hellotext/hellotext-wordpress/releases/latest',
+		['timeout' => 5]
+	);
+
+	$cache_data = [];
+
+	if (!is_wp_error($response) && 200 === wp_remote_retrieve_response_code($response)) {
+		$release = json_decode(wp_remote_retrieve_body($response), true);
+
+		if (isset($release['tag_name'])) {
+			$current = get_plugin_data(__FILE__)['Version'];
+			$latest = ltrim($release['tag_name'], 'v');
+
+			if (version_compare($current, $latest, '<')) {
+				$cache_data['message'] = sprintf(
+					'New version of Hellotext available: %s. <a href="%s">View details</a>',
+					$latest,
+					$release['html_url']
+				);
+			}
+		}
+	}
+
+	set_transient($cache_key, $cache_data, DAY_IN_SECONDS);
+
+	if (isset($cache_data['message'])) {
+		echo '<div class="notice notice-warning"><p>' . wp_kses_post($cache_data['message']) . '</p></div>';
+	}
 }
-add_action( 'admin_notices', 'version_check' );
+add_action('admin_notices', 'hellotext_version_check');
 
 /**
  * Load plugin text domain.
