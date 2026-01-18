@@ -48,10 +48,10 @@ class Client {
         $access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
         $args = [
-            'method'  => strtoupper($method),
+            'method' => strtoupper($method),
             'timeout' => 15,
             'headers' => [
-                'Content-Type'  => 'application/json',
+                'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $access_token,
             ],
             'sslverify' => true,
@@ -78,12 +78,12 @@ class Client {
             return [
                 'request' => [
                     'method' => $method,
-                    'path'   => $request_url,
-                    'data'   => $data,
+                    'path' => $request_url,
+                    'data' => $data,
                 ],
-                'status'  => 0,
-                'body'    => null,
-                'error'   => $response->get_error_message(),
+                'status' => 0,
+                'body' => null,
+                'error' => $response->get_error_message(),
             ];
         }
 
@@ -103,12 +103,12 @@ class Client {
         return [
             'request' => [
                 'method' => $method,
-                'path'   => $request_url,
-                'data'   => $data,
+                'path' => $request_url,
+                'data' => $data,
             ],
             'status' => $status_code,
-            'body'   => !empty($body_raw) ? json_decode($body_raw, true) : null,
-            'error'  => null,
+            'body' => !empty($body_raw) ? json_decode($body_raw, true) : null,
+            'error' => null,
         ];
     }
 

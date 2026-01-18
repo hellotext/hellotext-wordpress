@@ -46,7 +46,7 @@ class Event {
     public function track(string $action, array $payload): void {
         $body = array_merge(
             [
-                'action'  => $action,
+                'action' => $action,
                 'session' => $this->session ?? $this->browser_session(),
             ],
             $payload
@@ -55,13 +55,13 @@ class Event {
         $response = wp_remote_post(
             $this->get_api_url(),
             [
-                'timeout'   => 10,
-                'blocking'  => false,
-                'headers'   => [
-                    'Content-Type'  => 'application/json',
+                'timeout' => 10,
+                'blocking' => false,
+                'headers' => [
+                    'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer ' . $this->hellotext_business_id,
                 ],
-                'body'      => json_encode($body),
+                'body' => json_encode($body),
                 'sslverify' => true,
             ]
         );
