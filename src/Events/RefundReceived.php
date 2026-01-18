@@ -7,6 +7,13 @@ use Hellotext\Constants;
 
 add_action( 'woocommerce_order_refunded', 'hellotext_refund_created', 10, 2 );
 
+/**
+ * Track refund creation.
+ *
+ * @param int $order_id Order ID.
+ * @param int $refund_id Refund ID.
+ * @return void
+ */
 function hellotext_refund_created (int $order_id, int $refund_id): void {
 	$order = wc_get_order($order_id);
 	$refund = new WC_Order_Refund($refund_id);

@@ -7,6 +7,12 @@ use Hellotext\Constants;
 
 add_action( 'woocommerce_after_order_details', 'hellotext_order_placed' );
 
+/**
+ * Track order placement.
+ *
+ * @param \WC_Order $order WooCommerce order instance.
+ * @return void
+ */
 function hellotext_order_placed ( \WC_Order $order ): void {
 	$userId = $order->get_user_id();
 	$userId = $userId > 0 ? $userId : $order->data['billing'];

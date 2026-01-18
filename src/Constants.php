@@ -2,6 +2,13 @@
 
 namespace Hellotext;
 
+/**
+ * Constants
+ *
+ * Centralized constants used across the Hellotext plugin.
+ *
+ * @package Hellotext
+ */
 class Constants {
 	// API Configuration
 	public const API_VERSION = 'v1';

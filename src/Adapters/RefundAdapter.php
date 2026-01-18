@@ -4,15 +4,45 @@ namespace Hellotext\Adapters;
 
 use Hellotext\Adapters\PriceAdapter;
 
+/**
+ * RefundAdapter
+ *
+ * Transforms WooCommerce refunds into Hellotext payloads.
+ *
+ * @package Hellotext\Adapters
+ */
 class RefundAdapter {
-	public \WC_Order_Refund $refund; // WooCommerce Refund
+	/**
+	 * WooCommerce refund instance.
+	 *
+	 * @var \WC_Order_Refund
+	 */
+	public \WC_Order_Refund $refund;
+
+	/**
+	 * WooCommerce order instance.
+	 *
+	 * @var \WC_Order
+	 */
 	public \WC_Order $order;
 
+	/**
+	 * Create a new adapter instance.
+	 *
+	 * @param \WC_Order_Refund $refund Refund instance.
+	 * @param \WC_Order $order Order instance.
+	 */
 	public function __construct (\WC_Order_Refund $refund, \WC_Order $order) {
 		$this->refund = $refund;
 		$this->order = $order;
 	}
 
+	/**
+	 * Get the adapted refund payload.
+	 *
+	 * @return array
+	 * @throws \Exception When refund or order is not found.
+	 */
 	public function get (): array {
 		if (!$this->refund) {
 			throw new \Exception('Refund not found');

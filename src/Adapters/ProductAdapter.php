@@ -4,13 +4,36 @@ namespace Hellotext\Adapters;
 
 use Hellotext\Adapters\PriceAdapter;
 
+/**
+ * ProductAdapter
+ *
+ * Transforms WooCommerce products into Hellotext payloads.
+ *
+ * @package Hellotext\Adapters
+ */
 class ProductAdapter {
-	public \WC_Product|false $product; // WooCommerce product
+	/**
+	 * WooCommerce product instance.
+	 *
+	 * @var \WC_Product|false
+	 */
+	public \WC_Product|false $product;
 
+	/**
+	 * Create a new adapter instance.
+	 *
+	 * @param int|\WC_Product $product Product ID or product instance.
+	 */
 	public function __construct (int|\WC_Product $product) {
 		$this->product = is_numeric($product) ? wc_get_product( $product ) : $product;
 	}
 
+	/**
+	 * Get the adapted product payload.
+	 *
+	 * @return array
+	 * @throws \Exception When product is not found.
+	 */
 	public function get (): array {
 		if (!$this->product) {
 			throw new \Exception('Product not found');

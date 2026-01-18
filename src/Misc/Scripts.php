@@ -3,6 +3,11 @@
 add_action( 'admin_head', 'hellotext_script' );
 add_action( 'wp_head', 'hellotext_script' );
 
+/**
+ * Output Hellotext embed script in the page head.
+ *
+ * @return void
+ */
 function hellotext_script (): void {
 	global $HELLOTEXT_API_URL;
 

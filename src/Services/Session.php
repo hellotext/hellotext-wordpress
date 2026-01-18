@@ -4,8 +4,21 @@ namespace Hellotext\Services;
 
 use Hellotext\Constants;
 
+/**
+ * Session
+ *
+ * Handles encryption and decryption for session identifiers.
+ *
+ * @package Hellotext\Services
+ */
 class Session {
 
+	/**
+	 * Encrypt a session identifier.
+	 *
+	 * @param string|null $session Session identifier.
+	 * @return string
+	 */
 	public static function encrypt (?string $session = null): string {
 		$key = get_option(Constants::OPTION_BUSINESS_ID);
 
@@ -18,6 +31,12 @@ class Session {
 		return base64_encode($encrypted . '::' . $iv);
 	}
 
+	/**
+	 * Decrypt an encrypted session identifier.
+	 *
+	 * @param string|null $encrypted_data Encrypted session data.
+	 * @return string|false
+	 */
 	public static function decrypt (?string $encrypted_data = null): string|false {
 		$key = get_option(Constants::OPTION_BUSINESS_ID);
 		$parts = explode('::', base64_decode($encrypted_data));

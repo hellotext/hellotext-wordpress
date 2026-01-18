@@ -5,16 +5,62 @@ namespace Hellotext\Services;
 use Hellotext\Api\Client;
 use Hellotext\Constants;
 
+/**
+ * CreateProfile
+ *
+ * Creates and associates Hellotext profiles for users/sessions.
+ *
+ * @package Hellotext\Services
+ */
 class CreateProfile {
+	/**
+	 * WordPress user instance.
+	 *
+	 * @var \WP_User|false|null
+	 */
 	public \WP_User|false|null $user = null;
+
+	/**
+	 * Hellotext profile ID.
+	 *
+	 * @var string|null
+	 */
 	public ?string $hellotext_profile_id = null;
 
+	/**
+	 * API client class name.
+	 *
+	 * @var string
+	 */
 	public string $client;
+
+	/**
+	 * Billing payload data.
+	 *
+	 * @var array
+	 */
 	public array $billing;
 
+	/**
+	 * WordPress user ID.
+	 *
+	 * @var int|null
+	 */
 	public ?int $user_id;
+
+	/**
+	 * Session identifier.
+	 *
+	 * @var string|null
+	 */
 	public ?string $session;
 
+	/**
+	 * Create a new profile service instance.
+	 *
+	 * @param int|null $user_id WordPress user ID.
+	 * @param array $billing Billing payload data.
+	 */
 	public function __construct(?int $user_id, array $billing = []) {
 		$this->user_id = $user_id;
 		$this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
@@ -24,6 +70,11 @@ class CreateProfile {
 		$this->billing = $billing;
 	}
 
+	/**
+	 * Process profile creation/association flow.
+	 *
+	 * @return void
+	 */
 	public function process (): void {
 		if (isset($this->billing) && !empty($this->billing)) {
 			$this->create_hellotext_profile();
@@ -46,6 +97,12 @@ class CreateProfile {
 		}
 	}
 
+	/**
+	 * Load the WordPress user by ID.
+	 *
+	 * @return void
+	 * @throws \Exception When user is not found.
+	 */
 	private function get_user (): void {
 		$this->user = get_user_by('id', $this->user_id);
 
@@ -54,16 +111,31 @@ class CreateProfile {
 		}
 	}
 
+	/**
+	 * Check if a Hellotext profile already exists.
+	 *
+	 * @return bool
+	 */
 	private function verify_if_profile_exists (): bool {
 		$hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
 		return false != $hellotext_profile_id && '' != $hellotext_profile_id;
 	}
 
+	/**
+	 * Determine if the session value has changed.
+	 *
+	 * @return bool
+	 */
 	private function session_changed (): bool {
 		return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
 	}
 
+	/**
+	 * Create a Hellotext profile or reuse existing one.
+	 *
+	 * @return void
+	 */
 	public function create_hellotext_profile (): void {
 		$profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
@@ -100,6 +172,11 @@ class CreateProfile {
         ));
 	}
 
+	/**
+	 * Attach profile ID to current session.
+	 *
+	 * @return void
+	 */
 	private function attach_profile_to_session (): void {
 		$profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
 
@@ -110,6 +187,12 @@ class CreateProfile {
 	}
 }
 
+/**
+ * Handle Hellotext profile creation action.
+ *
+ * @param mixed $payload Billing payload data.
+ * @return void
+ */
 add_action('hellotext_create_profile', function (mixed $payload = null): void {
 	if (is_array($payload)) {
 		( new CreateProfile(null, $payload) )->process();

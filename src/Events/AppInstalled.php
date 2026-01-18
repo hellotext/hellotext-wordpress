@@ -4,6 +4,11 @@ use Hellotext\Api\Client;
 use Hellotext\Api\Event;
 use Hellotext\Constants;
 
+/**
+ * Trigger integration creation on plugin activation.
+ *
+ * @return void
+ */
 function hellotext_activate (): void {
 	$hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
 	if (!$hellotext_business_id) {
@@ -13,6 +18,12 @@ function hellotext_activate (): void {
 	do_action('hellotext_create_integration', $hellotext_business_id);
 }
 
+/**
+ * Create WooCommerce integration in Hellotext.
+ *
+ * @param mixed $business_id Business ID token.
+ * @return void
+ */
 add_action('hellotext_create_integration', function (mixed $business_id): void {
    if(!$business_id) {
      $business_id = get_option(Constants::OPTION_BUSINESS_ID);
@@ -56,16 +67,35 @@ add_action('hellotext_create_integration', function (mixed $business_id): void {
 	}
 });
 
+/**
+ * Handle business ID update.
+ *
+ * @param mixed $old_value Previous value.
+ * @param mixed $new_value New value.
+ * @return void
+ */
 function after_business_id_save(mixed $old_value, mixed $new_value): void {
     if ($old_value !== $new_value) {
         maybe_trigger_integration($new_value);
     }
 }
 
+/**
+ * Handle business ID creation.
+ *
+ * @param mixed $value Business ID value.
+ * @return void
+ */
 function after_business_id_set(mixed $value): void {
     maybe_trigger_integration($value);
 }
 
+/**
+ * Trigger integration creation when possible.
+ *
+ * @param mixed $business_id Business ID value.
+ * @return void
+ */
 function maybe_trigger_integration(mixed $business_id): void {
     $integration_flag = get_transient('hellotext_integration_triggered');
 
@@ -78,6 +108,11 @@ function maybe_trigger_integration(mixed $business_id): void {
         set_transient('hellotext_integration_triggered', true, 10);
         do_action('hellotext_create_integration');
     } else {
+                /**
+         * Attempt integration creation during shutdown.
+         *
+         * @return void
+         */
         add_action('shutdown', function (): void {
             $integration_flag = get_transient('hellotext_integration_triggered');
             $hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);

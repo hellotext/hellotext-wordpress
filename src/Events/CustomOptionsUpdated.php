@@ -2,6 +2,14 @@
 
 use Hellotext\Constants;
 
+/**
+ * Handle custom option updates for Hellotext.
+ *
+ * @param string $option Option name.
+ * @param mixed $old_value Previous value.
+ * @param mixed $new_value New value.
+ * @return void
+ */
 function custom_field_updated(string $option, mixed $old_value, mixed $new_value): void {
 	switch ($option) {
 		case Constants::OPTION_BUSINESS_ID:

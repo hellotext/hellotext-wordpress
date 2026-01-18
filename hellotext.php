@@ -1,22 +1,4 @@
 <?php
-/**
- * Hellotext
- *
- * @package Hellotext
- *
- * @wordpress-plugin
- * Plugin Name: Hellotext
- * Plugin URI: https://github.com/hellotext/hellotext-wordpress
- * Description: Integrates Hellotext tracking to WooCommerce.
- * Version: 1.2.0
- * Author: Hellotext
- * Author URI: https://www.hellotext.com
- * License: GPL v2
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: hellotext
- * Domain Path: /languages
- */
-
 use Hellotext\Constants;
 
 require_once plugin_dir_path(__FILE__) . 'src/Constants.php';
@@ -57,6 +39,11 @@ foreach ($paths as $current_path) {
 register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
 
 // New Version Check
+/**
+ * Show admin notice when a newer version is available.
+ *
+ * @return void
+ */
 function version_check() {
 	$releases_api_url = 'https://api.github.com/repos/hellotext/hellotext-wordpress/releases';
 	$releases_url = 'https://github.com/hellotext/hellotext-wordpress/releases';
@@ -85,11 +72,21 @@ function version_check() {
 }
 add_action( 'admin_notices', 'version_check' );
 
+/**
+ * Load plugin text domain.
+ *
+ * @return void
+ */
 function hellotext_load_textdomain() {
     load_plugin_textdomain( 'hellotext', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'hellotext_load_textdomain' );
 
+/**
+ * Uninstall handler for cleanup.
+ *
+ * @return void
+ */
 function uninstall() {
     global $wpdb;
 
