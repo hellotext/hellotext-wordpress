@@ -47,4 +47,7 @@ class Constants {
 	public const EVENT_CART_REMOVED = 'cart.removed';
 	public const EVENT_REFUND_RECEIVED = 'refund.received';
 	public const EVENT_COUPON_REDEEMED = 'coupon.redeemed';
+
+	// Logging
+	public const LOG_PREFIX = '[Hellotext]';
 }

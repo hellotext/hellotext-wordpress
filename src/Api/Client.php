@@ -45,21 +45,70 @@ class Client {
 	 */
 	public static function request (string $method = 'GET', string $path = '/', array $data = []): array {
 		$request_url = self::get_api_url() . $path;
-		$curl = curl_init($request_url);
-		self::set_curl_options($curl, $method);
+		$access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+		$args = array(
+			'method'  => strtoupper($method),
+			'timeout' => 15,
+			'headers' => array(
+				'Content-Type'  => 'application/json',
+				'Authorization' => 'Bearer ' . $access_token,
+			),
+			'sslverify' => true,
+		);
 
-		$result = curl_exec($curl);
+		// Add body for non-GET requests
+		if (!empty($data) && 'GET' !== $method) {
+			$args['body'] = json_encode($data);
+		}
+
+		$response = wp_remote_request($request_url, $args);
+
+		// Handle errors
+		if (is_wp_error($response)) {
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				error_log(sprintf(
+					'[Hellotext] API request failed: %s %s - Error: %s',
+					$method,
+					$request_url,
+					$response->get_error_message()
+				));
+			}
+
+			return array(
+				'request' => array(
+					'method' => $method,
+					'path'   => $request_url,
+					'data'   => $data,
+				),
+				'status'  => 0,
+				'body'    => null,
+				'error'   => $response->get_error_message(),
+			);
+		}
+
+		$status_code = wp_remote_retrieve_response_code($response);
+		$body_raw = wp_remote_retrieve_body($response);
+
+		// Log non-2xx responses
+		if (defined('WP_DEBUG') && WP_DEBUG && ($status_code < 200 || $status_code >= 300)) {
+			error_log(sprintf(
+				'[Hellotext] API request returned %d: %s %s',
+				$status_code,
+				$method,
+				$request_url
+			));
+		}
 
 		return array(
 			'request' => array(
 				'method' => $method,
-				'path' => $request_url,
-				'data' => $data,
+				'path'   => $request_url,
+				'data'   => $data,
 			),
-			'status' => curl_getinfo($curl, CURLINFO_HTTP_CODE),
-			'body' => json_decode($result, true)
+			'status' => $status_code,
+			'body'   => !empty($body_raw) ? json_decode($body_raw, true) : null,
+			'error'  => null,
 		);
 	}
 
@@ -71,7 +120,7 @@ class Client {
 	 * @return array
 	 */
 	public static function get (string $path = '/', ?array $data = null): array {
-		return self::request('GET', $path, $data);
+		return self::request('GET', $path, $data ?? array());
 	}
 
 	/**
@@ -82,7 +131,7 @@ class Client {
 	 * @return array
 	 */
 	public static function post (string $path = '/', ?array $data = null): array {
-		return self::request('POST', $path, $data);
+		return self::request('POST', $path, $data ?? array());
 	}
 
 	/**
@@ -93,7 +142,7 @@ class Client {
 	 * @return array
 	 */
 	public static function patch (string $path = '/', ?array $data = null): array {
-		return self::request('PATCH', $path, $data);
+		return self::request('PATCH', $path, $data ?? array());
 	}
 
 	/**
@@ -104,7 +153,7 @@ class Client {
 	 * @return array
 	 */
 	public static function put (string $path = '/', ?array $data = null): array {
-		return self::request('PUT', $path, $data);
+		return self::request('PUT', $path, $data ?? array());
 	}
 
 	/**
@@ -115,7 +164,7 @@ class Client {
 	 * @return array
 	 */
 	public static function delete (string $path = '/', ?array $data = null): array {
-		return self::request('DELETE', $path, $data);
+		return self::request('DELETE', $path, $data ?? array());
 	}
 
 	/**
@@ -129,21 +178,4 @@ class Client {
 		return $HELLOTEXT_API_URL . self::$sufix;
 	}
 
-	/**
-	 * Configure cURL options for the request.
-	 *
-	 * @param resource|\CurlHandle $curl cURL handle.
-	 * @param string $method HTTP method.
-	 * @return void
-	 */
-	private static function set_curl_options ($curl, string $method): void {
-		$hellotext_access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
-
-		curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $hellotext_access_token,
-		));
-	}
 }

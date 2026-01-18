@@ -27,13 +27,6 @@ class Event {
 	private ?string $session;
 
 	/**
-	 * cURL handle.
-	 *
-	 * @var resource|\CurlHandle
-	 */
-	private $curl;
-
-	/**
 	 * Create a new event tracker.
 	 *
 	 * @param string|null $session Optional session identifier.
@@ -41,8 +34,6 @@ class Event {
 	public function __construct (?string $session = null) {
 		$this->hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
 		$this->session = $session;
-		$this->curl = curl_init($this->get_api_url());
-		$this->set_curl_options();
 	}
 
 	/**
@@ -55,35 +46,34 @@ class Event {
 	public function track (string $action, array $payload): void {
 		$body = array_merge(
 			array(
-				'action' => $action,
-				'session' => ( isset($this->session) && $this->session )
-					? $this->session
-					: $this->browser_session(),
+				'action'  => $action,
+				'session' => $this->session ?? $this->browser_session(),
 			),
 			$payload
 		);
 
-		curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($body));
+		$response = wp_remote_post(
+			$this->get_api_url(),
+			array(
+				'timeout'   => 10,
+				'blocking'  => false,
+				'headers'   => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . $this->hellotext_business_id,
+				),
+				'body'      => json_encode($body),
+				'sslverify' => true,
+			)
+		);
 
-		$result = curl_exec($this->curl);
-
-		curl_close($this->curl);
-	}
-
-	/**
-	 * Configure cURL options for the event request.
-	 *
-	 * @return void
-	 */
-	private function set_curl_options (): void {
-		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
-
-		// Headers
-		curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $this->hellotext_business_id,
-		));
+		// Only log if there's an error and debug is enabled
+		if (is_wp_error($response) && defined('WP_DEBUG') && WP_DEBUG) {
+			error_log(sprintf(
+				'[Hellotext] Event tracking failed for action "%s": %s',
+				$action,
+				$response->get_error_message()
+			));
+		}
 	}
 
 	/**

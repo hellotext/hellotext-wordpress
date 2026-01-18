@@ -171,3 +171,43 @@ class User {
 		return $this->ID;
 	}
 }
+
+// Mock WordPress HTTP API functions
+if (!function_exists('wp_remote_request')) {
+	function wp_remote_request ($url, $args = array()) {
+		return array(
+			'response' => array('code' => 200),
+			'body' => json_encode(array('success' => true)),
+		);
+	}
+}
+
+if (!function_exists('wp_remote_post')) {
+	function wp_remote_post ($url, $args = array()) {
+		return wp_remote_request($url, $args);
+	}
+}
+
+if (!function_exists('wp_remote_get')) {
+	function wp_remote_get ($url, $args = array()) {
+		return wp_remote_request($url, $args);
+	}
+}
+
+if (!function_exists('is_wp_error')) {
+	function is_wp_error ($thing) {
+		return $thing instanceof WP_Error;
+	}
+}
+
+if (!function_exists('wp_remote_retrieve_response_code')) {
+	function wp_remote_retrieve_response_code ($response) {
+		return $response['response']['code'] ?? 200;
+	}
+}
+
+if (!function_exists('wp_remote_retrieve_body')) {
+	function wp_remote_retrieve_body ($response) {
+		return $response['body'] ?? '';
+	}
+}
