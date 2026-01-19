@@ -175,6 +175,11 @@ class User {
 // Mock WordPress HTTP API functions
 if (!function_exists('wp_remote_request')) {
 	function wp_remote_request ($url, $args = array()) {
+		// Allow per-test override
+		if (isset($GLOBALS['test_wp_remote_request'])) {
+			return $GLOBALS['test_wp_remote_request']($url, $args);
+		}
+
 		return array(
 			'response' => array('code' => 200),
 			'body' => json_encode(array('success' => true)),
@@ -209,5 +214,36 @@ if (!function_exists('wp_remote_retrieve_response_code')) {
 if (!function_exists('wp_remote_retrieve_body')) {
 	function wp_remote_retrieve_body ($response) {
 		return $response['body'] ?? '';
+	}
+}
+
+if (!function_exists('get_option')) {
+	function get_option ($option, $default = false) {
+		// Allow per-test override
+		if (isset($GLOBALS['test_options'][$option])) {
+			return $GLOBALS['test_options'][$option];
+		}
+
+		// Default mock values
+		if ($option === 'hellotext_access_token') {
+			return 'test_token_123';
+		}
+
+		return $default;
+	}
+}
+
+if (!function_exists('get_plugin_data')) {
+	function get_plugin_data ($plugin_file, $markup = true, $translate = true) {
+		// Allow per-test override
+		if (isset($GLOBALS['test_plugin_data'])) {
+			return $GLOBALS['test_plugin_data'];
+		}
+
+		return [
+			'Name' => 'Hellotext',
+			'Version' => '1.3.0',
+			'Author' => 'Hellotext',
+		];
 	}
 }

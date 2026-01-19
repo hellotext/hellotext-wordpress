@@ -53,6 +53,7 @@ class Client {
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $access_token,
+                'X-Plugin-Version' => self::get_plugin_version(),
             ],
             'sslverify' => true,
         ];
@@ -176,6 +177,22 @@ class Client {
         global $HELLOTEXT_API_URL;
 
         return $HELLOTEXT_API_URL . self::$sufix;
+    }
+
+    /**
+     * Get plugin version.
+     *
+     * @return string
+     */
+    private static function get_plugin_version(): string {
+        if (!function_exists('get_plugin_data')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugin_file = dirname(__DIR__, 2) . '/hellotext.php';
+        $plugin_data = get_plugin_data($plugin_file, false, false);
+
+        return $plugin_data['Version'] ?? 'unknown';
     }
 
 }
