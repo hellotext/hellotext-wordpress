@@ -384,6 +384,39 @@ Constants::EVENT_COUPON_REDEEMED      // 'coupon.redeemed'
 
 ## WordPress Hooks
 
+The plugin registers these WooCommerce and WordPress hooks:
+
+| Hook | Handler | Purpose |
+| --- | --- | --- |
+| `woocommerce_after_single_product` | `hellotext_product_viewed` | Track `product.viewed` |
+| `woocommerce_after_cart` | `hellotext_trigger_cart_updated` | Compare current and previous cart state |
+| `woocommerce_add_to_cart` | `hellotext_trigger_cart_updated` | Compare current and previous cart state |
+| `woocommerce_cart_item_removed` | `hellotext_trigger_cart_updated` | Compare current and previous cart state |
+| `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated` | Compare current and previous cart state |
+| `woocommerce_applied_coupon` | `hellotext_coupon_redeemed` | Track valid `coupon.redeemed` events |
+| `woocommerce_after_order_details` | `hellotext_order_placed` | Track `order.placed` and persist encrypted session metadata on the order |
+| `woocommerce_order_status_changed` | `track_order_status` | Track `order.confirmed`, `order.cancelled`, and `order.delivered` |
+| `woocommerce_order_refunded` | `hellotext_refund_created` | Track `refund.received` |
+| `user_register` | `hellotext_user_registered` | Track customer registration/profile flow |
+| `hellotext_woocommerce_cart_updated` | `hellotext_cart_updated` | Track `cart.added` and `cart.removed` |
+| `update_option` | `custom_field_updated` | Recreate integration after Business ID changes |
+| `admin_init` | `hellotext_settings_init` | Register plugin settings |
+| `admin_head` / `wp_head` | `hellotext_script` | Inject frontend/admin scripts |
+
+## WooCommerce Compatibility
+
+Compatibility posture as of 2026-06-11. See [WooCommerce Compatibility and API Audit](docs/WOOCOMMERCE-AUDIT.md) for the full hook/API audit, HPOS assessment, compatibility matrix, and release recommendations.
+
+| Area | Status | Notes |
+| --- | --- | --- |
+| WooCommerce order metadata | HPOS-safe code path | Uses `WC_Order` metadata CRUD for Hellotext session metadata. |
+| Order status and refund events | HPOS-safe code path | Reads session metadata from the order object instead of `get_post_meta()`. |
+| Product, cart, coupon events | Public hook/API usage | Uses WooCommerce hooks and objects, not order storage internals. |
+| Automated tests | Mock-backed unit coverage | Event tests cover outbound payloads without real WordPress/WooCommerce. |
+| Runtime verification | Required before declaration | Test with HPOS enabled and disabled in a real WooCommerce site before declaring formal compatibility in the plugin header/runtime. |
+
+Do not add a formal HPOS compatibility declaration until the release candidate has passed runtime checks on WooCommerce with HPOS enabled and disabled.
+
 ### Actions
 
 #### `hellotext_create_profile`
