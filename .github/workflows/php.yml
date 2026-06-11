@@ -50,3 +50,58 @@ jobs:
 
       - name: Check formatting
         run: composer format:check
+
+  production-build:
+    name: Production Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Build production dependencies
+        run: composer build
+
+      - name: Verify production vendor contents
+        run: |
+          test -f vendor/autoload.php
+
+          for package in vendor/pestphp vendor/phpunit vendor/mockery vendor/friendsofphp vendor/php-stubs; do
+            if [ -e "$package" ]; then
+              echo "Unexpected development package in production vendor: $package"
+              exit 1
+            fi
+          done
+
+      - name: Verify release package layout
+        run: |
+          mkdir -p release
+          rsync -av --exclude-from=.distignore . release/hellotext-wordpress/
+
+          test -f release/hellotext-wordpress/hellotext.php
+          test -d release/hellotext-wordpress/src
+          test -f release/hellotext-wordpress/vendor/autoload.php
+
+          for path in \
+            release/hellotext-wordpress/tests \
+            release/hellotext-wordpress/composer.json \
+            release/hellotext-wordpress/composer.lock \
+            release/hellotext-wordpress/.github \
+            release/hellotext-wordpress/.php-cs-fixer.cache \
+            release/hellotext-wordpress/.php-cs-fixer.php \
+            release/hellotext-wordpress/DEVELOPMENT.md \
+            release/hellotext-wordpress/API.md \
+            release/hellotext-wordpress/release; do
+            if [ -e "$path" ]; then
+              echo "Unexpected development file in release package: $path"
+              exit 1
+            fi
+          done
