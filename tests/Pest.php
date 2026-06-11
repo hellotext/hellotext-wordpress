@@ -3,7 +3,6 @@
 $ds = DIRECTORY_SEPARATOR;
 // require_once dirname( __FILE__, 2 ) . $ds . '../../../wp-load.php';
 require_once dirname( __FILE__, 2 ) . $ds . 'vendor' . $ds . 'autoload.php';
-require_once dirname( __FILE__, 2 ) . $ds . 'vendor' . $ds . 'php-stubs' . $ds . 'wordpress-stubs' . $ds . 'wordpress-stubs.php';
 require_once dirname( __FILE__, 2 ) . $ds . 'tests'. $ds . 'Mocks.php';
 require_once dirname( __FILE__, 2 ) . $ds . 'hellotext.php';
 
