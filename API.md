@@ -43,11 +43,13 @@ The main HTTP client for communicating with the Hellotext API.
 Makes an HTTP request to the Hellotext API.
 
 **Parameters:**
+
 - `$method` - HTTP method (GET, POST, PATCH, PUT, DELETE)
 - `$path` - API endpoint path
 - `$data` - Request payload
 
 **Returns:**
+
 ```php
 [
     'request' => [
@@ -61,6 +63,7 @@ Makes an HTTP request to the Hellotext API.
 ```
 
 **Example:**
+
 ```php
 use Hellotext\Api\Client;
 use Hellotext\Constants;
@@ -85,6 +88,7 @@ $response = Client::post(Constants::API_ENDPOINT_PROFILES, [
 Creates a client instance with a custom API suffix. Useful for testing.
 
 **Example:**
+
 ```php
 $client = Client::with_sufix('/v2');
 ```
@@ -110,10 +114,12 @@ Creates a new event tracker. If no session is provided, it attempts to retrieve 
 Tracks an event with the given action and payload.
 
 **Parameters:**
+
 - `$action` - Event action name (use constants from `Constants::EVENT_*`)
 - `$payload` - Event data
 
 **Example:**
+
 ```php
 use Hellotext\Api\Event;
 use Hellotext\Constants;
@@ -151,6 +157,7 @@ Accepts either a product ID or a `WC_Product` instance.
 Returns the adapted product payload.
 
 **Returns:**
+
 ```php
 [
     'reference' => int,          // Product ID
@@ -168,6 +175,7 @@ Returns the adapted product payload.
 ```
 
 **Example:**
+
 ```php
 use Hellotext\Adapters\ProductAdapter;
 
@@ -192,6 +200,7 @@ public function __construct(\WC_Order $order)
 Returns the adapted order payload.
 
 **Returns:**
+
 ```php
 [
     'reference' => int,          // Order ID
@@ -240,6 +249,7 @@ public function __construct(float|string|null $price)
 Returns price in cents with currency.
 
 **Returns:**
+
 ```php
 [
     'amount' => int,    // Price in cents
@@ -260,6 +270,7 @@ public function __construct(?int $user_id, array $billing = [])
 ```
 
 **Parameters:**
+
 - `$user_id` - WordPress user ID (null for guest checkout)
 - `$billing` - Billing data from checkout
 
@@ -268,12 +279,14 @@ public function __construct(?int $user_id, array $billing = [])
 ##### `process(): void`
 
 Executes the profile creation/association flow:
+
 1. Checks if profile exists
 2. Creates new profile if needed
 3. Associates profile with session
 4. Updates session metadata
 
 **Example:**
+
 ```php
 use Hellotext\Services\CreateProfile;
 
@@ -315,6 +328,7 @@ Decrypts an encrypted session string.
 Sets the `hello_session` cookie with proper expiration and security flags.
 
 **Example:**
+
 ```php
 use Hellotext\Services\Session;
 
@@ -384,6 +398,39 @@ Constants::EVENT_COUPON_REDEEMED      // 'coupon.redeemed'
 
 ## WordPress Hooks
 
+The plugin registers these WooCommerce and WordPress hooks:
+
+| Hook                                          | Handler                          | Purpose                                                                                                                          |
+| --------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `woocommerce_after_single_product`            | `hellotext_product_viewed`       | Track `product.viewed`                                                                                                           |
+| `woocommerce_after_cart`                      | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
+| `woocommerce_add_to_cart`                     | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
+| `woocommerce_cart_item_removed`               | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
+| `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
+| `woocommerce_applied_coupon`                  | `hellotext_coupon_redeemed`      | Track valid `coupon.redeemed` events                                                                                             |
+| `woocommerce_after_order_details`             | `hellotext_order_placed`         | Track `order.placed` and persist encrypted session metadata on the order; render-based hook, so duplicate prevention is required |
+| `woocommerce_order_status_changed`            | `track_order_status`             | Track `order.confirmed`, `order.cancelled`, and `order.delivered`                                                                |
+| `woocommerce_order_refunded`                  | `hellotext_refund_created`       | Track `refund.received`                                                                                                          |
+| `user_register`                               | `hellotext_user_registered`      | Track customer registration/profile flow                                                                                         |
+| `hellotext_woocommerce_cart_updated`          | `hellotext_cart_updated`         | Track `cart.added` and `cart.removed`                                                                                            |
+| `update_option`                               | `custom_field_updated`           | Recreate integration after Business ID changes                                                                                   |
+| `admin_init`                                  | `hellotext_settings_init`        | Register plugin settings                                                                                                         |
+| `admin_head` / `wp_head`                      | `hellotext_script`               | Inject frontend/admin scripts                                                                                                    |
+
+## WooCommerce Compatibility
+
+Compatibility posture as of 2026-06-11. See [WooCommerce Compatibility and API Audit](docs/WOOCOMMERCE-AUDIT.md) for the full hook/API audit, HPOS assessment, compatibility matrix, and release recommendations.
+
+| Area                           | Status                       | Notes                                                                                                                              |
+| ------------------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| WooCommerce order metadata     | HPOS-aligned metadata access | Uses `WC_Order` metadata CRUD for Hellotext session metadata.                                                                      |
+| Order status and refund events | HPOS-aligned metadata access | Reads session metadata from the order object instead of `get_post_meta()`.                                                         |
+| Product, cart, coupon events   | Public hook/API usage        | Uses WooCommerce hooks and objects, not order storage internals.                                                                   |
+| Automated tests                | Mock-backed unit coverage    | Event tests cover outbound payloads without real WordPress/WooCommerce runtime or HPOS datastore coverage.                         |
+| Runtime verification           | Required before declaration  | Test with HPOS enabled and disabled in a real WooCommerce site before declaring formal compatibility in the plugin header/runtime. |
+
+Do not add a formal HPOS compatibility declaration until the release candidate has passed runtime checks on WooCommerce with HPOS enabled and disabled.
+
 ### Actions
 
 #### `hellotext_create_profile`
@@ -391,9 +438,11 @@ Constants::EVENT_COUPON_REDEEMED      // 'coupon.redeemed'
 Triggers profile creation/association.
 
 **Parameters:**
+
 - `$payload` - Either user ID (int) or billing data (array)
 
 **Usage:**
+
 ```php
 // For logged-in user
 do_action('hellotext_create_profile', $user_id);
@@ -431,6 +480,7 @@ The plugin respects the following environment variables:
 - `HELLOTEXT_API_URL` - Override API URL (development only)
 
 **Example (.htaccess):**
+
 ```apache
 SetEnv APP_ENV development
 SetEnv HELLOTEXT_API_URL https://api-dev.hellotext.com
@@ -454,6 +504,7 @@ try {
 ### Authentication
 
 All API requests include an `Authorization: Bearer` header with either:
+
 - **Business ID** for event tracking
 - **Access Token** for profile/session management
 

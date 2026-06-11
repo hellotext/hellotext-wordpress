@@ -21,31 +21,31 @@ Download **[the latest version](https://github.com/hellotext/hellotext-wordpress
 
 ## Installation
 
-Visit the control panel of your WordPress site where you manage your WooCommerce store, and from the *Plugins* section, click on *Add New Plugin*.
+Visit the control panel of your WordPress site where you manage your WooCommerce store, and from the _Plugins_ section, click on _Add New Plugin_.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-add.jpeg" alt="" width="768" />
 
-At the top, click on *Upload Plugin*.
+At the top, click on _Upload Plugin_.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins.jpeg" alt="" width="768" />
 
-Click the button to choose the Hellotext plugin you downloaded in *.zip* format from your files.
+Click the button to choose the Hellotext plugin you downloaded in _.zip_ format from your files.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-upload.jpeg" alt="" width="768" />
 
-Select the file from where you downloaded it (typically in the *Downloads* folder) and confirm to upload it to WordPress.
+Select the file from where you downloaded it (typically in the _Downloads_ folder) and confirm to upload it to WordPress.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-upload-dialog.jpeg" alt="" width="768" />
 
-Click on *Install Now* to install the plugin.
+Click on _Install Now_ to install the plugin.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-upload-confirm.jpeg" alt="" width="768" />
 
-Once installed, click on *Activate Plugin* to activate it.
+Once installed, click on _Activate Plugin_ to activate it.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-activate.jpeg" alt="" width="768" />
 
-Your plugin is now activated. You can check that it has been correctly installed and activated from *Plugins* by clicking on *Installed Plugins*.
+Your plugin is now activated. You can check that it has been correctly installed and activated from _Plugins_ by clicking on _Installed Plugins_.
 
 You should see Hellotext as shown in the image below.
 
@@ -57,21 +57,21 @@ With the Hellotext plugin already installed, let's configure it.
 
 The first thing you need to do is obtain your business identifier in Hellotext.
 
-From your Hellotext business panel, visit the *Settings* section and you will find it below your business name.
+From your Hellotext business panel, visit the _Settings_ section and you will find it below your business name.
 
 Select and copy this identifier as you will need to add it to your WooCommerce site.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/hellotext-settings.jpeg" alt="" width="768" />
 
-From the *Extensions* section in your WooCommerce site, click on Hellotext.
+From the _Extensions_ section in your WooCommerce site, click on Hellotext.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-hellotext.jpeg" alt="" width="768" />
 
-Paste the business identifier you copied from Hellotext into the *Business ID* field.
+Paste the business identifier you copied from Hellotext into the _Business ID_ field.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-hellotext-business-id.jpeg" alt="" width="768" />
 
-Go back to Hellotext and, from the *Authorizations* section, click on *Create new token*.
+Go back to Hellotext and, from the _Authorizations_ section, click on _Create new token_.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/hellotext-tokens.jpeg" alt="" width="768" />
 
@@ -83,9 +83,9 @@ Once created, click on the indicated icon to copy your created token.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/hellotext-tokens-created.jpeg" alt="" width="768" />
 
-Now, go back to your WooCommerce panel and paste the authorization token into the *Access Token* field.
+Now, go back to your WooCommerce panel and paste the authorization token into the _Access Token_ field.
 
-Click on *Save Changes* to save the changes.
+Click on _Save Changes_ to save the changes.
 
 <img src="https://help.hellotext.com/images/integrations/woo/en/wordpress-plugins-hellotext-token.jpeg" alt="" width="768" />
 
@@ -117,11 +117,30 @@ For developers looking to integrate, extend, or contribute to this plugin:
 
 - **[API Documentation](API.md)** - Complete API reference for classes, methods, and hooks
 - **[Development Guide](DEVELOPMENT.md)** - Setup, testing, and contribution guidelines
-### Requirements
+- **[WooCommerce API Audit](docs/WOOCOMMERCE-AUDIT.md)** - Hook, HPOS, and compatibility audit notes
+
+## Requirements
 
 - PHP 8.2 or higher
 - WordPress 5.0 or higher
 - WooCommerce 5.0 or higher
+
+## Compatibility Matrix
+
+| Layer             | Declared support         | Tested in CI                                        | Notes                                                                              |
+| ----------------- | ------------------------ | --------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| PHP               | 8.2+                     | 8.2, 8.3, 8.4, 8.5                                  | Composer platform is pinned to PHP 8.2.12.                                         |
+| WordPress         | 5.0+                     | Mock-backed unit tests only, no WordPress runtime   | Runtime smoke testing is required before release.                                  |
+| WooCommerce       | 5.0+                     | Mock-backed unit tests only, no WooCommerce runtime | HPOS, Cart/Checkout blocks, and block-theme behavior require manual smoke testing. |
+| WooCommerce stubs | Not a runtime dependency | Locked through Composer dev dependencies            | Used for development/test confidence only.                                         |
+| Release package   | GitHub tag workflow      | Tag workflow only runs on `v*` tags                 | Verify the generated zip contents before publishing.                               |
+
+## Compatibility Notes
+
+- Order session metadata uses WooCommerce order CRUD methods instead of direct post meta APIs.
+- Before each release, test event tracking with WooCommerce HPOS enabled and disabled.
+- Classic template hooks and WooCommerce Cart/Checkout blocks should be smoke tested separately.
+- Formal WooCommerce HPOS compatibility declaration is deferred until manual runtime smoke testing passes.
 
 ## Support
 
