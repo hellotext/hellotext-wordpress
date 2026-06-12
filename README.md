@@ -117,11 +117,29 @@ For developers looking to integrate, extend, or contribute to this plugin:
 
 - **[API Documentation](API.md)** - Complete API reference for classes, methods, and hooks
 - **[Development Guide](DEVELOPMENT.md)** - Setup, testing, and contribution guidelines
-### Requirements
+- **[WooCommerce API Audit](docs/WOOCOMMERCE-AUDIT.md)** - Hook, HPOS, and compatibility audit notes
+
+## Requirements
 
 - PHP 8.2 or higher
 - WordPress 5.0 or higher
 - WooCommerce 5.0 or higher
+
+## Compatibility Matrix
+
+| Layer | Declared support | Tested in CI | Notes |
+| --- | --- | --- | --- |
+| PHP | 8.2+ | 8.2, 8.3, 8.4, 8.5 | Composer platform is pinned to PHP 8.2.12. |
+| WordPress | 5.0+ | Unit tests only, no WordPress runtime | Tests use WordPress stubs/mocks; runtime smoke testing is required before release. |
+| WooCommerce | 5.0+ | Unit tests only, no WooCommerce runtime | Tests use WooCommerce stubs/mocks; HPOS and block-theme behavior require manual smoke testing. |
+| WooCommerce stubs | Not a runtime dependency | Locked through Composer dev dependencies | Used for development/test confidence only. |
+| Release package | GitHub tag workflow | Tag workflow only runs on `v*` tags | Verify the generated zip contents before publishing. |
+
+## Compatibility Notes
+
+- Order session metadata uses WooCommerce order CRUD methods instead of direct post meta APIs.
+- Before each release, test event tracking with WooCommerce HPOS enabled and disabled.
+- Formal WooCommerce HPOS compatibility declaration is deferred until manual runtime smoke testing passes.
 
 ## Support
 

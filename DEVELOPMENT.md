@@ -177,6 +177,35 @@ The project uses [Pest](https://pestphp.com/) for testing.
 ./vendor/bin/paratest
 ```
 
+The Composer aliases used by CI and maintainers are:
+
+```bash
+composer install
+composer test
+composer format:check
+composer build
+```
+
+`composer build` installs production dependencies with `--no-dev --optimize-autoloader`. Do not use the build output for local development without reinstalling dev dependencies afterward.
+
+### Verified Local Flow
+
+Last verified: 2026-06-11
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `composer install` | Passed | Requires PHP 8.2+ and Composer 2. The local system Composer emitted PHP deprecation notices under PHP 8.4; dependencies still installed correctly. |
+| `composer test` | Passed | Pest suite runs against WordPress/WooCommerce mocks, not a real WordPress install. |
+| `composer format:check` | Passed | PHP CS Fixer warned when run under PHP 8.4 because the Composer platform is PHP 8.2.12. CI runs the style check on PHP 8.2. |
+| `composer build` | Passed | Runs `composer install --no-dev --optimize-autoloader` and removes dev tooling from `vendor/`. Run `composer install` again afterward before continuing local development. |
+
+Setup assumptions:
+
+- PHP 8.2 or newer is available locally.
+- Composer can install from the checked-in `composer.lock`.
+- Tests do not require a real WordPress, WooCommerce, database, or Hellotext API connection.
+- Outbound HTTP in tests is mocked through WordPress HTTP function stubs.
+
 ### Writing Tests
 
 #### Unit Tests
@@ -312,14 +341,22 @@ add_action('all', function($hook) {
 
 ### Pre-Release Checklist
 
-- [ ] Run all tests: `./vendor/bin/pest`
-- [ ] Check for PHP errors/warnings
-- [ ] Test on fresh WordPress installation
-- [ ] Test with WooCommerce latest version
-- [ ] Verify settings page functionality
-- [ ] Test event tracking in Hellotext dashboard
-- [ ] Update documentation if API changed
-- [ ] Update changelog.txt
+- [ ] Confirm the version in `hellotext.php` matches the release tag.
+- [ ] Update `changelog.txt` with user-facing changes, compatibility notes, and any known limitations.
+- [ ] Review open dependency PRs and confirm there are no urgent security/runtime updates pending.
+- [ ] Run `composer install` from a clean checkout.
+- [ ] Run `composer test` and confirm all tests pass.
+- [ ] Run `composer format:check` and confirm no style diff is reported.
+- [ ] Run `composer build` and confirm production dependencies install with `--no-dev --optimize-autoloader`.
+- [ ] Inspect the production `vendor/` tree enough to confirm dev-only packages such as Pest, Mockery, stubs, PHPUnit, and PHP CS Fixer are not included in the release build.
+- [ ] Verify `.distignore` excludes development files from the release zip: `.github/`, `tests/`, `composer.json`, `composer.lock`, `DEVELOPMENT.md`, and `API.md`.
+- [ ] Smoke test the plugin zip in a clean WordPress/WooCommerce site.
+- [ ] Confirm settings save correctly: Business ID, access token, webchat ID, placement, and behavior.
+- [ ] Confirm script/webchat injection renders on the storefront when configured.
+- [ ] Smoke test tracking for product view, cart add/remove, coupon redemption, checkout/order placement, order status change, refund, user registration, plugin activation, and plugin deactivation.
+- [ ] Smoke test order and refund flows with WooCommerce HPOS enabled and disabled.
+- [ ] Record WooCommerce API/HPOS compatibility notes in the release description if anything changed.
+- [ ] Run `composer install` again after build validation to restore dev dependencies before more local work.
 
 ### Creating a Release
 
@@ -329,30 +366,41 @@ git tag -a v1.3.0 -m "Release version 1.3.0"
 git push origin v1.3.0
 ```
 
-2. **Build release package:**
-```bash
-# Remove dev dependencies
-composer install --no-dev
+2. **Let GitHub Actions build the release package:**
+   - Tags matching `v*` trigger `.github/workflows/release.yml`.
+   - The workflow installs PHP 8.2 dependencies with `composer install --no-dev --optimize-autoloader`.
+   - The workflow creates `release/hellotext-wordpress.zip` and uploads it to the GitHub release.
 
-# Create zip
-cd ..
-zip -r hellotext-wordpress-1.3.0.zip hellotext-wordpress \
-    -x "hellotext-wordpress/.git/*" \
-    -x "hellotext-wordpress/tests/*" \
-    -x "hellotext-wordpress/node_modules/*"
-```
-
-3. **Create GitHub release:**
-   - Go to Releases → Draft new release
-   - Select the tag
-   - Upload the zip file
-   - Add release notes from changelog
+3. **Verify the generated release:**
+   - Download the release zip from GitHub.
+   - Confirm files excluded by `.distignore` are not included: `.github/`, `tests/`, `composer.json`, `composer.lock`, `DEVELOPMENT.md`, and `API.md`.
+   - Confirm runtime files are included: `hellotext.php`, `src/`, `vendor/`, `README.md`, and `changelog.txt` if present.
+   - Install the zip in a clean WordPress/WooCommerce site.
+   - Confirm the release asset installs and activates without PHP warnings in `debug.log`.
 
 ### Post-Release
 
 1. Reinstall dev dependencies: `composer install`
 2. Announce release to team
 3. Monitor error logs for issues
+
+### Dependency Update Triage
+
+Use this checklist before merging dependency-only PRs:
+
+- Confirm the diff is limited to dependency metadata or the expected workflow file.
+- Confirm GitHub reports the PR as mergeable.
+- Confirm required CI checks pass.
+- Prefer merging patch/minor test stub updates independently from runtime code changes.
+- For GitHub Action major updates, inspect the action release notes before merging.
+
+Dependency PRs reviewed during this maintenance pass:
+
+- Keep dependency-only lockfile refreshes separate from runtime compatibility changes.
+- Prefer one broad lock refresh over multiple older overlapping Dependabot PRs when it carries newer compatible versions and CI passes.
+- For GitHub Action major updates, inspect the action release notes and verify the generated zip on the next tagged release because release publishing only runs on tags.
+
+See also [WooCommerce Compatibility and API Audit](docs/WOOCOMMERCE-AUDIT.md) for hook, HPOS, and release compatibility notes.
 
 ## Contributing
 
