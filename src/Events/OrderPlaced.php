@@ -26,7 +26,8 @@ function hellotext_order_placed(\WC_Order $order): void {
         ? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
         : null;
     $encrypted_session = Session::encrypt($session);
-    add_post_meta($order->get_id(), Constants::META_SESSION, $encrypted_session);
+    $order->update_meta_data(Constants::META_SESSION, $encrypted_session);
+    $order->save();
 
     $event->track(Constants::EVENT_ORDER_PLACED, [
         'object_parameters' => $parsedOrder,
