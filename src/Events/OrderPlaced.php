@@ -14,6 +14,10 @@ add_action('woocommerce_after_order_details', 'hellotext_order_placed');
  * @return void
  */
 function hellotext_order_placed(\WC_Order $order): void {
+    if ($order->get_meta(Constants::META_SESSION, true)) {
+        return;
+    }
+
     $userId = $order->get_user_id();
     $userId = $userId > 0 ? $userId : $order->data['billing'];
 

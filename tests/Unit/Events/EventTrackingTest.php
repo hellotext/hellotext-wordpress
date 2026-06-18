@@ -161,6 +161,18 @@ test('tracks order placed and stores encrypted session with order CRUD', functio
 		->and($GLOBALS['test_saved_orders'][1])->toBeTrue();
 });
 
+test('does not track order placed twice for the same order', function () {
+	$_COOKIE[Constants::SESSION_COOKIE_NAME] = 'checkout-session';
+	$order = new WC_Order();
+
+	hellotext_order_placed($order);
+	hellotext_order_placed($order);
+
+	expect($GLOBALS['test_http_requests'])->toHaveCount(1)
+		->and(tracked_event()['action'])->toBe(Constants::EVENT_ORDER_PLACED)
+		->and(Session::decrypt($order->get_meta(Constants::META_SESSION, true)))->toBe('checkout-session');
+});
+
 test('tracks supported order status transitions with stored session', function (string $status, string $action) {
 	$order = new WC_Order();
 	$order->update_meta_data(Constants::META_SESSION, Session::encrypt('stored-session'));
