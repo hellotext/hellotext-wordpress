@@ -17,7 +17,7 @@ add_action('woocommerce_order_status_changed', 'track_order_status', 10, 4);
  * @return void
  */
 function track_order_status(int $order_id, string $old_status, string $new_status, \WC_Order $order): void {
-    $encrypted_session = get_post_meta($order_id, Constants::META_SESSION, true);
+    $encrypted_session = $order->get_meta(Constants::META_SESSION, true);
     $session = Session::decrypt($encrypted_session);
 
     $orderAdapter = new OrderAdapter($order);

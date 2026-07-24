@@ -20,7 +20,7 @@ function hellotext_refund_created(int $order_id, int $refund_id): void {
 
     do_action('hellotext_create_profile', $order->get_user_id());
 
-    $encrypted_session = get_post_meta($order_id, Constants::META_SESSION, true);
+    $encrypted_session = $order->get_meta(Constants::META_SESSION, true);
     $session = Session::decrypt($encrypted_session);
 
     (new Event($session))->track(Constants::EVENT_REFUND_RECEIVED, [

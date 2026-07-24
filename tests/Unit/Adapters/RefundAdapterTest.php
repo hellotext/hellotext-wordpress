@@ -1,8 +1,7 @@
 <?php
 
 use Hellotext\Adapters\RefundAdapter;
-use Hellotext\Adapters\OrderAdapter;
-
+use Hellotext\Constants;
 use Hellotext\Services\Session;
 
 beforeEach(function () {
@@ -13,7 +12,8 @@ beforeEach(function () {
 		'customer_id' => $user->ID
 	]);
 
-	add_post_meta($this->order->get_id(), 'hellotext_session', Session::encrypt('123'));
+	$this->order->update_meta_data(Constants::META_SESSION, Session::encrypt('123'));
+	$this->order->save();
 
 	$this->refund = wc_create_refund([
 		'amount' => $this->order->get_total() / 2,
