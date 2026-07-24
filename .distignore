@@ -14,6 +14,9 @@ API.md
 
 # Build tools
 node_modules
+release
+.php-cs-fixer.cache
+.php-cs-fixer.php
 .env
 .env.*
 
