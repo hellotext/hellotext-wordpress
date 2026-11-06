@@ -19,7 +19,7 @@ beforeEach(function () {
 	$GLOBALS['test_order_user_id'] = 1;
 	$GLOBALS['test_post_terms'] = [];
 	$GLOBALS['wpdb']->tables = ['wp_woocommerce_api_keys' => []];
-	unset($GLOBALS['test_actions']['shutdown'], $GLOBALS['test_woocommerce'], $GLOBALS['test_product_parent_id'], $GLOBALS['test_order_item_product']);
+	unset($GLOBALS['test_actions']['shutdown'], $GLOBALS['test_woocommerce'], $GLOBALS['test_product_parent_id'], $GLOBALS['test_order_item_product'], $GLOBALS['test_page']);
 	$GLOBALS['wp'] = (object) ['request' => 'cart'];
 	$_COOKIE = [];
 
@@ -76,16 +76,38 @@ function a_cart_with(int $quantity): void
 		: [];
 }
 
-test('loads the latest unversioned Hellotext.js with only the business ID', function () {
+test('loads the latest unversioned Hellotext.js with the bundled Push worker', function () {
 	$GLOBALS['test_scripts'] = [];
 	$GLOBALS['test_inline_scripts'] = [];
 
 	hellotext_enqueue_script();
 
+	$inline = $GLOBALS['test_inline_scripts']['hellotext'][0];
+	$worker = basename(dirname(__DIR__, 3)) . '/assets/hellotext-service-worker.js';
+
 	expect($GLOBALS['test_scripts']['hellotext']['src'])->toBe('https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js')
 		->and($GLOBALS['test_scripts']['hellotext']['ver'])->toBeNull()
-		->and($GLOBALS['test_inline_scripts']['hellotext'])->toBe(['Hellotext.initialize("test_business_123");']);
+		->and($inline)->toContain('Hellotext.initialize("test_business_123", ' . json_encode(['push' => ['serviceWorkerUrl' => "/wp-content/plugins/{$worker}"]]) . ')')
+		->and(is_file(dirname(__DIR__, 3) . '/assets/hellotext-service-worker.js'))->toBeTrue();
 });
+
+test('tells Hellotext.js the page section and shows its Smart Alert', function (?string $page, ?string $section) {
+	$GLOBALS['test_inline_scripts'] = [];
+	$GLOBALS['test_page'] = $page;
+
+	hellotext_enqueue_script();
+
+	expect(hellotext_page_section())->toBe($section)
+		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('var section = ' . json_encode($section) . ';')
+		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('Hellotext.page.section = section')
+		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('if (section && Hellotext.alert) Hellotext.alert.show(section)');
+})->with([
+	'front page, even when it is the shop' => ['front', 'homepage'],
+	'shop' => ['shop', 'product_collection'],
+	'product category' => ['category', 'product_collection'],
+	'product' => ['product', 'product_details'],
+	'cart and other pages' => [null, null],
+]);
 
 test('does not load Hellotext.js before the business ID is set', function () {
 	$GLOBALS['test_scripts'] = [];

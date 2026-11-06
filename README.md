@@ -91,7 +91,7 @@ Click on _Save Changes_ to save the changes.
 
 Done! Your WooCommerce store is now connected to Hellotext.
 
-The plugin loads Hellotext.js on your store, so the Webchat, popups and other tools you set up in Hellotext appear without further changes in WordPress.
+The plugin loads Hellotext.js on your store, so the Webchat, popups, Smart Alert and other tools you set up in Hellotext appear without further changes in WordPress. It tells Hellotext whether each page is your homepage, a product collection or a product, so the Smart Alert shows the section you set up for it.
 
 ## Next Steps
 

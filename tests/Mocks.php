@@ -88,6 +88,36 @@ function admin_url($path = '')
 	return 'https://example.test/wp-admin/' . ltrim($path, '/');
 }
 
+function plugins_url($path = '', $plugin = '')
+{
+	return 'https://example.test/wp-content/plugins/' . basename(dirname($plugin)) . '/' . ltrim($path, '/');
+}
+
+function wp_make_link_relative($link)
+{
+	return preg_replace('|^https?://[^/]+|i', '', $link);
+}
+
+function is_front_page()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'front';
+}
+
+function is_product()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'product';
+}
+
+function is_shop()
+{
+	return in_array($GLOBALS['test_page'] ?? null, ['shop', 'front'], true);
+}
+
+function is_product_taxonomy()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'category';
+}
+
 function wc_get_cart_url()
 {
 	return 'https://example.test/cart';

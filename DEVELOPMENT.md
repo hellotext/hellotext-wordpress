@@ -340,6 +340,8 @@ add_action('all', function($hook) {
 - [ ] Smoke test the plugin zip in a clean WordPress/WooCommerce site.
 - [ ] Confirm settings save correctly (Business ID and access token) and the store connects once, with a single Hellotext WooCommerce API key.
 - [ ] Confirm the storefront loads `https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js` and the Webchat configured in Hellotext appears.
+- [ ] Confirm `Hellotext.page.section` is `homepage`, `product_collection` and `product_details` on the front, shop/category and product pages, and empty on the cart.
+- [ ] With the Smart Alert playbook enabled, confirm its sections show on those pages and that "Allow" subscribes through `assets/hellotext-service-worker.js`.
 - [ ] Smoke test tracking for product view, cart add/remove, coupon redemption, checkout/order placement, order status change, refund, user registration, plugin activation, and plugin deactivation.
 - [ ] Smoke test classic template pages and WooCommerce Cart/Checkout blocks separately for product, cart, and checkout coverage.
 - [ ] Smoke test order placement, order status, and refund flows with WooCommerce HPOS enabled and disabled.

@@ -4,6 +4,8 @@ Unreleased
 
 * Remove the Webchat settings. The Webchat, popups and other widgets are configured in Hellotext.
 * Load the latest Hellotext.js from jsDelivr on the storefront only, no longer in wp-admin.
+* Report the page section (homepage, product collection, product) on every event, Webchat messages included, and show the Smart Alert section configured for it.
+* Ship a Hellotext Push service worker, so visitors can subscribe from the Smart Alert.
 * Track order.placed for Checkout block, block themes and customers who never return from the payment page, once the order is paid or on hold.
 * Never attribute order, refund or new user events to the shop manager's browser session.
 * Create and link customer profiles on product views, cart changes and checkout, not only on registration.

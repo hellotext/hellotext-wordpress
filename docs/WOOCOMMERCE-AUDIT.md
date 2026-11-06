@@ -41,7 +41,7 @@ Do not declare HPOS compatibility yet. Add the declaration only after a manual r
 | Plugin deactivation | `register_deactivation_hook()` | `hellotext_deactivate()` | Appropriate WordPress API | Removes the integration from Hellotext and revokes its WooCommerce API key. |
 | Plugin uninstall | `register_uninstall_hook()` | `hellotext_uninstall()` | Appropriate WordPress API | Cleans Hellotext options, including the webchat options of earlier versions, and WooCommerce API keys. |
 | Settings | WordPress Settings API | `src/Misc/Settings.php` | Appropriate | Stores the Business ID and access token. Webchat and other widgets are configured in Hellotext. |
-| Hellotext.js | `wp_enqueue_scripts` | `hellotext_enqueue_script()` | Appropriate WordPress APIs | Loads the unversioned jsDelivr build on the storefront only. Verify rendered script manually in a real WordPress page during release smoke testing. |
+| Hellotext.js | `wp_enqueue_scripts` | `hellotext_enqueue_script()` | Appropriate WordPress APIs | Loads the unversioned jsDelivr build on the storefront only, with the bundled Push service worker. Sets `Hellotext.page.section` from `is_front_page()`, `is_shop()`, `is_product_taxonomy()` and `is_product()`, and shows the Smart Alert for it. Conditional tags also work on block themes. Verify rendered script manually in a real WordPress page during release smoke testing. |
 | WooCommerce API keys | Direct `$wpdb` against `{$prefix}woocommerce_api_keys` | `src/Events/AppInstalled.php`, `hellotext.php` uninstall | Acceptable exception | WooCommerce API keys are not order data and are not part of HPOS order storage. No WooCommerce CRUD replacement is required for this table access. |
 
 ## HPOS Assessment

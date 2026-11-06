@@ -407,7 +407,7 @@ The plugin registers these WooCommerce and WordPress hooks:
 | `user_register`                               | `hellotext_user_registered`      | Track customer registration/profile flow                                                                                         |
 | `add_option_*` / `update_option_*` (Business ID, Access Token) | `hellotext_schedule_connect`, `hellotext_business_id_updated` | Connect the store once both settings are saved; remove the previous business's integration first when the Business ID changes |
 | `admin_init`                                  | `hellotext_settings_init`        | Register plugin settings                                                                                                         |
-| `wp_enqueue_scripts`                          | `hellotext_enqueue_script`       | Load the latest Hellotext.js on the storefront                                                                                   |
+| `wp_enqueue_scripts`                          | `hellotext_enqueue_script`       | Load the latest Hellotext.js on the storefront with the bundled Push worker, set `Hellotext.page.section`, and show the Smart Alert for that section |
 
 ## WooCommerce Compatibility
 
@@ -460,6 +460,19 @@ The plugin automatically hooks into these WooCommerce actions:
 - `woocommerce_cart_item_removed` - Track cart removals
 - `woocommerce_applied_coupon` - Track coupon usage
 - `wp_enqueue_scripts` - Load Hellotext.js. Webchat, popups and other widgets are configured from Hellotext
+
+### Page sections
+
+After `Hellotext.initialize()`, the plugin sets `Hellotext.page.section`, so every event of the page reports it, Webchat messages included, and calls `Hellotext.alert.show(section)`. Hellotext shows the alert only for the sections enabled in the Smart Alert playbook.
+
+| Page                                              | Section              |
+| ------------------------------------------------- | -------------------- |
+| Front page (also when the shop is the front page) | `homepage`           |
+| Shop, product categories, tags and attributes     | `product_collection` |
+| Product                                           | `product_details`    |
+| Anything else (cart, checkout, account, blog)     | none                 |
+
+The Smart Alert subscribes visitors to Push, which needs a service worker on the store's origin. The plugin ships `assets/hellotext-service-worker.js`, the worker from the Hellotext.js Push guide, and passes its path as `push.serviceWorkerUrl`. It registers under the plugin's folder, so it never replaces a worker the store already runs at the site root.
 
 ## Testing
 

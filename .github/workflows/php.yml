@@ -95,6 +95,7 @@ jobs:
           test -f release/hellotext-wordpress/hellotext.php
           test -d release/hellotext-wordpress/src
           test -f release/hellotext-wordpress/vendor/autoload.php
+          test -f release/hellotext-wordpress/assets/hellotext-service-worker.js
 
           for path in \
             release/hellotext-wordpress/tests \
