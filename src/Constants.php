@@ -11,12 +11,14 @@ namespace Hellotext;
  */
 class Constants {
     // API Configuration
-    public const API_VERSION = 'v1';
+    public const API_URL = 'https://api.hellotext.com';
     public const API_ENDPOINT_TRACK = '/v1/track/events';
-    public const API_ENDPOINT_PROFILES = '/profiles';
-    public const API_ENDPOINT_SESSIONS = '/sessions';
-    public const API_ENDPOINT_WEBCHATS = '/v1/wordpress/webchats';
+    public const API_ENDPOINT_PROFILES = '/v1/profiles';
+    public const API_ENDPOINT_SESSIONS = '/v1/sessions';
     public const API_ENDPOINT_INTEGRATIONS_WOO = '/integrations/woo';
+
+    // Hellotext.js, unversioned so stores always load the latest release
+    public const SDK_URL = 'https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js';
 
     // Session & Encryption
     public const ENCRYPTION_METHOD = 'aes-256-cbc';
@@ -25,15 +27,30 @@ class Constants {
     // WordPress Options
     public const OPTION_BUSINESS_ID = 'hellotext_business_id';
     public const OPTION_ACCESS_TOKEN = 'hellotext_access_token';
-    public const OPTION_WEBCHAT_ID = 'hellotext_webchat_id';
-    public const OPTION_WEBCHAT_PLACEMENT = 'hellotext_webchat_placement';
-    public const OPTION_WEBCHAT_BEHAVIOUR = 'hellotext_webchat_behaviour';
+
+    // Every option the plugin has stored, including the webchat options of
+    // earlier versions, removed on uninstall.
+    public const OPTIONS = [
+        self::OPTION_BUSINESS_ID,
+        self::OPTION_ACCESS_TOKEN,
+        'hellotext_webchat_id',
+        'hellotext_webchat_placement',
+        'hellotext_webchat_behaviour',
+    ];
+
+    // WooCommerce API key
+    public const API_KEY_DESCRIPTION = 'Hellotext';
 
     // User Meta Keys
     public const META_PROFILE_ID = 'hellotext_profile_id';
     public const META_SESSION = 'hellotext_session';
 
-    // Session Keys
+    // Order Meta Keys
+    public const META_ORDER_PLACED = 'hellotext_order_placed';
+    public const ORDER_PLACED_PENDING = 'pending';
+    public const ORDER_PLACED_TRACKED = 'tracked';
+
+    // WooCommerce Session Keys
     public const SESSION_CART_ITEMS = 'hellotext_cart_items';
 
     // Event Names

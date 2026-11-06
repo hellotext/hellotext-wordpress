@@ -1,36 +1,25 @@
 <?php
 
-add_action('admin_head', 'hellotext_script');
-add_action('wp_head', 'hellotext_script');
+use Hellotext\Constants;
+
+add_action('wp_enqueue_scripts', 'hellotext_enqueue_script');
 
 /**
- * Output Hellotext embed script in the page head.
+ * Load Hellotext.js on the storefront.
+ *
+ * Webchat, popups and every other widget are configured from Hellotext,
+ * so the store only passes its business ID.
  *
  * @return void
  */
-function hellotext_script(): void {
-    global $HELLOTEXT_API_URL;
+function hellotext_enqueue_script(): void {
+    $business_id = get_option(Constants::OPTION_BUSINESS_ID);
 
-    $business_id = get_option('hellotext_business_id');
-    $webchat_id = get_option('hellotext_webchat_id');
-    $placement = get_option('hellotext_webchat_placement', 'bottom-right');
-    $behaviour = get_option('hellotext_webchat_behaviour', 'popover');
+    if (!$business_id) {
+        return;
+    }
 
-    ?>
-        <script type="module">
-            import 'https://unpkg.com/@hellotext/hellotext@latest/dist/hellotext.js';
-
-            let config = {};
-
-            <?php if ($webchat_id) : ?>
-                config.webChat = {
-                    id: '<?php echo esc_html($webchat_id); ?>',
-                    placement: '<?php echo esc_html($placement); ?>',
-                    behaviour: '<?php echo esc_html($behaviour); ?>',
-                };
-            <?php endif; ?>
-
-            Hellotext.initialize('<?php echo esc_html($business_id); ?>', config);
-        </script>
-    <?php
+    // A null version keeps the URL unversioned, so jsDelivr serves the latest release.
+    wp_enqueue_script('hellotext', Constants::SDK_URL, [], null, true);
+    wp_add_inline_script('hellotext', sprintf('Hellotext.initialize(%s);', wp_json_encode($business_id)));
 }

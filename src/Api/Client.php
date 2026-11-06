@@ -13,29 +13,6 @@ use Hellotext\Constants;
  */
 class Client {
     /**
-     * API URL suffix.
-     *
-     * @var string
-     */
-    public static string $sufix = '/' . Constants::API_VERSION;
-
-    /**
-     * Set a custom API suffix and return a client instance.
-     *
-     * @param string $sufix Suffix to append to API URL.
-     * @return self
-     */
-    public static function with_sufix(string $sufix = ''): self {
-        if (0 < strlen($sufix) && '/' !== $sufix[0]) {
-            $sufix = '/' . $sufix;
-        }
-
-        self::$sufix = $sufix;
-
-        return new self();
-    }
-
-    /**
      * Make an HTTP request to the Hellotext API.
      *
      * @param string $method HTTP method.
@@ -44,7 +21,7 @@ class Client {
      * @return array
      */
     public static function request(string $method = 'GET', string $path = '/', array $data = []): array {
-        $request_url = self::get_api_url() . $path;
+        $request_url = self::api_url() . $path;
         $access_token = get_option(Constants::OPTION_ACCESS_TOKEN);
 
         $args = [
@@ -171,12 +148,13 @@ class Client {
     /**
      * Get base API URL.
      *
+     * Define HELLOTEXT_API_URL in wp-config.php to point the plugin at another
+     * Hellotext environment.
+     *
      * @return string
      */
-    private static function get_api_url(): string {
-        global $HELLOTEXT_API_URL;
-
-        return $HELLOTEXT_API_URL . self::$sufix;
+    public static function api_url(): string {
+        return defined('HELLOTEXT_API_URL') ? rtrim(HELLOTEXT_API_URL, '/') : Constants::API_URL;
     }
 
     /**

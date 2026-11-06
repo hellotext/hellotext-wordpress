@@ -44,30 +44,6 @@ msgstr "Business ID"
 msgid "settings.access_token"
 msgstr "Access Token"
 
-msgid "settings.webchat_id"
-msgstr "Webchat ID"
-
-msgid "webchat_unavailable"
-msgstr "No active Webchat found."
-
-msgid "settings.webchat_placement"
-msgstr "Webchat Placement"
-
-msgid "settings.webchat_placement_bottom-right"
-msgstr "Bottom Right"
-
-msgid "settings.webchat_placement_bottom-left"
-msgstr "Bottom Left"
-
-msgid "settings.webchat_placement_top-right"
-msgstr "Top Right"
-
-msgid "settings.webchat_placement_top-left"
-msgstr "Top Left"
-
-msgid "settings.webchat_behaviour"
-msgstr "Webchat Behaviour"
-
 msgid "settings.submit"
 msgstr "Save changes"
 

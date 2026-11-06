@@ -1,6 +1,5 @@
 <?php
 
-use Hellotext\Api\Webchat;
 use Hellotext\Constants;
 
 add_action('admin_init', 'hellotext_settings_init');
@@ -37,35 +36,10 @@ function hellotext_settings_init(): void {
         'hellotext_setting_section'
     );
 
-    // Hellotext Webchat ID
-    add_settings_field(
-        Constants::OPTION_WEBCHAT_ID,
-        __('settings.webchat_id', 'hellotext'),
-        'hellotext_webchat_id_field',
-        'hellotext-form',
-        'hellotext_setting_section'
-    );
-
-    add_settings_field(
-        Constants::OPTION_WEBCHAT_PLACEMENT,
-        __('settings.webchat_placement', 'hellotext'),
-        'hellotext_webchat_placement_field',
-        'hellotext-form',
-        'hellotext_setting_section'
-    );
-
-    add_settings_field(
-        Constants::OPTION_WEBCHAT_BEHAVIOUR,
-        __('settings.webchat_behaviour', 'hellotext'),
-        'hellotext_webchat_behaviour_field',
-        'hellotext-form',
-        'hellotext_setting_section'
-    );
-
-    // Register settings
-    register_setting('hellotext-form', Constants::OPTION_BUSINESS_ID);
-    register_setting('hellotext-form', Constants::OPTION_ACCESS_TOKEN);
-    register_setting('hellotext-form', Constants::OPTION_WEBCHAT_ID); // Corrected ID
+    // Register settings. Trimming matters: a pasted token with a trailing
+    // newline breaks the Authorization header.
+    register_setting('hellotext-form', Constants::OPTION_BUSINESS_ID, ['sanitize_callback' => 'sanitize_text_field']);
+    register_setting('hellotext-form', Constants::OPTION_ACCESS_TOKEN, ['sanitize_callback' => 'sanitize_text_field']);
 }
 
 /**
@@ -113,112 +87,30 @@ function hellotext_access_token_field(): void {
     <?php
 }
 
+add_action('admin_menu', 'hellotext_admin_menu');
 /**
- * Render the webchat ID selection field.
+ * Register the WooCommerce submenu for Hellotext.
  *
  * @return void
  */
-function hellotext_webchat_id_field(): void {
-    $ids = Webchat::index();
-    $selected = get_option(Constants::OPTION_WEBCHAT_ID, '');
-
-    if (empty($ids)) {
-        echo '<p>' . __('webchat_unavailable', 'hellotext') . '</p>';
-        return;
-    }
-
-    ?>
-    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_ID); ?>"
-            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_ID); ?>"
-            style="width: 400px;">
-        <option value="" <?php selected($selected, ''); ?>>None Selected</option>
-
-        <?php foreach ($ids as $id): ?>
-            <option value="<?php echo esc_attr($id); ?>" <?php selected($selected, $id); ?>>
-                <?php echo esc_html($id); ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-    <?php
+function hellotext_admin_menu(): void {
+    add_submenu_page(
+        'woocommerce',
+        'Hellotext',
+        'Hellotext',
+        'manage_options',
+        'wc-hellotext',
+        'hellotext_submenu_page_callback'
+    );
 }
 
 /**
- * Render the webchat placement field.
+ * Render the Hellotext settings page.
  *
  * @return void
  */
-function hellotext_webchat_placement_field(): void {
-    $placement = get_option(Constants::OPTION_WEBCHAT_PLACEMENT, 'bottom-right'); // 'bottom-right' is the default value
-
+function hellotext_submenu_page_callback(): void {
     ?>
-    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
-            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_PLACEMENT); ?>"
-            style="width: 400px;">
-        <option value="top-left" <?php selected($placement, 'top-left'); ?>>
-            <?php _e('settings.webchat_placement_top-left', 'hellotext'); ?>
-        </option>
-        <option value="top-right" <?php selected($placement, 'top-right'); ?>>
-           <?php _e('settings.webchat_placement_top-right', 'hellotext'); ?>
-        </option>
-        <option value="bottom-left" <?php selected($placement, 'bottom-left'); ?>>
-              <?php _e('settings.webchat_placement_bottom-left', 'hellotext'); ?>
-        </option>
-        <option value="bottom-right" <?php selected($placement, 'bottom-right'); ?>>
-             <?php _e('settings.webchat_placement_bottom-right', 'hellotext'); ?>
-        </option>
-    </select>
-    <?php
-}
-
-/**
- * Render the webchat behaviour field.
- *
- * @return void
- */
-function hellotext_webchat_behaviour_field(): void {
-    $behaviour = get_option(Constants::OPTION_WEBCHAT_BEHAVIOUR, 'popover'); // 'popover' is the default value
-
-    ?>
-    <select id="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
-            name="<?php echo esc_attr(Constants::OPTION_WEBCHAT_BEHAVIOUR); ?>"
-            style="width: 400px;">
-        <option value="popover" <?php selected($behaviour, 'popover'); ?>>Popover</option>
-        <option value="modal" <?php selected($behaviour, 'modal'); ?>>Modal</option>
-    </select>
-    <?php
-}
-
-add_action('plugins_loaded', 'init_hellotext');
-/**
- * Initialize Hellotext admin UI hooks.
- *
- * @return void
- */
-function init_hellotext(): void {
-    /**
-     * Register the WooCommerce submenu for Hellotext.
-     *
-     * @return void
-     */
-    function custom_woocommerce_menu(): void {
-        add_submenu_page(
-            'woocommerce',
-            'Hellotext',
-            'Hellotext',
-            'manage_options',
-            'wc-hellotext',
-            'hellotext_submenu_page_callback'
-        );
-    }
-    add_action('admin_menu', 'custom_woocommerce_menu');
-
-    /**
-     * Render the Hellotext settings page.
-     *
-     * @return void
-     */
-    function hellotext_submenu_page_callback(): void {
-        ?>
 		<div class="wrap" style="background: white; padding: 32px; padding-top: 8px; border-radius: 8px;">
 			<h1 style="color: #FF4C00;">
 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="130" height="43px" viewBox="0 0 224 43" version="1.1"><title>hellotext</title>
@@ -226,29 +118,24 @@ function init_hellotext(): void {
 				</svg>
 			</h1>
 
-            <?php
-              if (empty(get_option('permalink_structure'))) {
-                  echo <<<HTML
-                    <div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
-                        Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="/wp-admin/options-permalink.php" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
-                    </div>
-                HTML;
-              }
-        ?>
+            <?php if (empty(get_option('permalink_structure'))) : ?>
+                <div style="padding: 10px; background-color: #FF4C00; color: #FFFFFF; border-radius: 5px; margin-bottom: 20px;">
+                    Important: Please select any <b>Permalink structure</b> other than "Plain" in <a href="<?php echo esc_url(admin_url('options-permalink.php')); ?>" style="color: white;">Settings > Permalinks</a>. Otherwise, the plugin will not work.
+                </div>
+            <?php endif; ?>
 			<form method="POST" action="options.php">
 			<?php
-            settings_fields('hellotext-form');
-        do_settings_sections('hellotext-form');
-        submit_button(
-            __('settings.submit', 'hellotext'),
-            null,
-            null,
-            false,
-            ['style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;']
-        );
-        ?>
+        settings_fields('hellotext-form');
+    do_settings_sections('hellotext-form');
+    submit_button(
+        __('settings.submit', 'hellotext'),
+        null,
+        null,
+        false,
+        ['style' => 'background-color: #FF4C00; color: #FFFFFF; border: none;']
+    );
+    ?>
 			</form>
 		</div>
 	<?php
-    }
 }

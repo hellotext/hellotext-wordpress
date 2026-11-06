@@ -28,17 +28,20 @@ Do not declare HPOS compatibility yet. Add the declaration only after a manual r
 | Cart updates | `woocommerce_add_to_cart` | `hellotext_trigger_cart_updated()` | Appropriate | Mutation hook is still a valid WooCommerce cart hook. Tests cover event creation with mocks. |
 | Cart removals | `woocommerce_cart_item_removed` | `hellotext_trigger_cart_updated()` | Appropriate | Tests cover `cart.removed` payloads. |
 | Cart quantity changes | `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated()` | Appropriate | Tests cover quantity increases and no-op unchanged carts. |
-| Cart page diff check | `woocommerce_after_cart` | `hellotext_trigger_cart_updated()` | Works for classic cart template | This hook does not cover all Cart block render paths. Future block-specific coverage should be evaluated. |
+| Cart page diff check | `woocommerce_after_cart` | `hellotext_trigger_cart_updated()` | Works for classic cart template | This hook does not cover all Cart block render paths. Cart block changes still go through the cart mutation hooks above. |
+| Cart comparison | `shutdown` | `hellotext_cart_updated()` | Appropriate | The cart hooks schedule one comparison at the end of the request, after WooCommerce recalculates totals. The snapshot lives in `WC()->session`, not a PHP session. |
 | Coupon redemption | `woocommerce_applied_coupon` | `hellotext_coupon_redeemed()` | Appropriate | Handler validates the coupon before sending `coupon.redeemed`; tests cover valid and invalid coupons. |
-| Order placement | `woocommerce_after_order_details` | `hellotext_order_placed()` | Render-based hook with duplicate risk | This hook can fire on thank-you/order details and My Account view-order screens. Add or keep an idempotency guard before relying on it, and evaluate `woocommerce_thankyou` for classic checkout plus `woocommerce_store_api_checkout_order_processed` for Checkout block support. |
-| Order status changes | `woocommerce_order_status_changed` | `track_order_status()` | Appropriate | Handler maps `processing`, `cancelled`, and `completed` to Hellotext events. Uses WooCommerce order object/meta access. |
+| Checkout capture | `woocommerce_checkout_order_processed`, `woocommerce_store_api_checkout_order_processed` | `hellotext_capture_checkout()` | Appropriate | Classic and block checkout store the encrypted session and a `pending` placement flag on the order, in the customer's request. |
+| Order placement | `woocommerce_thankyou` and `woocommerce_order_status_changed` | `hellotext_order_placed()` | Appropriate | Sent once per order, when it is paid or on hold. The status change covers block themes, whose order confirmation page fires no classic hooks, and customers who never return from the payment page. |
+| Order status changes | `woocommerce_order_status_changed` | `hellotext_order_status_changed()` | Appropriate | Handler maps `processing`, `cancelled`, and `completed` to Hellotext events with the session stored on the order, never the shop manager's cookie. |
 | Refunds | `woocommerce_order_refunded` | `hellotext_refund_created()` | Appropriate | Handler loads orders/refunds with WooCommerce APIs and reads session meta with `$order->get_meta()`. |
 | User registration | `user_register` | `hellotext_user_registered()` | Appropriate WordPress hook | Tests cover profile creation flow with mocked HTTP. |
 | Profile creation | `hellotext_create_profile` | Closure in `CreateProfile.php` | Internal plugin hook | Used by event flows to associate logged-in users/sessions. |
-| Plugin deactivation | `register_deactivation_hook()` and `hellotext_remove_integration` | `hellotext_deactivate()` and closure in `AppRemoved.php` | Appropriate WordPress APIs | Tests cover DELETE request shape for integration cleanup. |
-| Plugin uninstall | `register_uninstall_hook()` | `uninstall()` | Appropriate WordPress API | Cleans Hellotext options and WooCommerce API keys. |
-| Settings | WordPress Settings API | `src/Misc/Settings.php` | Appropriate | Stores Business ID, access token, and webchat options using WordPress options. |
-| Webchat injection | WordPress script/footer hooks | `src/Misc/Scripts.php` | Appropriate WordPress APIs | Verify rendered script manually in a real WordPress page during release smoke testing. |
+| Plugin activation | `register_activation_hook()` | `hellotext_activate()` | Appropriate WordPress API | Connects the store when the settings are already saved. |
+| Plugin deactivation | `register_deactivation_hook()` | `hellotext_deactivate()` | Appropriate WordPress API | Removes the integration from Hellotext and revokes its WooCommerce API key. |
+| Plugin uninstall | `register_uninstall_hook()` | `hellotext_uninstall()` | Appropriate WordPress API | Cleans Hellotext options, including the webchat options of earlier versions, and WooCommerce API keys. |
+| Settings | WordPress Settings API | `src/Misc/Settings.php` | Appropriate | Stores the Business ID and access token. Webchat and other widgets are configured in Hellotext. |
+| Hellotext.js | `wp_enqueue_scripts` | `hellotext_enqueue_script()` | Appropriate WordPress APIs | Loads the unversioned jsDelivr build on the storefront only. Verify rendered script manually in a real WordPress page during release smoke testing. |
 | WooCommerce API keys | Direct `$wpdb` against `{$prefix}woocommerce_api_keys` | `src/Events/AppInstalled.php`, `hellotext.php` uninstall | Acceptable exception | WooCommerce API keys are not order data and are not part of HPOS order storage. No WooCommerce CRUD replacement is required for this table access. |
 
 ## HPOS Assessment
@@ -48,9 +51,8 @@ WooCommerce HPOS changes where order data is stored. The HPOS recipe book recomm
 The plugin's order session metadata paths are aligned with that guidance:
 
 - `src/Adapters/OrderAdapter.php` loads numeric orders with `wc_get_order()`.
-- `src/Events/OrderPlaced.php` stores the Hellotext session with `$order->update_meta_data(Constants::META_SESSION, ...)` and `$order->save()`.
-- `src/Events/OrderStatus.php` reads the stored session with `$order->get_meta(Constants::META_SESSION, true)`.
-- `src/Events/RefundReceived.php` loads the order with `wc_get_order($order_id)` and reads session metadata with `$order->get_meta(Constants::META_SESSION, true)`.
+- `src/Events/OrderPlaced.php` stores the Hellotext session and placement flag with `$order->update_meta_data(...)` and `$order->save_meta_data()`.
+- `src/Events/OrderStatus.php` and `src/Events/RefundReceived.php` read the stored session through `Session::for_order()`, which uses `$order->get_meta(Constants::META_SESSION, true)`.
 - The plugin does not query `shop_order` posts or use direct post meta functions for order session metadata.
 
 The test suite uses WordPress/WooCommerce mocks, so it validates code behavior and request shape but not a real HPOS datastore. Because of that, the formal declaration is deferred.
@@ -90,8 +92,8 @@ Do not add this declaration until manual runtime testing confirms product view, 
 ## Recommendations
 
 1. Keep the HPOS declaration deferred until manual smoke testing passes with HPOS on and off.
-2. Add or keep an idempotency guard around `order.placed` while `woocommerce_after_order_details` remains the hook.
-3. Evaluate replacing `woocommerce_after_order_details` with a checkout-completion hook such as `woocommerce_thankyou` for classic checkout, while separately evaluating Checkout block coverage through Store API hooks.
+2. Done: `order.placed` is guarded by the `hellotext_order_placed` order flag.
+3. Done: `woocommerce_after_order_details` was replaced with the classic and Store API checkout hooks, `woocommerce_thankyou`, and the status change fallback.
 4. Document classic-template limitations for `woocommerce_after_single_product`, `woocommerce_after_cart`, and any block-theme gaps in release notes until runtime coverage is confirmed.
-5. Consider migrating cart diff state from `$_SESSION` to WooCommerce session storage (`WC()->session`) in a future compatibility-focused PR.
+5. Done: the cart snapshot moved from `$_SESSION` to `WC()->session`, and the plugin no longer starts a PHP session.
 6. Continue using WooCommerce CRUD methods for all future order/refund metadata reads and writes.

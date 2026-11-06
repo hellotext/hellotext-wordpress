@@ -91,6 +91,8 @@ Click on _Save Changes_ to save the changes.
 
 Done! Your WooCommerce store is now connected to Hellotext.
 
+The plugin loads Hellotext.js on your store, so the Webchat, popups and other tools you set up in Hellotext appear without further changes in WordPress.
+
 ## Next Steps
 
 From now on, you will start seeing your customers' activity reflected in the Audience section or from the Inbox.
@@ -106,7 +108,7 @@ The plugin automatically tracks the following customer activities:
 - **Product Viewed** - When a customer views a product page
 - **Cart Added/Removed** - Items added to or removed from cart
 - **Coupon Redeemed** - When a customer applies a coupon code
-- **Order Placed** - When an order is successfully created
+- **Order Placed** - When an order is paid, or put on hold for offline payment
 - **Order Status Updates** - Order confirmation, cancellation, delivery
 - **Refund Received** - When orders are refunded
 - **User Registration** - When new customers register

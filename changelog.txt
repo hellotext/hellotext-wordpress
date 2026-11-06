@@ -1,5 +1,18 @@
 ** Hellotext for WooCommerce Changelog **
 
+Unreleased
+
+* Remove the Webchat settings. The Webchat, popups and other widgets are configured in Hellotext.
+* Load the latest Hellotext.js from jsDelivr on the storefront only, no longer in wp-admin.
+* Track order.placed for Checkout block, block themes and customers who never return from the payment page, once the order is paid or on hold.
+* Never attribute order, refund or new user events to the shop manager's browser session.
+* Create and link customer profiles on product views, cart changes and checkout, not only on registration.
+* Report the quantity that changed in cart events, with totals after WooCommerce recalculates them, and stop reporting purchased items as removed.
+* Stop starting a PHP session on every request; the cart snapshot lives in the WooCommerce session.
+* Reconnect after deactivation or a credential change, revoke the WooCommerce API key on deactivation, and move the integration when the Business ID changes.
+* Fix profile and session requests losing the /v1 API prefix, coupons with errors being tracked as redeemed, and orders with deleted products failing to track.
+* Point the plugin at another Hellotext environment with the HELLOTEXT_API_URL constant instead of APP_ENV.
+
 2026-01-19 - version 1.3.1
 
 * Add X-Plugin-Version header to all API requests for version tracking and analytics.

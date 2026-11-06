@@ -29,10 +29,14 @@ class Event {
     /**
      * Create a new event tracker.
      *
-     * @param string|null $session Optional session identifier.
+     * Storefront events pass Session::current(); order events pass the session
+     * stored on the order, since they also run from wp-admin and payment
+     * callbacks where the browser cookie belongs to someone else.
+     *
+     * @param string|null $session Session identifier.
      */
     public function __construct(?string $session = null) {
-        $this->hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
+        $this->hellotext_business_id = (string) get_option(Constants::OPTION_BUSINESS_ID);
         $this->session = $session;
     }
 
@@ -44,16 +48,20 @@ class Event {
      * @return void
      */
     public function track(string $action, array $payload): void {
+        if (!$this->hellotext_business_id) {
+            return;
+        }
+
         $body = array_merge(
             [
                 'action' => $action,
-                'session' => $this->session ?? $this->browser_session(),
+                'session' => $this->session,
             ],
             $payload
         );
 
         $response = wp_remote_post(
-            $this->get_api_url(),
+            Client::api_url() . Constants::API_ENDPOINT_TRACK,
             [
                 'timeout' => 10,
                 'blocking' => false,
@@ -61,7 +69,7 @@ class Event {
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer ' . $this->hellotext_business_id,
                 ],
-                'body' => json_encode($body),
+                'body' => wp_json_encode($body),
                 'sslverify' => true,
             ]
         );
@@ -74,29 +82,5 @@ class Event {
                 $response->get_error_message()
             ));
         }
-    }
-
-    /**
-     * Get the event tracking API URL.
-     *
-     * @return string
-     */
-    private function get_api_url(): string {
-        global $HELLOTEXT_API_URL;
-
-        return $HELLOTEXT_API_URL . Constants::API_ENDPOINT_TRACK;
-    }
-
-    /**
-     * Retrieve session from browser cookie.
-     *
-     * @return string|null
-     */
-    private function browser_session(): ?string {
-        if (isset($_COOKIE[Constants::SESSION_COOKIE_NAME])) {
-            return sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME]);
-        }
-
-        return null;
     }
 }

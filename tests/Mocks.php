@@ -37,6 +37,17 @@ function do_action($hook_name, ...$args)
 	}
 }
 
+function has_action($hook_name, $callback = false)
+{
+	foreach ($GLOBALS['test_actions'][$hook_name] ?? [] as $action) {
+		if ($action['callback'] === $callback) {
+			return 10;
+		}
+	}
+
+	return false;
+}
+
 function register_activation_hook($file, $callback)
 {
 	$GLOBALS['test_activation_hook'] = $callback;
@@ -57,6 +68,62 @@ function sanitize_text_field($value)
 	return is_scalar($value) ? trim((string) $value) : '';
 }
 
+function wp_unslash($value)
+{
+	return is_string($value) ? stripslashes($value) : $value;
+}
+
+function wp_json_encode($data)
+{
+	return json_encode($data);
+}
+
+function esc_url($url)
+{
+	return $url;
+}
+
+function admin_url($path = '')
+{
+	return 'https://example.test/wp-admin/' . ltrim($path, '/');
+}
+
+function wc_get_cart_url()
+{
+	return 'https://example.test/cart';
+}
+
+function wp_doing_ajax()
+{
+	return $GLOBALS['test_doing_ajax'] ?? false;
+}
+
+function wp_get_referer()
+{
+	return $GLOBALS['test_referer'] ?? false;
+}
+
+function current_user_can($capability)
+{
+	return true;
+}
+
+function wp_enqueue_script($handle, $src = '', $deps = [], $ver = false, $args = [])
+{
+	$GLOBALS['test_scripts'][$handle] = [
+		'src' => $src,
+		'ver' => $ver,
+		'args' => $args,
+	];
+}
+
+function wp_add_inline_script($handle, $data, $position = 'after')
+{
+	$GLOBALS['test_inline_scripts'][$handle][] = $data;
+
+	return true;
+}
+
 function site_url($path = '')
 {
 	return 'https://example.test' . $path;
@@ -74,7 +141,7 @@ function add_query_arg($args = [], $url = '')
 
 function wp_get_post_terms($post_id, $taxonomy, $args = [])
 {
-	return [];
+	return $GLOBALS['test_post_terms'][$post_id][$taxonomy] ?? [];
 }
 
 function wp_get_attachment_url($attachment_id)
@@ -193,7 +260,7 @@ function submit_button()
 
 function get_current_user_id()
 {
-	return 1;
+	return $GLOBALS['test_current_user_id'] ?? 1;
 }
 
 function get_bloginfo($show = '')
@@ -324,11 +391,68 @@ function WC()
 	if (!isset($GLOBALS['test_woocommerce'])) {
 		$GLOBALS['test_woocommerce'] = (object) [
 			'cart' => new WC_Cart(),
+			'session' => new WC_Session(),
 		];
 	}
 
 	return $GLOBALS['test_woocommerce'];
 }
+
+class WC_Session
+{
+	public array $data = [];
+
+	public function get($key, $default = null)
+	{
+		return $this->data[$key] ?? $default;
+	}
+
+	public function set($key, $value)
+	{
+		$this->data[$key] = $value;
+	}
+}
+
+class Test_WPDB
+{
+	public string $prefix = 'wp_';
+	public array $tables = ['wp_woocommerce_api_keys' => []];
+
+	public function prepare($query, ...$args)
+	{
+		return vsprintf(str_replace('%s', "'%s'", $query), $args);
+	}
+
+	public function get_var($query)
+	{
+		foreach (array_keys($this->tables) as $table) {
+			if (str_contains($query, "'{$table}'")) {
+				return $table;
+			}
+		}
+
+		return null;
+	}
+
+	public function insert($table, $data)
+	{
+		$this->tables[$table][] = $data;
+
+		return 1;
+	}
+
+	public function delete($table, $where)
+	{
+		$this->tables[$table] = array_values(array_filter(
+			$this->tables[$table] ?? [],
+			fn ($row) => array_intersect_assoc($where, $row) !== $where
+		));
+
+		return 1;
+	}
+}
+
+$GLOBALS['wpdb'] = new Test_WPDB();
 
 // Mock WooCommerce wc_create_order function
 function wc_create_order($args = array())
@@ -380,15 +504,6 @@ function get_woocommerce_currency()
 
 class WC_Order
 {
-	public $data = [
-		'billing' => [
-			'first_name' => 'Jane',
-			'last_name' => 'Doe',
-			'email' => 'jane@example.test',
-			'phone' => '+15555550100',
-		],
-	];
-
 	private array $meta_data = [];
 
 	public function get_id()
@@ -398,7 +513,32 @@ class WC_Order
 
 	public function get_user_id()
 	{
-		return 1;
+		return $GLOBALS['test_order_user_id'] ?? 1;
+	}
+
+	public function get_status()
+	{
+		return $GLOBALS['test_order_status'] ?? 'processing';
+	}
+
+	public function has_status($status)
+	{
+		return in_array($this->get_status(), (array) $status, true);
+	}
+
+	public function is_paid()
+	{
+		return $this->has_status(['processing', 'completed']);
+	}
+
+	public function get_address($type = 'billing')
+	{
+		return [
+			'first_name' => 'Jane',
+			'last_name' => 'Doe',
+			'email' => 'jane@example.test',
+			'phone' => '+15555550100',
+		];
 	}
 
 	public function get_total()
@@ -436,6 +576,11 @@ class WC_Order
 		$GLOBALS['test_saved_orders'][$this->get_id()] = true;
 
 		return true;
+	}
+
+	public function save_meta_data()
+	{
+		$GLOBALS['test_saved_orders'][$this->get_id()] = true;
 	}
 
 	public function add_meta_data($key, $value, $unique = false)
@@ -511,9 +656,19 @@ class WC_Order_Item_Product
 		return $this->quantity;
 	}
 
+	public function get_variation_id()
+	{
+		return 0;
+	}
+
+	public function get_name()
+	{
+		return 'Deleted product';
+	}
+
 	public function get_product()
 	{
-		return new WC_Product();
+		return $GLOBALS['test_order_item_product'] ?? new WC_Product();
 	}
 }
 
@@ -537,6 +692,16 @@ class WC_Product
 	public function get_id()
 	{
 		return 1;
+	}
+
+	public function get_parent_id()
+	{
+		return $GLOBALS['test_product_parent_id'] ?? 0;
+	}
+
+	public function get_permalink()
+	{
+		return 'https://example.test/product/' . $this->get_id();
 	}
 
 	// getters
@@ -608,6 +773,7 @@ class User
 {
 	public $ID;
 	public string $nickname = '';
+	public string $first_name = '';
 	public string $last_name = '';
 	public string $user_email = '';
 

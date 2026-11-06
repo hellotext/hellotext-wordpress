@@ -44,31 +44,7 @@ msgstr ""
 msgid "settings.access_token"
 msgstr ""
 
-msgid "settings.webchat_id"
-msgstr ""
-
-msgid "webchat_unavailable"
-msgstr ""
-
-msgid "settings.webchat_placement"
-msgstr ""
-
-msgid "settings.webchat_placement_bottom-right"
-msgstr ""
-
-msgid "settings.webchat_placement_bottom-left"
-msgstr ""
-
-msgid "settings.webchat_placement_top-right"
-msgstr ""
-
-msgid "settings.webchat_placement_top-left"
-msgstr ""
-
 msgid "settings.submit"
-msgstr ""
-
-msgid "settings.webchat_behaviour"
 msgstr ""
 
 msgid "description.paragraphs.one"

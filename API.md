@@ -83,15 +83,9 @@ $response = Client::post(Constants::API_ENDPOINT_PROFILES, [
 - `put(string $path, ?array $data = null): array`
 - `delete(string $path, ?array $data = null): array`
 
-##### `with_sufix(string $sufix = ''): self`
+##### `api_url(): string`
 
-Creates a client instance with a custom API suffix. Useful for testing.
-
-**Example:**
-
-```php
-$client = Client::with_sufix('/v2');
-```
+Returns the Hellotext API URL: `https://api.hellotext.com`, or the `HELLOTEXT_API_URL` constant when it is defined.
 
 ## Event Tracking
 
@@ -105,7 +99,7 @@ Tracks customer activities and sends them to Hellotext.
 public function __construct(?string $session = null)
 ```
 
-Creates a new event tracker. If no session is provided, it attempts to retrieve it from the `hello_session` cookie.
+Creates a new event tracker for the given session. Storefront events pass `Session::current()`; order and refund events pass `Session::for_order($order)`, because they also run from wp-admin and payment callbacks, where the browser cookie belongs to someone else.
 
 #### Methods
 
@@ -305,39 +299,35 @@ $service->process();
 
 ### `Hellotext\Services\Session`
 
-Manages session encryption and cookies.
+Reads the `hello_session` cookie that Hellotext.js sets, and encrypts the copy stored on orders.
 
 #### Static Methods
 
-##### `create(): string`
+##### `current(): ?string`
 
-Creates a new session identifier.
+The visitor's Hellotext.js session, or `null` when the cookie is missing.
 
-**Returns:** UUID session string
+##### `for_order(WC_Order $order): ?string`
 
-##### `encrypt(string $session): string`
+The session stored on the order at checkout, or `null` when there is none.
+
+##### `encrypt(?string $session): string`
 
 Encrypts a session string using AES-256-CBC.
 
-##### `decrypt(string $encrypted_session): string`
+##### `decrypt(mixed $encrypted_session): string|false`
 
-Decrypts an encrypted session string.
-
-##### `set_cookie(string $session): void`
-
-Sets the `hello_session` cookie with proper expiration and security flags.
+Decrypts an encrypted session string. Returns `false` for empty or malformed values.
 
 **Example:**
 
 ```php
 use Hellotext\Services\Session;
 
-$session = Session::create();
-Session::set_cookie($session);
+$order->update_meta_data('hellotext_session', Session::encrypt(Session::current()));
+$order->save_meta_data();
 
-// Later, encrypt for storage
-$encrypted = Session::encrypt($session);
-add_post_meta($order_id, 'hellotext_session', $encrypted);
+$session = Session::for_order($order);
 ```
 
 ## Constants Reference
@@ -349,12 +339,12 @@ All plugin constants are centralized in this class.
 #### API Configuration
 
 ```php
-Constants::API_VERSION                  // 'v1'
+Constants::API_URL                     // 'https://api.hellotext.com'
 Constants::API_ENDPOINT_TRACK          // '/v1/track/events'
-Constants::API_ENDPOINT_PROFILES       // '/profiles'
-Constants::API_ENDPOINT_SESSIONS       // '/sessions'
-Constants::API_ENDPOINT_WEBCHATS       // '/v1/wordpress/webchats'
+Constants::API_ENDPOINT_PROFILES       // '/v1/profiles'
+Constants::API_ENDPOINT_SESSIONS       // '/v1/sessions'
 Constants::API_ENDPOINT_INTEGRATIONS_WOO // '/integrations/woo'
+Constants::SDK_URL                     // Hellotext.js on jsDelivr, unversioned
 ```
 
 #### Session & Encryption
@@ -369,16 +359,15 @@ Constants::SESSION_COOKIE_NAME        // 'hello_session'
 ```php
 Constants::OPTION_BUSINESS_ID         // 'hellotext_business_id'
 Constants::OPTION_ACCESS_TOKEN        // 'hellotext_access_token'
-Constants::OPTION_WEBCHAT_ID          // 'hellotext_webchat_id'
-Constants::OPTION_WEBCHAT_PLACEMENT   // 'hellotext_webchat_placement'
-Constants::OPTION_WEBCHAT_BEHAVIOUR   // 'hellotext_webchat_behaviour'
+Constants::OPTIONS                    // every option above plus the webchat options of earlier versions, removed on uninstall
 ```
 
-#### User Meta Keys
+#### Meta Keys
 
 ```php
-Constants::META_PROFILE_ID            // 'hellotext_profile_id'
-Constants::META_SESSION               // 'hellotext_session'
+Constants::META_PROFILE_ID            // 'hellotext_profile_id' (user)
+Constants::META_SESSION               // 'hellotext_session' (user and order)
+Constants::META_ORDER_PLACED          // 'hellotext_order_placed' (order): 'pending' after checkout, 'tracked' once order.placed is sent
 ```
 
 #### Event Names
@@ -403,19 +392,22 @@ The plugin registers these WooCommerce and WordPress hooks:
 | Hook                                          | Handler                          | Purpose                                                                                                                          |
 | --------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `woocommerce_after_single_product`            | `hellotext_product_viewed`       | Track `product.viewed`                                                                                                           |
-| `woocommerce_after_cart`                      | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
-| `woocommerce_add_to_cart`                     | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
-| `woocommerce_cart_item_removed`               | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
-| `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated` | Compare current and previous cart state                                                                                          |
+| `woocommerce_after_cart`                      | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
+| `woocommerce_add_to_cart`                     | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
+| `woocommerce_cart_item_removed`               | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
+| `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
+| `shutdown`                                    | `hellotext_cart_updated`         | Track `cart.added` and `cart.removed` with the quantity that changed, after WooCommerce recalculates totals                      |
+| `woocommerce_cart_emptied`                    | `hellotext_reset_cart_snapshot`  | Forget the cart snapshot so purchased items are not reported as removed                                                          |
 | `woocommerce_applied_coupon`                  | `hellotext_coupon_redeemed`      | Track valid `coupon.redeemed` events                                                                                             |
-| `woocommerce_after_order_details`             | `hellotext_order_placed`         | Track `order.placed` and persist encrypted session metadata on the order; render-based hook, so duplicate prevention is required |
-| `woocommerce_order_status_changed`            | `track_order_status`             | Track `order.confirmed`, `order.cancelled`, and `order.delivered`                                                                |
+| `woocommerce_checkout_order_processed`        | `hellotext_checkout_order_processed` | Classic checkout: store the encrypted session on the order and create the customer's profile                                 |
+| `woocommerce_store_api_checkout_order_processed` | `hellotext_capture_checkout`  | Checkout block: store the encrypted session on the order and create the customer's profile                                       |
+| `woocommerce_thankyou`                        | `hellotext_thankyou`             | Track `order.placed` once the order is paid or on hold                                                                           |
+| `woocommerce_order_status_changed`            | `hellotext_order_status_changed` | Track `order.placed` if still pending (block themes, customers who never return from payment), then `order.confirmed`, `order.cancelled`, `order.delivered` |
 | `woocommerce_order_refunded`                  | `hellotext_refund_created`       | Track `refund.received`                                                                                                          |
 | `user_register`                               | `hellotext_user_registered`      | Track customer registration/profile flow                                                                                         |
-| `hellotext_woocommerce_cart_updated`          | `hellotext_cart_updated`         | Track `cart.added` and `cart.removed`                                                                                            |
-| `update_option`                               | `custom_field_updated`           | Recreate integration after Business ID changes                                                                                   |
+| `add_option_*` / `update_option_*` (Business ID, Access Token) | `hellotext_schedule_connect`, `hellotext_business_id_updated` | Connect the store once both settings are saved; remove the previous business's integration first when the Business ID changes |
 | `admin_init`                                  | `hellotext_settings_init`        | Register plugin settings                                                                                                         |
-| `admin_head` / `wp_head`                      | `hellotext_script`               | Inject frontend/admin scripts                                                                                                    |
+| `wp_enqueue_scripts`                          | `hellotext_enqueue_script`       | Load the latest Hellotext.js on the storefront                                                                                   |
 
 ## WooCommerce Compatibility
 
@@ -435,11 +427,11 @@ Do not add a formal HPOS compatibility declaration until the release candidate h
 
 #### `hellotext_create_profile`
 
-Triggers profile creation/association.
+Triggers profile creation/association. Fire it only from requests the customer makes, since it links the profile to the browser's Hellotext.js session.
 
 **Parameters:**
 
-- `$payload` - Either user ID (int) or billing data (array)
+- `$payload` - User ID (int), billing data (array), or nothing for the current user
 
 **Usage:**
 
@@ -460,30 +452,25 @@ do_action('hellotext_create_profile', [
 
 The plugin automatically hooks into these WooCommerce actions:
 
-- `woocommerce_after_order_details` - Track order placement
+- `woocommerce_checkout_order_processed` / `woocommerce_store_api_checkout_order_processed` - Capture the checkout session
+- `woocommerce_thankyou` - Track order placement
 - `woocommerce_order_status_changed` - Track order status updates
 - `woocommerce_order_refunded` - Track refunds
 - `woocommerce_add_to_cart` - Track cart additions
 - `woocommerce_cart_item_removed` - Track cart removals
 - `woocommerce_applied_coupon` - Track coupon usage
-- `wp_footer` - Inject tracking scripts and webchat
+- `wp_enqueue_scripts` - Load Hellotext.js. Webchat, popups and other widgets are configured from Hellotext
 
 ## Testing
 
 For testing information, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-## Environment Variables
+## Configuration Constants
 
-The plugin respects the following environment variables:
+Define `HELLOTEXT_API_URL` in `wp-config.php` to point the plugin at another Hellotext environment:
 
-- `APP_ENV` - Environment mode: `production`, `development`, or `test`
-- `HELLOTEXT_API_URL` - Override API URL (development only)
-
-**Example (.htaccess):**
-
-```apache
-SetEnv APP_ENV development
-SetEnv HELLOTEXT_API_URL https://api-dev.hellotext.com
+```php
+define('HELLOTEXT_API_URL', 'https://api-dev.hellotext.com');
 ```
 
 ## Error Handling
