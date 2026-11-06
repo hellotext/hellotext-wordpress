@@ -19,9 +19,10 @@ beforeEach(function () {
 	$GLOBALS['test_order_user_id'] = 1;
 	$GLOBALS['test_post_terms'] = [];
 	$GLOBALS['wpdb']->tables = ['wp_woocommerce_api_keys' => []];
-	unset($GLOBALS['test_actions']['shutdown'], $GLOBALS['test_woocommerce'], $GLOBALS['test_product_parent_id'], $GLOBALS['test_order_item_product'], $GLOBALS['test_page']);
+	unset($GLOBALS['test_actions']['shutdown'], $GLOBALS['test_woocommerce'], $GLOBALS['test_product_parent_id'], $GLOBALS['test_order_item_product'], $GLOBALS['test_page'], $GLOBALS['test_endpoint']);
 	$GLOBALS['wp'] = (object) ['request' => 'cart'];
 	$_COOKIE = [];
+	$_POST = [];
 
 	$GLOBALS['test_wp_remote_request'] = function ($url, $args = []) {
 		$GLOBALS['test_http_requests'][] = [
@@ -76,38 +77,55 @@ function a_cart_with(int $quantity): void
 		: [];
 }
 
-test('loads the latest unversioned Hellotext.js with the bundled Push worker', function () {
+function storefront_config(): array
+{
 	$GLOBALS['test_scripts'] = [];
 	$GLOBALS['test_inline_scripts'] = [];
 
 	hellotext_enqueue_script();
 
-	$inline = $GLOBALS['test_inline_scripts']['hellotext'][0];
-	$worker = basename(dirname(__DIR__, 3)) . '/assets/hellotext-service-worker.js';
+	$inline = $GLOBALS['test_inline_scripts']['hellotext-storefront'][0];
+
+	return json_decode(substr($inline, strlen('window.hellotextWoo = '), -1), true);
+}
+
+test('loads the latest unversioned Hellotext.js and the storefront script', function () {
+	$plugin = basename(dirname(__DIR__, 3));
+	$config = storefront_config();
 
 	expect($GLOBALS['test_scripts']['hellotext']['src'])->toBe('https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js')
 		->and($GLOBALS['test_scripts']['hellotext']['ver'])->toBeNull()
-		->and($inline)->toContain('Hellotext.initialize("test_business_123", ' . json_encode(['push' => ['serviceWorkerUrl' => "/wp-content/plugins/{$worker}"]]) . ')')
+		->and($GLOBALS['test_scripts']['hellotext-storefront']['src'])->toBe("https://example.test/wp-content/plugins/{$plugin}/assets/storefront.js")
+		->and($config['businessId'])->toBe('test_business_123')
+		->and($config['options'])->toBe(['push' => ['serviceWorkerUrl' => "/wp-content/plugins/{$plugin}/assets/hellotext-service-worker.js"]])
+		->and($config['addToCartUrl'])->toBe('/?wc-ajax=add_to_cart')
+		->and($config['cartUrl'])->toBe('https://example.test/cart')
+		->and($config['redirectToCart'])->toBeFalse()
 		->and(is_file(dirname(__DIR__, 3) . '/assets/hellotext-service-worker.js'))->toBeTrue();
 });
 
-test('tells Hellotext.js the page section and shows its Smart Alert', function (?string $page, ?string $section) {
-	$GLOBALS['test_inline_scripts'] = [];
+test('tells the storefront script the page section and whether to track the page view', function (?string $page, ?string $section, bool $track_page_view) {
 	$GLOBALS['test_page'] = $page;
 
-	hellotext_enqueue_script();
+	$config = storefront_config();
 
-	expect(hellotext_page_section())->toBe($section)
-		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('var section = ' . json_encode($section) . ';')
-		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('Hellotext.page.section = section')
-		->and($GLOBALS['test_inline_scripts']['hellotext'][0])->toContain('if (section && Hellotext.alert) Hellotext.alert.show(section)');
+	expect($config['section'])->toBe($section)
+		->and($config['trackPageView'])->toBe($track_page_view);
 })->with([
-	'front page, even when it is the shop' => ['front', 'homepage'],
-	'shop' => ['shop', 'product_collection'],
-	'product category' => ['category', 'product_collection'],
-	'product' => ['product', 'product_details'],
-	'cart and other pages' => [null, null],
+	'front page, even when it is the shop' => ['front', 'homepage', true],
+	'shop' => ['shop', 'product_collection', true],
+	'product category' => ['category', 'product_collection', true],
+	'product, which reports product.viewed' => ['product', 'product_details', false],
+	'cart' => ['cart', null, true],
+	'checkout, which reports checkout.started' => ['checkout', null, false],
+	'other pages' => [null, null, true],
 ]);
+
+test('follows the store setting to open the cart after adding a product', function () {
+	$GLOBALS['test_options']['woocommerce_cart_redirect_after_add'] = 'yes';
+
+	expect(storefront_config()['redirectToCart'])->toBeTrue();
+});
 
 test('does not load Hellotext.js before the business ID is set', function () {
 	$GLOBALS['test_scripts'] = [];
@@ -198,7 +216,7 @@ test('tracks cart changes once at the end of the request', function () {
 		->and($removed['object_parameters']['items'][0]['quantity'])->toBe(2);
 });
 
-test('reports only the quantity that changed and ignores unchanged carts', function () {
+test('reports the whole quantity on additions, the removed quantity on removals, and ignores unchanged carts', function () {
 	$GLOBALS['test_current_user_id'] = 0;
 	a_cart_with(1);
 	hellotext_cart_updated();
@@ -208,7 +226,14 @@ test('reports only the quantity that changed and ignores unchanged carts', funct
 	hellotext_cart_updated();
 
 	expect(tracked_event()['action'])->toBe(Constants::EVENT_CART_ADDED)
-		->and(tracked_event()['object_parameters']['items'][0]['quantity'])->toBe(2);
+		->and(tracked_event()['object_parameters']['items'][0]['quantity'])->toBe(3);
+
+	$GLOBALS['test_http_requests'] = [];
+	a_cart_with(2);
+	hellotext_cart_updated();
+
+	expect(tracked_event()['action'])->toBe(Constants::EVENT_CART_REMOVED)
+		->and(tracked_event()['object_parameters']['items'][0]['quantity'])->toBe(1);
 
 	$GLOBALS['test_http_requests'] = [];
 
@@ -240,6 +265,111 @@ test('reports the page a background add to cart came from', function () {
 
 	expect(tracked_event()['url'])->toBe('https://example.test/shop');
 });
+
+test('credits a cart addition to the Webchat message whose card added it', function () {
+	$GLOBALS['test_current_user_id'] = 0;
+	$_POST['hellotext_source'] = json_encode(['kind' => 'webchat', 'message_id' => 'msg_1', 'button_id' => 'btn_1', 'extra' => 'dropped']);
+	a_cart_with(1);
+	hellotext_cart_updated();
+
+	expect(tracked_event()['source'])->toBe(['kind' => 'webchat', 'message_id' => 'msg_1', 'button_id' => 'btn_1']);
+
+	$GLOBALS['test_http_requests'] = [];
+	a_cart_with(0);
+	hellotext_cart_updated();
+
+	expect(tracked_event()['action'])->toBe(Constants::EVENT_CART_REMOVED)
+		->and(tracked_event())->not->toHaveKey('source');
+});
+
+test('ignores a malformed Webchat source', function (mixed $source) {
+	$GLOBALS['test_current_user_id'] = 0;
+	$_POST['hellotext_source'] = $source;
+	a_cart_with(1);
+
+	hellotext_cart_updated();
+
+	expect(tracked_event())->not->toHaveKey('source');
+})->with([
+	'not JSON' => ['{oops'],
+	'empty object' => ['{}'],
+	'nested values' => [json_encode(['kind' => ['webchat']])],
+	'not a string' => [['kind' => 'webchat']],
+]);
+
+test('tracks the cart page with the whole cart', function () {
+	$_COOKIE[Constants::SESSION_COOKIE_NAME] = 'cart-session';
+	$GLOBALS['test_current_user_id'] = 0;
+	$GLOBALS['test_page'] = 'cart';
+	a_cart_with(2);
+
+	do_action('template_redirect');
+
+	$event = tracked_event();
+
+	expect($event['action'])->toBe(Constants::EVENT_CART_VIEWED)
+		->and($event['session'])->toBe('cart-session')
+		->and($event['object_parameters']['source'])->toBe('woo')
+		->and($event['object_parameters']['items'][0]['quantity'])->toBe(2)
+		->and($event['object_parameters']['items'][0]['product']['reference'])->toBe(1)
+		->and($event['object_parameters']['total']['amount'])->toBe(55)
+		->and($event['object_parameters']['total_quantity'])->toBe(2)
+		->and($event['object_parameters']['url'])->toBe('https://example.test/cart');
+});
+
+test('does not track an empty cart page', function () {
+	$GLOBALS['test_page'] = 'cart';
+	a_cart_with(0);
+
+	do_action('template_redirect');
+
+	expect($GLOBALS['test_http_requests'])->toBe([]);
+});
+
+test('tracks checkout started once per cart', function () {
+	$_COOKIE[Constants::SESSION_COOKIE_NAME] = 'checkout-session';
+	$GLOBALS['test_current_user_id'] = 0;
+	$GLOBALS['test_page'] = 'checkout';
+	a_cart_with(2);
+
+	do_action('template_redirect');
+	do_action('template_redirect');
+
+	$event = tracked_event();
+
+	expect(tracked_actions())->toBe([Constants::EVENT_CHECKOUT_STARTED])
+		->and($event['session'])->toBe('checkout-session')
+		->and($event['object_parameters']['source'])->toBe('woo')
+		->and($event['object_parameters']['items'][0]['quantity'])->toBe(2)
+		->and($event['object_parameters']['total']['amount'])->toBe(55);
+
+	a_cart_with(3);
+	do_action('template_redirect');
+
+	expect(tracked_actions())->toBe([Constants::EVENT_CHECKOUT_STARTED, Constants::EVENT_CHECKOUT_STARTED]);
+});
+
+test('tracks checkout started again for the next purchase of the same cart', function () {
+	$GLOBALS['test_current_user_id'] = 0;
+	$GLOBALS['test_page'] = 'checkout';
+	a_cart_with(2);
+	do_action('template_redirect');
+
+	do_action('woocommerce_cart_emptied');
+	do_action('template_redirect');
+
+	expect(tracked_actions())->toBe([Constants::EVENT_CHECKOUT_STARTED, Constants::EVENT_CHECKOUT_STARTED]);
+});
+
+test('does not track checkout started on the thank-you and payment pages', function (string $endpoint) {
+	$GLOBALS['test_page'] = 'checkout';
+	$GLOBALS['test_endpoint'] = $endpoint;
+	a_cart_with(2);
+
+	do_action('template_redirect');
+
+	expect($GLOBALS['test_http_requests'])->toBe([]);
+})->with(['order-received', 'order-pay']);
 
 test('tracks order placed with the session captured at checkout', function () {
 	$_COOKIE[Constants::SESSION_COOKIE_NAME] = 'checkout-session';

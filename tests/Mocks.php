@@ -118,6 +118,29 @@ function is_product_taxonomy()
 	return ($GLOBALS['test_page'] ?? null) === 'category';
 }
 
+function is_cart()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'cart';
+}
+
+function is_checkout()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'checkout';
+}
+
+function is_wc_endpoint_url($endpoint = false)
+{
+	return ($GLOBALS['test_endpoint'] ?? null) === $endpoint;
+}
+
+class WC_AJAX
+{
+	public static function get_endpoint($request = '')
+	{
+		return '/?wc-ajax=' . $request;
+	}
+}
+
 function wc_get_cart_url()
 {
 	return 'https://example.test/cart';
@@ -796,6 +819,26 @@ class WC_Cart
 	public function get_cart_contents_total()
 	{
 		return 50;
+	}
+
+	public function get_total($context = 'view')
+	{
+		return 55;
+	}
+
+	public function is_empty()
+	{
+		return 0 === count($this->items);
+	}
+
+	public function get_cart_contents_count()
+	{
+		return array_sum(array_column($this->items, 'quantity'));
+	}
+
+	public function get_cart_hash()
+	{
+		return md5(json_encode(array_map(fn ($item) => $item['quantity'], $this->items)));
 	}
 }
 

@@ -396,8 +396,10 @@ The plugin registers these WooCommerce and WordPress hooks:
 | `woocommerce_add_to_cart`                     | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
 | `woocommerce_cart_item_removed`               | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
 | `woocommerce_after_cart_item_quantity_update` | `hellotext_trigger_cart_updated` | Schedule a cart comparison at shutdown                                                                                           |
-| `shutdown`                                    | `hellotext_cart_updated`         | Track `cart.added` and `cart.removed` with the quantity that changed, after WooCommerce recalculates totals                      |
-| `woocommerce_cart_emptied`                    | `hellotext_reset_cart_snapshot`  | Forget the cart snapshot so purchased items are not reported as removed                                                          |
+| `shutdown`                                    | `hellotext_cart_updated`         | Track `cart.added` with the product's whole quantity in the cart, which Hellotext sets the line to, and `cart.removed` with the quantity removed, after WooCommerce recalculates totals. A Webchat card's addition carries its message as `source` |
+| `woocommerce_cart_emptied`                    | `hellotext_reset_cart_snapshot`  | Forget the cart snapshot and the tracked checkout so purchased items are not reported as removed and the next checkout is reported |
+| `template_redirect`                           | `hellotext_cart_viewed`          | Track `cart.viewed` on the cart page with the whole cart                                                                         |
+| `template_redirect`                           | `hellotext_checkout_started`     | Track `checkout.started` on the checkout page, once per cart; not on the thank-you or payment pages                              |
 | `woocommerce_applied_coupon`                  | `hellotext_coupon_redeemed`      | Track valid `coupon.redeemed` events                                                                                             |
 | `woocommerce_checkout_order_processed`        | `hellotext_checkout_order_processed` | Classic checkout: store the encrypted session on the order and create the customer's profile                                 |
 | `woocommerce_store_api_checkout_order_processed` | `hellotext_capture_checkout`  | Checkout block: store the encrypted session on the order and create the customer's profile                                       |
@@ -407,7 +409,7 @@ The plugin registers these WooCommerce and WordPress hooks:
 | `user_register`                               | `hellotext_user_registered`      | Track customer registration/profile flow                                                                                         |
 | `add_option_*` / `update_option_*` (Business ID, Access Token) | `hellotext_schedule_connect`, `hellotext_business_id_updated` | Connect the store once both settings are saved; remove the previous business's integration first when the Business ID changes |
 | `admin_init`                                  | `hellotext_settings_init`        | Register plugin settings                                                                                                         |
-| `wp_enqueue_scripts`                          | `hellotext_enqueue_script`       | Load the latest Hellotext.js on the storefront with the bundled Push worker, set `Hellotext.page.section`, and show the Smart Alert for that section |
+| `wp_enqueue_scripts`                          | `hellotext_enqueue_script`       | Load the latest Hellotext.js and `assets/storefront.js` on the storefront, with its settings in `window.hellotextWoo` |
 
 ## WooCommerce Compatibility
 
@@ -459,11 +461,20 @@ The plugin automatically hooks into these WooCommerce actions:
 - `woocommerce_add_to_cart` - Track cart additions
 - `woocommerce_cart_item_removed` - Track cart removals
 - `woocommerce_applied_coupon` - Track coupon usage
+- `template_redirect` - Track the cart page and the checkout
 - `wp_enqueue_scripts` - Load Hellotext.js. Webchat, popups and other widgets are configured from Hellotext
 
-### Page sections
+### Storefront script
 
-After `Hellotext.initialize()`, the plugin sets `Hellotext.page.section`, so every event of the page reports it, Webchat messages included, and calls `Hellotext.alert.show(section)`. Hellotext shows the alert only for the sections enabled in the Smart Alert playbook.
+`assets/storefront.js` starts Hellotext.js with the settings the plugin prints in `window.hellotextWoo`. After `Hellotext.initialize()`, it:
+
+1. Sets `Hellotext.page.section`, so every event of the page reports it, Webchat messages included.
+2. Tracks `page.viewed`, which Hellotext.js does not do on its own, except on product pages (`product.viewed`) and the checkout (`checkout.started`).
+3. Calls `Hellotext.alert.show(section)`. Hellotext shows the alert only for the sections enabled in the Smart Alert playbook.
+
+It also listens for the `cart.added` event that the Webchat's product cards dispatch, and adds the card's product to the WooCommerce cart through `?wc-ajax=add_to_cart`, with the message in `hellotext_source` so the plugin credits the addition to it. It then refreshes the mini cart with `added_to_cart`, as WooCommerce's own buttons do. Products that need options open their page, and the store's "Redirect to the cart page after successful addition" setting is followed.
+
+### Page sections
 
 | Page                                              | Section              |
 | ------------------------------------------------- | -------------------- |

@@ -52,6 +52,7 @@ class Constants {
 
     // WooCommerce Session Keys
     public const SESSION_CART_ITEMS = 'hellotext_cart_items';
+    public const SESSION_CHECKOUT_STARTED = 'hellotext_checkout_started';
 
     // Event Names
     public const EVENT_ORDER_PLACED = 'order.placed';
@@ -62,6 +63,8 @@ class Constants {
     public const EVENT_PRODUCT_VIEWED = 'product.viewed';
     public const EVENT_CART_ADDED = 'cart.added';
     public const EVENT_CART_REMOVED = 'cart.removed';
+    public const EVENT_CART_VIEWED = 'cart.viewed';
+    public const EVENT_CHECKOUT_STARTED = 'checkout.started';
     public const EVENT_REFUND_RECEIVED = 'refund.received';
     public const EVENT_COUPON_REDEEMED = 'coupon.redeemed';
 
