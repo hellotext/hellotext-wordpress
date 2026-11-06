@@ -47,6 +47,9 @@ msgstr "Access Token"
 msgid "settings.submit"
 msgstr "Save changes"
 
+msgid "settings.connection_failed"
+msgstr "Hellotext could not connect your store. Check the Business ID and the access token, then save the changes to try again."
+
 msgid "description.paragraphs.one"
 msgstr "You can find your Business ID on the <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">Hellotext business settings</a>."
 

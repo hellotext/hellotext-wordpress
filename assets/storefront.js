@@ -58,7 +58,7 @@
       if (!result || result.error) {
         // Like WooCommerce's own buttons: products that need options picked,
         // or are out of stock, open their page.
-        if (result && result.product_url) window.location.href = result.product_url
+        if (result) navigate(result.product_url)
         return
       }
 
@@ -66,7 +66,22 @@
       refreshCart(result)
     }
 
-    if (added && config.redirectToCart) window.location.href = config.cartUrl
+    if (added && config.redirectToCart) navigate(config.cartUrl)
+  }
+
+  // Opens a page of this store only: an http(s) URL on the current origin.
+  function navigate(value) {
+    var url
+
+    try {
+      url = new URL(value, window.location.href)
+    } catch (error) {
+      return
+    }
+
+    if ((url.protocol === 'https:' || url.protocol === 'http:') && url.origin === window.location.origin) {
+      window.location.assign(url.href)
+    }
   }
 
   // Classic themes refresh the mini cart from added_to_cart. The Mini-Cart

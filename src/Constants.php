@@ -17,6 +17,9 @@ class Constants {
     public const API_ENDPOINT_SESSIONS = '/v1/sessions';
     public const API_ENDPOINT_INTEGRATIONS_WOO = '/integrations/woo';
 
+    // Query parameter of the checkout links Hellotext sends to stores older than WooCommerce 10.0
+    public const CHECKOUT_LINK_PARAM = 'hellotext_checkout';
+
     // Hellotext.js, unversioned so stores always load the latest release
     public const SDK_URL = 'https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js';
 
@@ -27,12 +30,14 @@ class Constants {
     // WordPress Options
     public const OPTION_BUSINESS_ID = 'hellotext_business_id';
     public const OPTION_ACCESS_TOKEN = 'hellotext_access_token';
+    public const OPTION_CONNECTION_FAILED = 'hellotext_connection_failed';
 
     // Every option the plugin has stored, including the webchat options of
     // earlier versions, removed on uninstall.
     public const OPTIONS = [
         self::OPTION_BUSINESS_ID,
         self::OPTION_ACCESS_TOKEN,
+        self::OPTION_CONNECTION_FAILED,
         'hellotext_webchat_id',
         'hellotext_webchat_placement',
         'hellotext_webchat_behaviour',
@@ -40,6 +45,8 @@ class Constants {
 
     // WooCommerce API key
     public const API_KEY_DESCRIPTION = 'Hellotext';
+    // A new key until Hellotext accepts it.
+    public const API_KEY_PENDING_DESCRIPTION = 'Hellotext (connecting)';
 
     // User Meta Keys
     public const META_PROFILE_ID = 'hellotext_profile_id';

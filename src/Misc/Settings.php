@@ -51,6 +51,10 @@ function hellotext_description_section_callback(): void {
     $business_id = get_option(Constants::OPTION_BUSINESS_ID, null);
     $access_token = get_option(Constants::OPTION_ACCESS_TOKEN, null);
 
+    if (get_option(Constants::OPTION_CONNECTION_FAILED)) {
+        echo '<div class="notice notice-error inline"><p>' . esc_html__('settings.connection_failed', 'hellotext') . '</p></div>';
+    }
+
     if (!$business_id) {
         echo '<p>' . wp_kses(__('description.paragraphs.one', 'hellotext'), [ 'a' => [ 'href' => [], 'target' => [], 'style' => [] ] ]) . '</p>';
     }

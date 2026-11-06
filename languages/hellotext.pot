@@ -47,6 +47,9 @@ msgstr ""
 msgid "settings.submit"
 msgstr ""
 
+msgid "settings.connection_failed"
+msgstr ""
+
 msgid "description.paragraphs.one"
 msgstr ""
 

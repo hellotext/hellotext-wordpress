@@ -50,6 +50,20 @@ function tracked_event(int $index = -1): array
 	return tracked_request($index)['body'];
 }
 
+// Every following Hellotext request answers with this status.
+function respond_with(int $code): void
+{
+	$GLOBALS['test_wp_remote_request'] = function ($url, $args = []) use ($code) {
+		$GLOBALS['test_http_requests'][] = [
+			'url' => $url,
+			'args' => $args,
+			'body' => json_decode($args['body'] ?? '{}', true),
+		];
+
+		return ['response' => ['code' => $code], 'body' => json_encode([])];
+	};
+}
+
 function tracked_actions(): array
 {
 	return array_values(array_filter(array_map(
@@ -561,6 +575,27 @@ test('links a signed-in customer session once', function () {
 	expect($session_requests)->toHaveCount(1);
 });
 
+test('links the session again on the next visit when Hellotext did not link it', function () {
+	global $product;
+
+	$_COOKIE[Constants::SESSION_COOKIE_NAME] = 'customer-session';
+	$user = a_registered_user(1);
+	$GLOBALS['test_user_meta'][$user->ID][Constants::META_PROFILE_ID] = 'profile_123';
+	$product = new WC_Product();
+	respond_with(503);
+
+	do_action('woocommerce_after_single_product');
+	do_action('woocommerce_after_single_product');
+
+	$session_requests = array_filter(
+		$GLOBALS['test_http_requests'],
+		fn ($request) => str_ends_with($request['url'], '/v1/sessions/customer-session')
+	);
+
+	expect($session_requests)->toHaveCount(2)
+		->and($GLOBALS['test_user_meta'][$user->ID])->not->toHaveKey(Constants::META_SESSION);
+});
+
 test('connects once both settings are saved and replaces the API key', function () {
 	$GLOBALS['wpdb']->tables['wp_woocommerce_api_keys'][] = ['description' => 'Hellotext', 'consumer_key' => 'old'];
 
@@ -578,9 +613,40 @@ test('connects once both settings are saved and replaces the API key', function 
 		->and($request['url'])->toBe('https://api.hellotext.com/integrations/woo')
 		->and($request['args']['method'])->toBe('POST')
 		->and($request['body']['shop']['consumer_key'])->toBe('ck_testhash')
+		->and($request['body']['shop']['version'])->toBe('10.3.0')
 		->and($keys)->toHaveCount(1)
 		->and($keys[0]['consumer_key'])->toBe('hashed_ck_testhash')
+		->and($keys[0]['description'])->toBe('Hellotext')
 		->and($keys[0]['permissions'])->toBe('read_write');
+});
+
+test('keeps the working API key when Hellotext does not accept the new one', function () {
+	$GLOBALS['wpdb']->tables['wp_woocommerce_api_keys'][] = ['description' => 'Hellotext', 'consumer_key' => 'old'];
+	respond_with(503);
+
+	hellotext_connect();
+
+	expect($GLOBALS['wpdb']->tables['wp_woocommerce_api_keys'])->toBe([['description' => 'Hellotext', 'consumer_key' => 'old']])
+		->and($GLOBALS['test_options'][Constants::OPTION_CONNECTION_FAILED])->toBeTrue();
+});
+
+test('retries a failed connection when the unchanged settings are saved again', function () {
+	$GLOBALS['test_options'][Constants::OPTION_CONNECTION_FAILED] = true;
+
+	expect(hellotext_retry_failed_connection('test_token_123'))->toBe('test_token_123');
+
+	do_action('shutdown');
+
+	expect(tracked_request()['url'])->toBe('https://api.hellotext.com/integrations/woo')
+		->and($GLOBALS['test_options'])->not->toHaveKey(Constants::OPTION_CONNECTION_FAILED);
+});
+
+test('replaces a pending key a cut-short connection left behind', function () {
+	$GLOBALS['wpdb']->tables['wp_woocommerce_api_keys'][] = ['description' => 'Hellotext (connecting)', 'consumer_key' => 'stale'];
+
+	hellotext_connect();
+
+	expect(array_column($GLOBALS['wpdb']->tables['wp_woocommerce_api_keys'], 'consumer_key'))->toBe(['hashed_ck_testhash']);
 });
 
 test('removes the previous business integration when the business ID changes', function () {

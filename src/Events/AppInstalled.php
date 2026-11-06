@@ -15,10 +15,14 @@ function hellotext_activate(): void {
 /**
  * Connect the store to Hellotext.
  *
- * Every connection issues a new WooCommerce API key for Hellotext and
- * replaces the previous one, so reconnecting after a deactivation or a
- * credential change works. Hellotext reads products and creates coupons and
- * webhooks through this key, which needs read_write access.
+ * Every connection issues a new WooCommerce API key for Hellotext, so
+ * reconnecting after a deactivation or a credential change works. Hellotext
+ * reads products and creates coupons and webhooks through this key, which
+ * needs read_write access.
+ *
+ * The previous key keeps working until Hellotext accepts the new one. A
+ * failed connection keeps it, is shown on the settings page, and is retried
+ * the next time the settings are saved.
  *
  * @return void
  */
@@ -34,21 +38,23 @@ function hellotext_connect(): void {
         return;
     }
 
+    $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
     $consumer_key = 'ck_' . wc_rand_hash();
     $consumer_secret = 'cs_' . wc_rand_hash();
 
-    hellotext_delete_api_keys();
+    // A connection cut short leaves its pending key behind.
+    hellotext_delete_api_keys([Constants::API_KEY_PENDING_DESCRIPTION]);
 
-    $wpdb->insert($wpdb->prefix . 'woocommerce_api_keys', [
+    $wpdb->insert($api_keys_table, [
         'user_id' => $user_id,
-        'description' => Constants::API_KEY_DESCRIPTION,
+        'description' => Constants::API_KEY_PENDING_DESCRIPTION,
         'permissions' => 'read_write',
         'consumer_key' => wc_api_hash($consumer_key),
         'consumer_secret' => $consumer_secret,
         'truncated_key' => substr($consumer_key, -7),
     ]);
 
-    Client::post(Constants::API_ENDPOINT_INTEGRATIONS_WOO, [
+    $response = Client::post(Constants::API_ENDPOINT_INTEGRATIONS_WOO, [
         'shop' => [
             'name' => get_bloginfo('name'),
             'url' => get_bloginfo('url'),
@@ -56,22 +62,56 @@ function hellotext_connect(): void {
             'consumer_key' => $consumer_key,
             'consumer_secret' => $consumer_secret,
             'currency' => get_woocommerce_currency(),
+            // Decides the checkout link Hellotext builds: WooCommerce's own from 10.0, the plugin's before.
+            'version' => defined('WC_VERSION') ? WC_VERSION : null,
         ],
     ]);
+
+    if ($response['status'] >= 200 && $response['status'] < 300) {
+        hellotext_delete_api_keys([Constants::API_KEY_DESCRIPTION]);
+        $wpdb->update($api_keys_table, ['description' => Constants::API_KEY_DESCRIPTION], ['description' => Constants::API_KEY_PENDING_DESCRIPTION]);
+        delete_option(Constants::OPTION_CONNECTION_FAILED);
+    } else {
+        $wpdb->delete($api_keys_table, ['description' => Constants::API_KEY_PENDING_DESCRIPTION]);
+        update_option(Constants::OPTION_CONNECTION_FAILED, true, false);
+    }
 }
 
 /**
- * Delete the WooCommerce API keys issued to Hellotext.
+ * Retry a failed connection when the settings are saved again.
  *
+ * Saving unchanged values does not run the option update hooks, so the
+ * filter, which runs on every save, schedules it.
+ *
+ * @param mixed $value Access token being saved.
+ * @return mixed
+ */
+function hellotext_retry_failed_connection(mixed $value): mixed {
+    if (get_option(Constants::OPTION_CONNECTION_FAILED)) {
+        hellotext_schedule_connect();
+    }
+
+    return $value;
+}
+
+/**
+ * Delete the WooCommerce API keys issued to Hellotext, connected and pending
+ * ones by default.
+ *
+ * @param array $descriptions Descriptions of the keys to delete.
  * @return void
  */
-function hellotext_delete_api_keys(): void {
+function hellotext_delete_api_keys(array $descriptions = [Constants::API_KEY_DESCRIPTION, Constants::API_KEY_PENDING_DESCRIPTION]): void {
     global $wpdb;
 
     $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
 
-    if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $api_keys_table)) === $api_keys_table) {
-        $wpdb->delete($api_keys_table, ['description' => Constants::API_KEY_DESCRIPTION]);
+    if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $api_keys_table)) !== $api_keys_table) {
+        return;
+    }
+
+    foreach ($descriptions as $description) {
+        $wpdb->delete($api_keys_table, ['description' => $description]);
     }
 }
 
@@ -111,3 +151,4 @@ add_action('add_option_' . Constants::OPTION_BUSINESS_ID, 'hellotext_schedule_co
 add_action('add_option_' . Constants::OPTION_ACCESS_TOKEN, 'hellotext_schedule_connect', 10, 0);
 add_action('update_option_' . Constants::OPTION_BUSINESS_ID, 'hellotext_business_id_updated', 10, 2);
 add_action('update_option_' . Constants::OPTION_ACCESS_TOKEN, 'hellotext_schedule_connect', 10, 0);
+add_filter('pre_update_option_' . Constants::OPTION_ACCESS_TOKEN, 'hellotext_retry_failed_connection', 10, 1);

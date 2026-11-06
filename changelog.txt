@@ -14,6 +14,9 @@ Unreleased
 * Report cart totals after WooCommerce recalculates them, the quantity removed in cart.removed, and stop reporting purchased items as removed.
 * Stop starting a PHP session on every request; the cart snapshot lives in the WooCommerce session.
 * Reconnect after deactivation or a credential change, revoke the WooCommerce API key on deactivation, and move the integration when the Business ID changes.
+* Keep the working API key until Hellotext accepts a new one. A failed connection shows on the settings page and is retried when the settings are saved again.
+* Send the WooCommerce version when connecting, and open Hellotext checkout links (?hellotext_checkout) on stores older than WooCommerce 10.0.
+* Open only pages of the store from the Webchat's add to cart, and retry linking a customer's session when Hellotext did not link it.
 * Fix profile and session requests losing the /v1 API prefix, coupons with errors being tracked as redeemed, and orders with deleted products failing to track.
 * Point the plugin at another Hellotext environment with the HELLOTEXT_API_URL constant instead of APP_ENV.
 

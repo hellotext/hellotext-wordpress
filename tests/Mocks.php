@@ -16,6 +16,10 @@ if (!isset($GLOBALS['test_user_meta'])) {
 	$GLOBALS['test_user_meta'] = [];
 }
 
+if (!defined('WC_VERSION')) {
+	define('WC_VERSION', '10.3.0');
+}
+
 if (!defined('DAY_IN_SECONDS')) {
 	define('DAY_IN_SECONDS', 86400);
 }
@@ -28,6 +32,11 @@ function add_action($hook_name, $callback, $priority = 10, $accepted_args = 1)
 	];
 
 	return true;
+}
+
+function add_filter($hook_name, $callback, $priority = 10, $accepted_args = 1)
+{
+	return add_action($hook_name, $callback, $priority, $accepted_args);
 }
 
 function do_action($hook_name, ...$args)
@@ -187,9 +196,31 @@ function home_url($path = '')
 	return 'https://example.test/' . ltrim($path, '/');
 }
 
+// Like WordPress, appends the arguments without encoding them.
 function add_query_arg($args = [], $url = '')
 {
-	return $url;
+	if (!is_array($args) || [] === $args) {
+		return $url;
+	}
+
+	$pairs = array_map(fn ($key, $value) => "{$key}={$value}", array_keys($args), $args);
+
+	return $url . (str_contains($url, '?') ? '&' : '?') . implode('&', $pairs);
+}
+
+function urlencode_deep($value)
+{
+	return is_array($value) ? array_map('urlencode_deep', $value) : urlencode((string) $value);
+}
+
+function absint($value)
+{
+	return abs((int) $value);
+}
+
+function wc_get_checkout_url()
+{
+	return 'https://example.test/checkout/';
 }
 
 function wp_get_post_terms($post_id, $taxonomy, $args = [])
@@ -411,6 +442,18 @@ function delete_option($option)
 	return true;
 }
 
+function update_option($option, $value, $autoload = null)
+{
+	$GLOBALS['test_options'][$option] = $value;
+
+	return true;
+}
+
+function esc_html__($text, $domain = 'default')
+{
+	return $text;
+}
+
 function add_post_meta($post_id, $meta_key, $meta_value, $unique = false)
 {
 	$GLOBALS['test_post_meta'][$post_id][$meta_key] = $meta_value;
@@ -500,6 +543,16 @@ class Test_WPDB
 			$this->tables[$table] ?? [],
 			fn ($row) => array_intersect_assoc($where, $row) !== $where
 		));
+
+		return 1;
+	}
+
+	public function update($table, $data, $where)
+	{
+		$this->tables[$table] = array_map(
+			fn ($row) => array_intersect_assoc($where, $row) === $where ? array_merge($row, $data) : $row,
+			$this->tables[$table] ?? []
+		);
 
 		return 1;
 	}
@@ -757,6 +810,11 @@ class WC_Product
 		return 'https://example.test/product/' . $this->get_id();
 	}
 
+	public function is_type($type)
+	{
+		return in_array($GLOBALS['test_product_type'] ?? 'simple', (array) $type, true);
+	}
+
 	// getters
 
 	public function get_name()
@@ -814,6 +872,25 @@ class WC_Cart
 	public function get_cart()
 	{
 		return $this->items;
+	}
+
+	public function empty_cart()
+	{
+		$this->items = [];
+		do_action('woocommerce_cart_emptied');
+	}
+
+	// Products in $GLOBALS['test_unpurchasable'] are refused, as WooCommerce refuses
+	// one that needs options picked or is out of stock.
+	public function add_to_cart($product_id, $quantity = 1)
+	{
+		if (in_array($product_id, $GLOBALS['test_unpurchasable'] ?? [], true)) {
+			return false;
+		}
+
+		$this->items["key-{$product_id}"] = ['product_id' => $product_id, 'data' => new WC_Product(), 'quantity' => $quantity];
+
+		return "key-{$product_id}";
 	}
 
 	public function get_cart_contents_total()

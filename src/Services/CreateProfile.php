@@ -82,8 +82,8 @@ class CreateProfile {
             }
         }
 
-        if ($profile_id && $this->session && get_user_meta($this->user_id, Constants::META_SESSION, true) !== $this->session) {
-            $this->attach_profile_to_session($profile_id);
+        // The session is remembered once Hellotext linked it, so a failed attempt is retried on the next visit.
+        if (get_user_meta($this->user_id, Constants::META_SESSION, true) !== $this->session && $this->attach_profile_to_session($profile_id)) {
             update_user_meta($this->user_id, Constants::META_SESSION, $this->session);
         }
     }
@@ -140,17 +140,19 @@ class CreateProfile {
      * Attach profile ID to current session.
      *
      * @param string|null $profile_id Hellotext profile ID.
-     * @return void
+     * @return bool Whether Hellotext linked them.
      */
-    private function attach_profile_to_session(?string $profile_id): void {
+    private function attach_profile_to_session(?string $profile_id): bool {
         if (!$profile_id || !$this->session) {
-            return;
+            return false;
         }
 
-        $this->client::patch(Constants::API_ENDPOINT_SESSIONS . '/' . rawurlencode($this->session), [
+        $response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . '/' . rawurlencode($this->session), [
             'session' => $this->session,
             'profile' => $profile_id,
         ]);
+
+        return $response['status'] >= 200 && $response['status'] < 300;
     }
 
     /**
