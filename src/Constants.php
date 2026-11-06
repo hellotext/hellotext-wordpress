@@ -11,12 +11,17 @@ namespace Hellotext;
  */
 class Constants {
     // API Configuration
-    public const API_VERSION = 'v1';
+    public const API_URL = 'https://api.hellotext.com';
     public const API_ENDPOINT_TRACK = '/v1/track/events';
-    public const API_ENDPOINT_PROFILES = '/profiles';
-    public const API_ENDPOINT_SESSIONS = '/sessions';
-    public const API_ENDPOINT_WEBCHATS = '/v1/wordpress/webchats';
+    public const API_ENDPOINT_PROFILES = '/v1/profiles';
+    public const API_ENDPOINT_SESSIONS = '/v1/sessions';
     public const API_ENDPOINT_INTEGRATIONS_WOO = '/integrations/woo';
+
+    // Query parameter of the checkout links Hellotext sends to stores older than WooCommerce 10.0
+    public const CHECKOUT_LINK_PARAM = 'hellotext_checkout';
+
+    // Hellotext.js, unversioned so stores always load the latest release
+    public const SDK_URL = 'https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js';
 
     // Session & Encryption
     public const ENCRYPTION_METHOD = 'aes-256-cbc';
@@ -25,16 +30,36 @@ class Constants {
     // WordPress Options
     public const OPTION_BUSINESS_ID = 'hellotext_business_id';
     public const OPTION_ACCESS_TOKEN = 'hellotext_access_token';
-    public const OPTION_WEBCHAT_ID = 'hellotext_webchat_id';
-    public const OPTION_WEBCHAT_PLACEMENT = 'hellotext_webchat_placement';
-    public const OPTION_WEBCHAT_BEHAVIOUR = 'hellotext_webchat_behaviour';
+    public const OPTION_CONNECTION_FAILED = 'hellotext_connection_failed';
+
+    // Every option the plugin has stored, including the webchat options of
+    // earlier versions, removed on uninstall.
+    public const OPTIONS = [
+        self::OPTION_BUSINESS_ID,
+        self::OPTION_ACCESS_TOKEN,
+        self::OPTION_CONNECTION_FAILED,
+        'hellotext_webchat_id',
+        'hellotext_webchat_placement',
+        'hellotext_webchat_behaviour',
+    ];
+
+    // WooCommerce API key
+    public const API_KEY_DESCRIPTION = 'Hellotext';
+    // A new key until Hellotext accepts it.
+    public const API_KEY_PENDING_DESCRIPTION = 'Hellotext (connecting)';
 
     // User Meta Keys
     public const META_PROFILE_ID = 'hellotext_profile_id';
     public const META_SESSION = 'hellotext_session';
 
-    // Session Keys
+    // Order Meta Keys
+    public const META_ORDER_PLACED = 'hellotext_order_placed';
+    public const ORDER_PLACED_PENDING = 'pending';
+    public const ORDER_PLACED_TRACKED = 'tracked';
+
+    // WooCommerce Session Keys
     public const SESSION_CART_ITEMS = 'hellotext_cart_items';
+    public const SESSION_CHECKOUT_STARTED = 'hellotext_checkout_started';
 
     // Event Names
     public const EVENT_ORDER_PLACED = 'order.placed';
@@ -45,6 +70,8 @@ class Constants {
     public const EVENT_PRODUCT_VIEWED = 'product.viewed';
     public const EVENT_CART_ADDED = 'cart.added';
     public const EVENT_CART_REMOVED = 'cart.removed';
+    public const EVENT_CART_VIEWED = 'cart.viewed';
+    public const EVENT_CHECKOUT_STARTED = 'checkout.started';
     public const EVENT_REFUND_RECEIVED = 'refund.received';
     public const EVENT_COUPON_REDEEMED = 'coupon.redeemed';
 

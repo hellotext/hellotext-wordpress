@@ -53,26 +53,12 @@ This installs:
 
 ### 3. Configure Environment
 
-Create or modify your WordPress configuration to set environment variables.
-
-**Option A: wp-config.php**
+The plugin talks to `https://api.hellotext.com` by default. To use another Hellotext environment, define `HELLOTEXT_API_URL` in `wp-config.php`:
 
 ```php
 // Add before "That's all, stop editing!"
-$_ENV['APP_ENV'] = 'development';
-$_ENV['HELLOTEXT_API_URL'] = 'https://api-dev.hellotext.com';
+define('HELLOTEXT_API_URL', 'https://api-dev.hellotext.com');
 ```
-
-**Option B: .htaccess**
-
-```apache
-SetEnv APP_ENV development
-SetEnv HELLOTEXT_API_URL https://api-dev.hellotext.com
-```
-
-**Option C: Server Configuration**
-
-For Local by Flywheel, add to site configuration or use `.env` file if supported.
 
 ### 4. Activate Plugin
 
@@ -352,9 +338,12 @@ add_action('all', function($hook) {
 - [ ] Inspect the production `vendor/` tree enough to confirm dev-only packages such as Pest, Mockery, stubs, PHPUnit, and PHP CS Fixer are not included in the release build.
 - [ ] Verify `.distignore` excludes development files from the release zip: `.github/`, `tests/`, `composer.json`, `composer.lock`, `DEVELOPMENT.md`, and `API.md`.
 - [ ] Smoke test the plugin zip in a clean WordPress/WooCommerce site.
-- [ ] Confirm settings save correctly: Business ID, access token, webchat ID, placement, and behavior.
-- [ ] Confirm script/webchat injection renders on the storefront when configured.
-- [ ] Smoke test tracking for product view, cart add/remove, coupon redemption, checkout/order placement, order status change, refund, user registration, plugin activation, and plugin deactivation.
+- [ ] Confirm settings save correctly (Business ID and access token) and the store connects once, with a single Hellotext WooCommerce API key.
+- [ ] Confirm the storefront loads `https://cdn.jsdelivr.net/npm/@hellotext/hellotext/dist/hellotext.min.js` and the Webchat configured in Hellotext appears.
+- [ ] Confirm `Hellotext.page.section` is `homepage`, `product_collection` and `product_details` on the front, shop/category and product pages, and empty on the cart.
+- [ ] With the Smart Alert playbook enabled, confirm its sections show on those pages and that "Allow" subscribes through `assets/hellotext-service-worker.js`.
+- [ ] From a Webchat product card, confirm "Add to cart" adds the product, refreshes the mini cart on a classic and a block theme, opens the page of a variable product, and that `cart.added` reaches Hellotext with the message as `source`.
+- [ ] Smoke test tracking for page view, product view, cart add/remove, cart view, checkout started (once per cart), coupon redemption, checkout/order placement, order status change, refund, user registration, plugin activation, and plugin deactivation.
 - [ ] Smoke test classic template pages and WooCommerce Cart/Checkout blocks separately for product, cart, and checkout coverage.
 - [ ] Smoke test order placement, order status, and refund flows with WooCommerce HPOS enabled and disabled.
 - [ ] Record WooCommerce API/HPOS compatibility notes in the release description if anything changed.
@@ -525,7 +514,7 @@ composer require --dev php-stubs/wordpress-stubs php-stubs/woocommerce-stubs
 
 **Issue**: `hello_session` cookie not being created
 
-**Solution**: Check that `session_start()` is called early in plugin load and cookie settings (domain, path) are correct.
+**Solution**: Hellotext.js sets the cookie in the browser. Check that the storefront loads Hellotext.js (Business ID saved, no script blocker or Content Security Policy rejecting `cdn.jsdelivr.net`).
 
 ### API Requests Failing
 

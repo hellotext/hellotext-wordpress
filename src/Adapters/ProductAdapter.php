@@ -37,15 +37,18 @@ class ProductAdapter {
             throw new \Exception('Product not found');
         }
 
+        // Variations carry no categories or tags of their own.
+        $catalog_id = $this->product->get_parent_id() ?: $this->product->get_id();
+
         $response = [
             'reference' => $this->product->get_id(),
             'source' => 'woo',
             'name' => $this->product->get_name(),
-            'categories' => wp_get_post_terms($this->product->get_id(), 'product_cat', [ 'fields' => 'names' ]),
+            'categories' => $this->term_names($catalog_id, 'product_cat'),
             'price' => (new PriceAdapter($this->product->get_price()))->get(),
-            'tags' => wp_get_post_terms($this->product->get_id(), 'product_tag', [ 'fields' => 'names' ]),
+            'tags' => $this->term_names($catalog_id, 'product_tag'),
             'image_url' => wp_get_attachment_url($this->product->get_image_id()),
-            'url' => get_permalink($this->product->get_id()),
+            'url' => $this->product->get_permalink(),
         ];
 
         $response = array_filter($response, function ($value) {
@@ -55,4 +58,16 @@ class ProductAdapter {
         return $response;
     }
 
+    /**
+     * Term names of a product, or an empty list when the taxonomy lookup fails.
+     *
+     * @param int $product_id Product ID.
+     * @param string $taxonomy Taxonomy name.
+     * @return array
+     */
+    private function term_names(int $product_id, string $taxonomy): array {
+        $terms = wp_get_post_terms($product_id, $taxonomy, ['fields' => 'names']);
+
+        return is_array($terms) ? $terms : [];
+    }
 }

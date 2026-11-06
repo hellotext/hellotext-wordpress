@@ -8,45 +8,25 @@ use Hellotext\Constants;
 /**
  * CreateProfile
  *
- * Creates and associates Hellotext profiles for users/sessions.
+ * Creates Hellotext profiles for customers and links them to the visitor's
+ * Hellotext.js session.
  *
  * @package Hellotext\Services
  */
 class CreateProfile {
     /**
-     * WordPress user instance.
-     *
-     * @var \WP_User|false|null
-     */
-    public \WP_User|false|null $user = null;
-
-    /**
-     * Hellotext profile ID.
-     *
-     * @var string|null
-     */
-    public ?string $hellotext_profile_id = null;
-
-    /**
-     * API client class name.
-     *
-     * @var string
-     */
-    public string $client;
-
-    /**
-     * Billing payload data.
-     *
-     * @var array
-     */
-    public array $billing;
-
-    /**
-     * WordPress user ID.
+     * WordPress user ID, null for guest checkouts.
      *
      * @var int|null
      */
     public ?int $user_id;
+
+    /**
+     * Guest billing details.
+     *
+     * @var array
+     */
+    public array $billing;
 
     /**
      * Session identifier.
@@ -56,18 +36,22 @@ class CreateProfile {
     public ?string $session;
 
     /**
+     * API client class name.
+     *
+     * @var string
+     */
+    public string $client = Client::class;
+
+    /**
      * Create a new profile service instance.
      *
      * @param int|null $user_id WordPress user ID.
-     * @param array $billing Billing payload data.
+     * @param array $billing Guest billing details.
      */
     public function __construct(?int $user_id, array $billing = []) {
         $this->user_id = $user_id;
-        $this->session = isset($_COOKIE[Constants::SESSION_COOKIE_NAME])
-            ? sanitize_text_field($_COOKIE[Constants::SESSION_COOKIE_NAME])
-            : null;
-        $this->client = Client::class;
         $this->billing = $billing;
+        $this->session = $this->visitor_is_customer() ? Session::current() : null;
     }
 
     /**
@@ -76,139 +60,112 @@ class CreateProfile {
      * @return void
      */
     public function process(): void {
-        if (isset($this->billing) && !empty($this->billing)) {
-            $this->create_hellotext_profile();
-            $this->attach_profile_to_session();
-            return;
-        }
-
-        if (! $this->user_id) {
-            return;
-        }
-
-        if (! $this->verify_if_profile_exists()) {
-            $this->get_user();
-            $this->create_hellotext_profile();
-            $this->attach_profile_to_session();
-        }
-
-        if ($this->session_changed()) {
-            $this->attach_profile_to_session();
-        }
-    }
-
-    /**
-     * Load the WordPress user by ID.
-     *
-     * @return void
-     * @throws \Exception When user is not found.
-     */
-    private function get_user(): void {
-        $this->user = get_user_by('id', $this->user_id);
-
-        if (!$this->user) {
-            throw new \Exception("User with id {$this->user_id} not found");
-        }
-    }
-
-    /**
-     * Check if a Hellotext profile already exists.
-     *
-     * @return bool
-     */
-    private function verify_if_profile_exists(): bool {
-        $hellotext_profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
-
-        return false != $hellotext_profile_id && '' != $hellotext_profile_id;
-    }
-
-    /**
-     * Determine if the session value has changed.
-     *
-     * @return bool
-     */
-    private function session_changed(): bool {
-        return get_user_meta($this->user_id, Constants::META_SESSION, true) != $this->session;
-    }
-
-    /**
-     * Create a Hellotext profile or reuse existing one.
-     *
-     * @return void
-     */
-    public function create_hellotext_profile(): void {
-        $profile = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
-
-        if ($profile) {
-            if (isset($this->user)) {
-                update_user_meta($this->user->ID, Constants::META_PROFILE_ID, $profile);
+        if (!$this->user_id) {
+            if (!empty($this->billing)) {
+                $this->attach_profile_to_session($this->create_hellotext_profile());
             }
 
-            $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
-               'session' => $this->session,
-               'profile' => $profile,
-            ]);
-
             return;
         }
 
-        $phone = get_user_meta($this->user_id, 'billing_phone', true);
+        if (!get_user_by('id', $this->user_id)) {
+            return;
+        }
 
+        $profile_id = get_user_meta($this->user_id, Constants::META_PROFILE_ID, true);
+
+        if (!$profile_id) {
+            $profile_id = $this->create_hellotext_profile();
+
+            if ($profile_id) {
+                update_user_meta($this->user_id, Constants::META_PROFILE_ID, $profile_id);
+            }
+        }
+
+        // The session is remembered once Hellotext linked it, so a failed attempt is retried on the next visit.
+        if (get_user_meta($this->user_id, Constants::META_SESSION, true) !== $this->session && $this->attach_profile_to_session($profile_id)) {
+            update_user_meta($this->user_id, Constants::META_SESSION, $this->session);
+        }
+    }
+
+    /**
+     * Create a Hellotext profile.
+     *
+     * @return string|null The new profile ID.
+     */
+    public function create_hellotext_profile(): ?string {
         $response = $this->client::post(Constants::API_ENDPOINT_PROFILES, array_filter([
             'session' => $this->session,
-            'reference' => isset($this->user) ? $this->user->ID : null,
-            'first_name' => $this->user->nickname ?? $this->billing['first_name'],
-            'last_name' => $this->user->last_name ?? $this->billing['last_name'],
-            'email' => $this->user->user_email ?? $this->billing['email'],
-            'phone' => empty($phone) ? $this->billing['phone'] : $phone,
+            'reference' => $this->user_id,
+            'first_name' => $this->attribute('first_name'),
+            'last_name' => $this->attribute('last_name'),
+            'email' => $this->attribute('email'),
+            'phone' => $this->attribute('phone'),
             'lists' => ['WooCommerce'],
         ]));
 
-        add_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, $response['body']['id'], true);
+        $profile_id = $response['body']['id'] ?? null;
 
-        $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
-           'session' => $this->session,
-           'profile' => $response['body']['id'],
-        ]);
+        return is_scalar($profile_id) && '' !== (string) $profile_id ? (string) $profile_id : null;
+    }
+
+    /**
+     * Read a customer attribute from the user account, falling back to
+     * their billing details.
+     *
+     * @param string $name Attribute name.
+     * @return string|null
+     */
+    private function attribute(string $name): ?string {
+        if ($this->user_id) {
+            $user = get_user_by('id', $this->user_id);
+            $value = match ($name) {
+                'first_name' => $user->first_name ?? '',
+                'last_name' => $user->last_name ?? '',
+                'email' => $user->user_email ?? '',
+                default => '',
+            };
+
+            if ('' === $value) {
+                $value = (string) get_user_meta($this->user_id, "billing_{$name}", true);
+            }
+        } else {
+            $value = (string) ($this->billing[$name] ?? '');
+        }
+
+        return '' === $value ? null : $value;
     }
 
     /**
      * Attach profile ID to current session.
      *
-     * @return void
+     * @param string|null $profile_id Hellotext profile ID.
+     * @return bool Whether Hellotext linked them.
      */
-    private function attach_profile_to_session(): void {
-        $profile_id = get_user_meta($this->user_id ?? $this->session, Constants::META_PROFILE_ID, true);
+    private function attach_profile_to_session(?string $profile_id): bool {
+        if (!$profile_id || !$this->session) {
+            return false;
+        }
 
-        $response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . "/{$this->session}", [
+        $response = $this->client::patch(Constants::API_ENDPOINT_SESSIONS . '/' . rawurlencode($this->session), [
             'session' => $this->session,
             'profile' => $profile_id,
         ]);
+
+        return $response['status'] >= 200 && $response['status'] < 300;
+    }
+
+    /**
+     * Whether the browser making this request belongs to the customer.
+     *
+     * The cookie of a shop manager creating a user, or of anyone other than
+     * the customer, must not be linked to the customer's profile.
+     *
+     * @return bool
+     */
+    private function visitor_is_customer(): bool {
+        $current_user_id = get_current_user_id();
+
+        return 0 === $current_user_id || $current_user_id === $this->user_id;
     }
 }
-
-/**
- * Handle Hellotext profile creation action.
- *
- * @param mixed $payload Billing payload data.
- * @return void
- */
-add_action('hellotext_create_profile', function (mixed $payload = null): void {
-    if (is_array($payload)) {
-        (new CreateProfile(null, $payload))->process();
-    }
-
-    if (!is_user_logged_in() && !isset($user_id)) {
-        return;
-    }
-
-    $user = (null != $user_id)
-        ? get_user_by('id', $user_id)
-        : wp_get_current_user();
-
-    if (!$user) {
-        return;
-    }
-
-    (new CreateProfile($user->ID))->process();
-}, 10, 1);

@@ -1,5 +1,25 @@
 ** Hellotext for WooCommerce Changelog **
 
+Unreleased
+
+* Remove the Webchat settings. The Webchat, popups and other widgets are configured in Hellotext.
+* Load the latest Hellotext.js from jsDelivr on the storefront only, no longer in wp-admin.
+* Report the page section (homepage, product collection, product) on every event, Webchat messages included, and show the Smart Alert section configured for it.
+* Ship a Hellotext Push service worker, so visitors can subscribe from the Smart Alert.
+* Add the Webchat's product cards to the WooCommerce cart, crediting the addition to their message.
+* Track page.viewed, cart.viewed, and checkout.started once per cart.
+* Track order.placed for Checkout block, block themes and customers who never return from the payment page, once the order is paid or on hold.
+* Never attribute order, refund or new user events to the shop manager's browser session.
+* Create and link customer profiles on product views, cart changes and checkout, not only on registration.
+* Report cart totals after WooCommerce recalculates them, the quantity removed in cart.removed, and stop reporting purchased items as removed.
+* Stop starting a PHP session on every request; the cart snapshot lives in the WooCommerce session.
+* Reconnect after deactivation or a credential change, revoke the WooCommerce API key on deactivation, and move the integration when the Business ID changes.
+* Keep the working API key until Hellotext accepts a new one. A failed connection shows on the settings page and is retried when the settings are saved again.
+* Send the WooCommerce version when connecting, and open Hellotext checkout links (?hellotext_checkout) on stores older than WooCommerce 10.0.
+* Open only pages of the store from the Webchat's add to cart, and retry linking a customer's session when Hellotext did not link it.
+* Fix profile and session requests losing the /v1 API prefix, coupons with errors being tracked as redeemed, and orders with deleted products failing to track.
+* Point the plugin at another Hellotext environment with the HELLOTEXT_API_URL constant instead of APP_ENV.
+
 2026-01-19 - version 1.3.1
 
 * Add X-Plugin-Version header to all API requests for version tracking and analytics.

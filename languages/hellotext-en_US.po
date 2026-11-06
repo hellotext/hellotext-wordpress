@@ -44,32 +44,11 @@ msgstr "Business ID"
 msgid "settings.access_token"
 msgstr "Access Token"
 
-msgid "settings.webchat_id"
-msgstr "Webchat ID"
-
-msgid "webchat_unavailable"
-msgstr "No active Webchat found."
-
-msgid "settings.webchat_placement"
-msgstr "Webchat Placement"
-
-msgid "settings.webchat_placement_bottom-right"
-msgstr "Bottom Right"
-
-msgid "settings.webchat_placement_bottom-left"
-msgstr "Bottom Left"
-
-msgid "settings.webchat_placement_top-right"
-msgstr "Top Right"
-
-msgid "settings.webchat_placement_top-left"
-msgstr "Top Left"
-
-msgid "settings.webchat_behaviour"
-msgstr "Webchat Behaviour"
-
 msgid "settings.submit"
 msgstr "Save changes"
+
+msgid "settings.connection_failed"
+msgstr "Hellotext could not connect your store. Check the Business ID and the access token, then save the changes to try again."
 
 msgid "description.paragraphs.one"
 msgstr "You can find your Business ID on the <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">Hellotext business settings</a>."

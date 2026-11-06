@@ -23,9 +23,11 @@ beforeEach(function () {
 	$this->user = TestHelper::find_or_create_user();
 });
 
-test('throws an exception if the user does not exist', function () {
-	$this->expectException(\Exception::class);
-	(new CreateProfile(999))->process();
+test('does nothing if the user does not exist', function () {
+	$service = Mockery::mock('Hellotext\Services\CreateProfile[create_hellotext_profile]', array( 999 ))->makePartial();
+	$service->shouldNotReceive('create_hellotext_profile');
+
+	$service->process();
 });
 
 test('does call the create_hellotext_profile function if the user id is not present but billing is', function () use ($billingInfo) {

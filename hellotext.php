@@ -19,22 +19,6 @@
 
 use Hellotext\Constants;
 
-// TODO: Refactor this to use the APP_ENV variable
-if (! isset($_ENV['APP_ENV'])) {
-	$_ENV['APP_ENV'] = 'production';
-}
-
-$TEST = $_ENV['APP_ENV'] === 'test';
-$HELLOTEXT_DEV_MODE = $_ENV['APP_ENV'] === 'development';
-$HELLOTEXT_API_URL = $HELLOTEXT_DEV_MODE
- ? $_ENV['HELLOTEXT_API_URL'] ?? ''
- : 'https://api.hellotext.com';
-
-
-if (session_status() === PHP_SESSION_NONE) {
-	session_start();
-}
-
 // Load Composer autoloader (handles all classes)
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -50,8 +34,9 @@ foreach ($misc_files as $file) {
 	require_once $file;
 }
 
-// Function on Events/AppRemoved.php
-register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
+// Functions on Events/AppInstalled.php and Events/AppRemoved.php
+register_activation_hook(__FILE__, 'hellotext_activate');
+register_deactivation_hook(__FILE__, 'hellotext_deactivate');
 
 /**
  * Check for plugin updates from GitHub.
@@ -60,7 +45,7 @@ register_deactivation_hook( __FILE__, 'hellotext_deactivate' );
  * @return void
  */
 function hellotext_version_check() {
-	if (!is_admin()) {
+	if (!is_admin() || !current_user_can('update_plugins')) {
 		return;
 	}
 
@@ -91,8 +76,8 @@ function hellotext_version_check() {
 			if (version_compare($current, $latest, '<')) {
 				$cache_data['message'] = sprintf(
 					'New version of Hellotext available: %s. <a href="%s">View details</a>',
-					$latest,
-					$release['html_url']
+					esc_html($latest),
+					esc_url($release['html_url'])
 				);
 			}
 		}
@@ -121,19 +106,15 @@ add_action( 'plugins_loaded', 'hellotext_load_textdomain' );
  *
  * @return void
  */
-function uninstall() {
-    global $wpdb;
-
-    delete_option(Constants::OPTION_BUSINESS_ID);
-    delete_option(Constants::OPTION_WEBCHAT_ID);
-    delete_option(Constants::OPTION_WEBCHAT_PLACEMENT);
-    delete_option(Constants::OPTION_WEBCHAT_BEHAVIOUR);
-    delete_option(Constants::OPTION_ACCESS_TOKEN);
-
-    $api_keys_table = $wpdb->prefix . 'woocommerce_api_keys';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$api_keys_table'") === $api_keys_table) {
-        $wpdb->delete($api_keys_table, ['description' => 'Hellotext']);
+function hellotext_uninstall() {
+    foreach (Constants::OPTIONS as $option) {
+        delete_option($option);
     }
+
+    delete_transient('hellotext_version_check');
+    delete_transient('hellotext_integration_triggered');
+
+    hellotext_delete_api_keys();
 }
 
-register_uninstall_hook(__FILE__, 'uninstall');
+register_uninstall_hook(__FILE__, 'hellotext_uninstall');

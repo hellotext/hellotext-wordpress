@@ -4,34 +4,30 @@ use Hellotext\Api\Client;
 use Hellotext\Constants;
 
 /**
- * Trigger integration removal on plugin deactivation.
+ * Disconnect the store when the plugin is deactivated.
  *
- * @param string|null $hellotext_business_id Business ID token.
  * @return void
  */
-function hellotext_deactivate(?string $hellotext_business_id = null): void {
-    if (!$hellotext_business_id) {
-        $hellotext_business_id = get_option(Constants::OPTION_BUSINESS_ID);
-    }
-
-    if (!$hellotext_business_id) {
-        return;
-    }
-
-    do_action('hellotext_remove_integration', $hellotext_business_id);
+function hellotext_deactivate(): void {
+    hellotext_disconnect();
 }
 
 /**
- * Remove WooCommerce integration from Hellotext.
+ * Remove the integration from Hellotext and revoke its WooCommerce API key.
  *
- * @param mixed $business_id Business ID token.
+ * @param string|null $business_id Business to disconnect, the saved one by default.
  * @return void
  */
-add_action('hellotext_remove_integration', function (mixed $business_id): void {
-    Client::with_sufix()
-        ->delete(Constants::API_ENDPOINT_INTEGRATIONS_WOO, [
-        'shop' => [
-            'business_id' => $business_id,
+function hellotext_disconnect(?string $business_id = null): void {
+    $business_id ??= get_option(Constants::OPTION_BUSINESS_ID);
+
+    if ($business_id && get_option(Constants::OPTION_ACCESS_TOKEN)) {
+        Client::delete(Constants::API_ENDPOINT_INTEGRATIONS_WOO, [
+            'shop' => [
+                'business_id' => $business_id,
             ],
         ]);
-});
+    }
+
+    hellotext_delete_api_keys();
+}

@@ -44,32 +44,11 @@ msgstr "ID del negiocio"
 msgid "settings.access_token"
 msgstr "Token de acceso"
 
-msgid "settings.webchat_id"
-msgstr "ID del Webchat"
-
-msgid "webchat_unavailable"
-msgstr "No se encontró ningún Webchat activo."
-
-msgid "settings.webchat_placement"
-msgstr "Ubicación del Webchat"
-
-msgid "settings.webchat_placement_bottom-right"
-msgstr "Abajo a la derecha"
-
-msgid "settings.webchat_placement_bottom-left"
-msgstr "Abajo a la izquierda"
-
-msgid "settings.webchat_placement_top-right"
-msgstr "Arriba a la derecha"
-
-msgid "settings.webchat_placement_top-left"
-msgstr "Arriba a la izquierda"
-
-msgid "settings.webchat_behaviour"
-msgstr "Comportamiento del Webchat"
-
 msgid "settings.submit"
 msgstr "Guardar cambios"
+
+msgid "settings.connection_failed"
+msgstr "Hellotext no pudo conectar tu tienda. Revisa el ID de negocio y el token de acceso, y guarda los cambios para intentarlo de nuevo."
 
 msgid "description.paragraphs.one"
 msgstr "Puedes encontrar tu ID de negocio en la <a href=\"https://www.hellotext.com/businesses\" target=\"_blank\" style=\"color: #FF4C00;\">configuración de negocios de Hellotext</a>."

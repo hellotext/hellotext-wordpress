@@ -61,18 +61,32 @@ class OrderAdapter {
      * @return array
      */
     public function adapted_products(): array {
-        $items = $this->order->get_items();
+        $products = $this->products;
 
-        foreach ($items as $item) {
+        foreach ($this->order->get_items() as $item) {
             $product = $item->get_product();
 
-            $this->products[] = [
-                'product' => (new ProductAdapter($product))->get(),
+            $products[] = [
+                'product' => $product ? (new ProductAdapter($product))->get() : $this->deleted_product($item),
                 'quantity' => $item->get_quantity(),
             ];
         }
 
-        return $this->products;
+        return $products;
+    }
+
+    /**
+     * Describe an order item whose product was deleted from the store.
+     *
+     * @param \WC_Order_Item_Product $item Order item.
+     * @return array
+     */
+    private function deleted_product(\WC_Order_Item_Product $item): array {
+        return [
+            'reference' => $item->get_variation_id() ?: $item->get_product_id(),
+            'source' => 'woo',
+            'name' => $item->get_name(),
+        ];
     }
 
 }

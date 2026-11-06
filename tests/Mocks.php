@@ -16,6 +16,10 @@ if (!isset($GLOBALS['test_user_meta'])) {
 	$GLOBALS['test_user_meta'] = [];
 }
 
+if (!defined('WC_VERSION')) {
+	define('WC_VERSION', '10.3.0');
+}
+
 if (!defined('DAY_IN_SECONDS')) {
 	define('DAY_IN_SECONDS', 86400);
 }
@@ -30,11 +34,27 @@ function add_action($hook_name, $callback, $priority = 10, $accepted_args = 1)
 	return true;
 }
 
+function add_filter($hook_name, $callback, $priority = 10, $accepted_args = 1)
+{
+	return add_action($hook_name, $callback, $priority, $accepted_args);
+}
+
 function do_action($hook_name, ...$args)
 {
 	foreach ($GLOBALS['test_actions'][$hook_name] ?? [] as $action) {
 		call_user_func_array($action['callback'], array_slice($args, 0, $action['accepted_args']));
 	}
+}
+
+function has_action($hook_name, $callback = false)
+{
+	foreach ($GLOBALS['test_actions'][$hook_name] ?? [] as $action) {
+		if ($action['callback'] === $callback) {
+			return 10;
+		}
+	}
+
+	return false;
 }
 
 function register_activation_hook($file, $callback)
@@ -57,6 +77,115 @@ function sanitize_text_field($value)
 	return is_scalar($value) ? trim((string) $value) : '';
 }
 
+function wp_unslash($value)
+{
+	return is_string($value) ? stripslashes($value) : $value;
+}
+
+function wp_json_encode($data)
+{
+	return json_encode($data);
+}
+
+function esc_url($url)
+{
+	return $url;
+}
+
+function admin_url($path = '')
+{
+	return 'https://example.test/wp-admin/' . ltrim($path, '/');
+}
+
+function plugins_url($path = '', $plugin = '')
+{
+	return 'https://example.test/wp-content/plugins/' . basename(dirname($plugin)) . '/' . ltrim($path, '/');
+}
+
+function wp_make_link_relative($link)
+{
+	return preg_replace('|^https?://[^/]+|i', '', $link);
+}
+
+function is_front_page()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'front';
+}
+
+function is_product()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'product';
+}
+
+function is_shop()
+{
+	return in_array($GLOBALS['test_page'] ?? null, ['shop', 'front'], true);
+}
+
+function is_product_taxonomy()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'category';
+}
+
+function is_cart()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'cart';
+}
+
+function is_checkout()
+{
+	return ($GLOBALS['test_page'] ?? null) === 'checkout';
+}
+
+function is_wc_endpoint_url($endpoint = false)
+{
+	return ($GLOBALS['test_endpoint'] ?? null) === $endpoint;
+}
+
+class WC_AJAX
+{
+	public static function get_endpoint($request = '')
+	{
+		return '/?wc-ajax=' . $request;
+	}
+}
+
+function wc_get_cart_url()
+{
+	return 'https://example.test/cart';
+}
+
+function wp_doing_ajax()
+{
+	return $GLOBALS['test_doing_ajax'] ?? false;
+}
+
+function wp_get_referer()
+{
+	return $GLOBALS['test_referer'] ?? false;
+}
+
+function current_user_can($capability)
+{
+	return true;
+}
+
+function wp_enqueue_script($handle, $src = '', $deps = [], $ver = false, $args = [])
+{
+	$GLOBALS['test_scripts'][$handle] = [
+		'src' => $src,
+		'ver' => $ver,
+		'args' => $args,
+	];
+}
+
+function wp_add_inline_script($handle, $data, $position = 'after')
+{
+	$GLOBALS['test_inline_scripts'][$handle][] = $data;
+
+	return true;
+}
+
 function site_url($path = '')
 {
 	return 'https://example.test' . $path;
@@ -67,14 +196,36 @@ function home_url($path = '')
 	return 'https://example.test/' . ltrim($path, '/');
 }
 
+// Like WordPress, appends the arguments without encoding them.
 function add_query_arg($args = [], $url = '')
 {
-	return $url;
+	if (!is_array($args) || [] === $args) {
+		return $url;
+	}
+
+	$pairs = array_map(fn ($key, $value) => "{$key}={$value}", array_keys($args), $args);
+
+	return $url . (str_contains($url, '?') ? '&' : '?') . implode('&', $pairs);
+}
+
+function urlencode_deep($value)
+{
+	return is_array($value) ? array_map('urlencode_deep', $value) : urlencode((string) $value);
+}
+
+function absint($value)
+{
+	return abs((int) $value);
+}
+
+function wc_get_checkout_url()
+{
+	return 'https://example.test/checkout/';
 }
 
 function wp_get_post_terms($post_id, $taxonomy, $args = [])
 {
-	return [];
+	return $GLOBALS['test_post_terms'][$post_id][$taxonomy] ?? [];
 }
 
 function wp_get_attachment_url($attachment_id)
@@ -193,7 +344,7 @@ function submit_button()
 
 function get_current_user_id()
 {
-	return 1;
+	return $GLOBALS['test_current_user_id'] ?? 1;
 }
 
 function get_bloginfo($show = '')
@@ -291,6 +442,18 @@ function delete_option($option)
 	return true;
 }
 
+function update_option($option, $value, $autoload = null)
+{
+	$GLOBALS['test_options'][$option] = $value;
+
+	return true;
+}
+
+function esc_html__($text, $domain = 'default')
+{
+	return $text;
+}
+
 function add_post_meta($post_id, $meta_key, $meta_value, $unique = false)
 {
 	$GLOBALS['test_post_meta'][$post_id][$meta_key] = $meta_value;
@@ -324,11 +487,78 @@ function WC()
 	if (!isset($GLOBALS['test_woocommerce'])) {
 		$GLOBALS['test_woocommerce'] = (object) [
 			'cart' => new WC_Cart(),
+			'session' => new WC_Session(),
 		];
 	}
 
 	return $GLOBALS['test_woocommerce'];
 }
+
+class WC_Session
+{
+	public array $data = [];
+
+	public function get($key, $default = null)
+	{
+		return $this->data[$key] ?? $default;
+	}
+
+	public function set($key, $value)
+	{
+		$this->data[$key] = $value;
+	}
+}
+
+class Test_WPDB
+{
+	public string $prefix = 'wp_';
+	public array $tables = ['wp_woocommerce_api_keys' => []];
+
+	public function prepare($query, ...$args)
+	{
+		return vsprintf(str_replace('%s', "'%s'", $query), $args);
+	}
+
+	public function get_var($query)
+	{
+		foreach (array_keys($this->tables) as $table) {
+			if (str_contains($query, "'{$table}'")) {
+				return $table;
+			}
+		}
+
+		return null;
+	}
+
+	public function insert($table, $data)
+	{
+		$this->tables[$table][] = $data;
+
+		return 1;
+	}
+
+	public function delete($table, $where)
+	{
+		$this->tables[$table] = array_values(array_filter(
+			$this->tables[$table] ?? [],
+			fn ($row) => array_intersect_assoc($where, $row) !== $where
+		));
+
+		return 1;
+	}
+
+	public function update($table, $data, $where)
+	{
+		$this->tables[$table] = array_map(
+			fn ($row) => array_intersect_assoc($where, $row) === $where ? array_merge($row, $data) : $row,
+			$this->tables[$table] ?? []
+		);
+
+		return 1;
+	}
+}
+
+$GLOBALS['wpdb'] = new Test_WPDB();
 
 // Mock WooCommerce wc_create_order function
 function wc_create_order($args = array())
@@ -380,15 +610,6 @@ function get_woocommerce_currency()
 
 class WC_Order
 {
-	public $data = [
-		'billing' => [
-			'first_name' => 'Jane',
-			'last_name' => 'Doe',
-			'email' => 'jane@example.test',
-			'phone' => '+15555550100',
-		],
-	];
-
 	private array $meta_data = [];
 
 	public function get_id()
@@ -398,7 +619,32 @@ class WC_Order
 
 	public function get_user_id()
 	{
-		return 1;
+		return $GLOBALS['test_order_user_id'] ?? 1;
+	}
+
+	public function get_status()
+	{
+		return $GLOBALS['test_order_status'] ?? 'processing';
+	}
+
+	public function has_status($status)
+	{
+		return in_array($this->get_status(), (array) $status, true);
+	}
+
+	public function is_paid()
+	{
+		return $this->has_status(['processing', 'completed']);
+	}
+
+	public function get_address($type = 'billing')
+	{
+		return [
+			'first_name' => 'Jane',
+			'last_name' => 'Doe',
+			'email' => 'jane@example.test',
+			'phone' => '+15555550100',
+		];
 	}
 
 	public function get_total()
@@ -436,6 +682,11 @@ class WC_Order
 		$GLOBALS['test_saved_orders'][$this->get_id()] = true;
 
 		return true;
+	}
+
+	public function save_meta_data()
+	{
+		$GLOBALS['test_saved_orders'][$this->get_id()] = true;
 	}
 
 	public function add_meta_data($key, $value, $unique = false)
@@ -511,9 +762,19 @@ class WC_Order_Item_Product
 		return $this->quantity;
 	}
 
+	public function get_variation_id()
+	{
+		return 0;
+	}
+
+	public function get_name()
+	{
+		return 'Deleted product';
+	}
+
 	public function get_product()
 	{
-		return new WC_Product();
+		return $GLOBALS['test_order_item_product'] ?? new WC_Product();
 	}
 }
 
@@ -537,6 +798,21 @@ class WC_Product
 	public function get_id()
 	{
 		return 1;
+	}
+
+	public function get_parent_id()
+	{
+		return $GLOBALS['test_product_parent_id'] ?? 0;
+	}
+
+	public function get_permalink()
+	{
+		return 'https://example.test/product/' . $this->get_id();
+	}
+
+	public function is_type($type)
+	{
+		return in_array($GLOBALS['test_product_type'] ?? 'simple', (array) $type, true);
 	}
 
 	// getters
@@ -598,9 +874,48 @@ class WC_Cart
 		return $this->items;
 	}
 
+	public function empty_cart()
+	{
+		$this->items = [];
+		do_action('woocommerce_cart_emptied');
+	}
+
+	// Products in $GLOBALS['test_unpurchasable'] are refused, as WooCommerce refuses
+	// one that needs options picked or is out of stock.
+	public function add_to_cart($product_id, $quantity = 1)
+	{
+		if (in_array($product_id, $GLOBALS['test_unpurchasable'] ?? [], true)) {
+			return false;
+		}
+
+		$this->items["key-{$product_id}"] = ['product_id' => $product_id, 'data' => new WC_Product(), 'quantity' => $quantity];
+
+		return "key-{$product_id}";
+	}
+
 	public function get_cart_contents_total()
 	{
 		return 50;
+	}
+
+	public function get_total($context = 'view')
+	{
+		return 55;
+	}
+
+	public function is_empty()
+	{
+		return 0 === count($this->items);
+	}
+
+	public function get_cart_contents_count()
+	{
+		return array_sum(array_column($this->items, 'quantity'));
+	}
+
+	public function get_cart_hash()
+	{
+		return md5(json_encode(array_map(fn ($item) => $item['quantity'], $this->items)));
 	}
 }
 
@@ -608,6 +923,7 @@ class User
 {
 	public $ID;
 	public string $nickname = '';
+	public string $first_name = '';
 	public string $last_name = '';
 	public string $user_email = '';
 

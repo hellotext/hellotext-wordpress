@@ -7,37 +7,19 @@ beforeEach(function () {
     if (!defined('ABSPATH')) {
         define('ABSPATH', '/tmp/wordpress/');
     }
-
-    global $HELLOTEXT_API_URL;
-    $HELLOTEXT_API_URL = 'https://api.hellotext.com';
 });
 
-test('Client has correct API version suffix by default', function () {
-    expect(Client::$sufix)->toBe('/v1');
+test('sends requests to the Hellotext API', function () {
+    $response = Client::get(Constants::API_ENDPOINT_PROFILES);
+
+    expect($response['request']['path'])->toBe('https://api.hellotext.com/v1/profiles');
 });
 
-test('can set custom suffix', function () {
-    Client::with_sufix('/v2');
-    expect(Client::$sufix)->toBe('/v2');
+test('keeps each endpoint on its own path', function () {
+    Client::post(Constants::API_ENDPOINT_INTEGRATIONS_WOO);
+    $response = Client::post(Constants::API_ENDPOINT_PROFILES);
 
-    // Reset
-    Client::with_sufix('/v1');
-});
-
-test('custom suffix adds leading slash if missing', function () {
-    Client::with_sufix('v3');
-    expect(Client::$sufix)->toBe('/v3');
-
-    // Reset
-    Client::with_sufix('/v1');
-});
-
-test('empty suffix works', function () {
-    Client::with_sufix('');
-    expect(Client::$sufix)->toBe('');
-
-    // Reset
-    Client::with_sufix('/v1');
+    expect($response['request']['path'])->toBe('https://api.hellotext.com/v1/profiles');
 });
 
 test('Client::get() returns expected structure', function () {
@@ -94,12 +76,6 @@ test('request includes data in response', function () {
     expect($response['request']['data'])->toBe($data);
 });
 
-test('with_sufix returns Client instance', function () {
-    $client = Client::with_sufix('/custom');
-
-    expect($client)->toBeInstanceOf(Client::class);
-});
-
 test('all HTTP methods accept optional data parameter', function () {
     // These should not throw errors
     expect(fn() => Client::get('/test', null))->not->toThrow(Error::class);
@@ -128,10 +104,4 @@ test('static methods can be called', function () {
     expect(method_exists(Client::class, 'patch'))->toBeTrue();
     expect(method_exists(Client::class, 'delete'))->toBeTrue();
     expect(method_exists(Client::class, 'request'))->toBeTrue();
-    expect(method_exists(Client::class, 'with_sufix'))->toBeTrue();
-});
-
-test('Client has API_VERSION constant reference', function () {
-    expect(defined('Hellotext\Constants::API_VERSION'))->toBeTrue();
-    expect(Constants::API_VERSION)->toBe('v1');
 });
