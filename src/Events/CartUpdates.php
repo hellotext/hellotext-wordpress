@@ -181,7 +181,7 @@ function hellotext_cart_event_source(): ?array {
         return null;
     }
 
-    $source = json_decode(wp_unslash($_POST['hellotext_source']), true);
+    $source = json_decode(sanitize_text_field(wp_unslash($_POST['hellotext_source'])), true);
 
     if (!is_array($source)) {
         return null;

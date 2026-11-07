@@ -32,8 +32,8 @@ function hellotext_checkout_link(): void {
  *                cart, with WooCommerce's notices, when nothing could be added.
  */
 function hellotext_fill_checkout_link_cart(): string {
-    $products = wp_unslash($_GET['products'] ?? '');
-    $lines = is_string($products) ? hellotext_checkout_link_lines($products) : [];
+    $products = sanitize_text_field(wp_unslash($_GET['products'] ?? ''));
+    $lines = hellotext_checkout_link_lines($products);
 
     if (empty($lines)) {
         return wc_get_cart_url();

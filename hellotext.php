@@ -8,8 +8,13 @@
  * Plugin Name: Hellotext
  * Plugin URI: https://github.com/hellotext/hellotext-wordpress
  * Description: Integrates Hellotext tracking to WooCommerce.
- * Version: 2.0.1
+ * Version: 2.0.2
+ * Requires at least: 6.5
+ * Tested up to: 7.1
+ * Requires PHP: 7.4
  * Requires Plugins: woocommerce
+ * WC requires at least: 8.0
+ * WC tested up to: 11.2
  * Author: Hellotext
  * Author URI: https://www.hellotext.com
  * License: GPL v2
@@ -38,6 +43,19 @@ foreach ($misc_files as $file) {
 // Functions on Events/AppInstalled.php and Events/AppRemoved.php
 register_activation_hook(__FILE__, 'hellotext_activate');
 register_deactivation_hook(__FILE__, 'hellotext_deactivate');
+
+/**
+ * Declare compatibility with High-Performance Order Storage: orders are only
+ * read and written through the WooCommerce order API.
+ *
+ * @return void
+ */
+function hellotext_declare_compatibility() {
+	if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+	}
+}
+add_action('before_woocommerce_init', 'hellotext_declare_compatibility');
 
 /**
  * Check for plugin updates from GitHub.

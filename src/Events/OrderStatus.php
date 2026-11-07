@@ -24,12 +24,12 @@ function hellotext_order_status_changed(int $order_id, string $old_status, strin
         hellotext_order_placed($order);
     }
 
-    $action = match ($new_status) {
+    $actions = [
         'processing' => Constants::EVENT_ORDER_CONFIRMED,
         'cancelled' => Constants::EVENT_ORDER_CANCELLED,
         'completed' => Constants::EVENT_ORDER_DELIVERED,
-        default => null,
-    };
+    ];
+    $action = $actions[$new_status] ?? null;
 
     if (!$action) {
         return;

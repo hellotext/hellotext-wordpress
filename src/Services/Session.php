@@ -67,7 +67,7 @@ class Session {
      * @param mixed $encrypted_data Encrypted session data.
      * @return string|false
      */
-    public static function decrypt(mixed $encrypted_data = null): string|false {
+    public static function decrypt($encrypted_data = null) {
         if (!is_string($encrypted_data) || '' === $encrypted_data) {
             return false;
         }

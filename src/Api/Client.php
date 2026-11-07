@@ -45,12 +45,12 @@ class Client {
         // Handle errors
         if (is_wp_error($response)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log(sprintf(
-                    '[Hellotext] API request failed: %s %s - Error: %s',
+                wc_get_logger()->error(sprintf(
+                    'API request failed: %s %s - Error: %s',
                     $method,
                     $request_url,
                     $response->get_error_message()
-                ));
+                ), ['source' => 'hellotext']);
             }
 
             return [
@@ -70,12 +70,12 @@ class Client {
 
         // Log non-2xx responses
         if (defined('WP_DEBUG') && WP_DEBUG && ($status_code < 200 || $status_code >= 300)) {
-            error_log(sprintf(
-                '[Hellotext] API request returned %d: %s %s',
+            wc_get_logger()->error(sprintf(
+                'API request returned %d: %s %s',
                 $status_code,
                 $method,
                 $request_url
-            ));
+            ), ['source' => 'hellotext']);
         }
 
         return [

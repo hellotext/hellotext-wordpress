@@ -15,14 +15,14 @@ class ProductAdapter {
      *
      * @var \WC_Product|false
      */
-    public \WC_Product|false $product;
+    public $product;
 
     /**
      * Create a new adapter instance.
      *
      * @param int|\WC_Product $product Product ID or product instance.
      */
-    public function __construct(int|\WC_Product $product) {
+    public function __construct($product) {
         $this->product = is_numeric($product) ? wc_get_product($product) : $product;
     }
 

@@ -11,7 +11,7 @@ use Hellotext\Services\CreateProfile;
  * @param mixed $customer Guest billing details, a user ID, or null for the current user.
  * @return void
  */
-add_action('hellotext_create_profile', function (mixed $customer = null): void {
+add_action('hellotext_create_profile', function ($customer = null): void {
     if (is_array($customer)) {
         (new CreateProfile(null, $customer))->process();
         return;
