@@ -1,5 +1,9 @@
 ** Hellotext for WooCommerce Changelog **
 
+2026-11-06 - version 2.0.1
+
+* Declare WooCommerce as a required plugin: WordPress 6.5 and later only activate Hellotext while WooCommerce is active.
+
 2026-11-06 - version 2.0.0
 
 * Remove the Webchat settings. The Webchat, popups and other widgets are configured in Hellotext.
