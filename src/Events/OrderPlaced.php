@@ -56,7 +56,7 @@ function hellotext_capture_checkout(\WC_Order $order): void {
  * @param mixed $order_id Order ID.
  * @return void
  */
-function hellotext_thankyou(mixed $order_id): void {
+function hellotext_thankyou($order_id): void {
     $order = wc_get_order($order_id);
 
     if (!$order) {

@@ -76,11 +76,11 @@ class Event {
 
         // Only log if there's an error and debug is enabled
         if (is_wp_error($response) && defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf(
-                '[Hellotext] Event tracking failed for action "%s": %s',
+            wc_get_logger()->error(sprintf(
+                'Event tracking failed for action "%s": %s',
                 $action,
                 $response->get_error_message()
-            ));
+            ), ['source' => 'hellotext']);
         }
     }
 }

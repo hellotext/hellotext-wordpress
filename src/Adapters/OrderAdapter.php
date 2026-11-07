@@ -15,7 +15,7 @@ class OrderAdapter {
      *
      * @var \WC_Order|false
      */
-    public \WC_Order|false $order;
+    public $order;
 
     /**
      * Adapted order items.
@@ -30,7 +30,7 @@ class OrderAdapter {
      * @param int|\WC_Order $order Order ID or order instance.
      * @param array $products Pre-adapted products list.
      */
-    public function __construct(int|\WC_Order $order, array $products = []) {
+    public function __construct($order, array $products = []) {
         $this->order = is_numeric($order) ? wc_get_order($order) : $order;
         $this->products = $products;
     }

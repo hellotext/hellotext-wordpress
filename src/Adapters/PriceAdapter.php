@@ -15,7 +15,7 @@ class PriceAdapter {
      *
      * @var float|string
      */
-    public float|string $price;
+    public $price;
 
     /**
      * Currency code.
@@ -30,7 +30,7 @@ class PriceAdapter {
      * @param float|string $price Raw price amount.
      * @param string|null $currency Currency code or null to use store default.
      */
-    public function __construct(float|string $price, ?string $currency = null) {
+    public function __construct($price, ?string $currency = null) {
         $this->price = $price;
         $this->currency = is_null($currency) ? get_woocommerce_currency() : $currency;
     }

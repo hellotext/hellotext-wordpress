@@ -86,7 +86,7 @@ function hellotext_connect(): void {
  * @param mixed $value Access token being saved.
  * @return mixed
  */
-function hellotext_retry_failed_connection(mixed $value): mixed {
+function hellotext_retry_failed_connection($value) {
     if (get_option(Constants::OPTION_CONNECTION_FAILED)) {
         hellotext_schedule_connect();
     }
@@ -139,7 +139,7 @@ function hellotext_schedule_connect(): void {
  * @param mixed $new_value New value.
  * @return void
  */
-function hellotext_business_id_updated(mixed $old_value, mixed $new_value): void {
+function hellotext_business_id_updated($old_value, $new_value): void {
     if ($old_value && $old_value !== $new_value) {
         hellotext_disconnect((string) $old_value);
     }

@@ -119,12 +119,12 @@ class CreateProfile {
     private function attribute(string $name): ?string {
         if ($this->user_id) {
             $user = get_user_by('id', $this->user_id);
-            $value = match ($name) {
+            $values = [
                 'first_name' => $user->first_name ?? '',
                 'last_name' => $user->last_name ?? '',
                 'email' => $user->user_email ?? '',
-                default => '',
-            };
+            ];
+            $value = $values[$name] ?? '';
 
             if ('' === $value) {
                 $value = (string) get_user_meta($this->user_id, "billing_{$name}", true);
