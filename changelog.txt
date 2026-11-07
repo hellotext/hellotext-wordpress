@@ -1,6 +1,6 @@
 ** Hellotext for WooCommerce Changelog **
 
-Unreleased
+2026-11-06 - version 2.0.0
 
 * Remove the Webchat settings. The Webchat, popups and other widgets are configured in Hellotext.
 * Load the latest Hellotext.js from jsDelivr on the storefront only, no longer in wp-admin.
