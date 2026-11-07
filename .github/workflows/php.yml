@@ -90,24 +90,24 @@ jobs:
       - name: Verify release package layout
         run: |
           mkdir -p release
-          rsync -av --exclude-from=.distignore . release/hellotext-wordpress/
+          rsync -av --exclude-from=.distignore . release/hellotext/
 
-          test -f release/hellotext-wordpress/hellotext.php
-          test -d release/hellotext-wordpress/src
-          test -f release/hellotext-wordpress/vendor/autoload.php
-          test -f release/hellotext-wordpress/assets/hellotext-service-worker.js
-          test -f release/hellotext-wordpress/assets/storefront.js
+          test -f release/hellotext/hellotext.php
+          test -d release/hellotext/src
+          test -f release/hellotext/vendor/autoload.php
+          test -f release/hellotext/assets/hellotext-service-worker.js
+          test -f release/hellotext/assets/storefront.js
 
           for path in \
-            release/hellotext-wordpress/tests \
-            release/hellotext-wordpress/composer.json \
-            release/hellotext-wordpress/composer.lock \
-            release/hellotext-wordpress/.github \
-            release/hellotext-wordpress/.php-cs-fixer.cache \
-            release/hellotext-wordpress/.php-cs-fixer.php \
-            release/hellotext-wordpress/DEVELOPMENT.md \
-            release/hellotext-wordpress/API.md \
-            release/hellotext-wordpress/release; do
+            release/hellotext/tests \
+            release/hellotext/composer.json \
+            release/hellotext/composer.lock \
+            release/hellotext/.github \
+            release/hellotext/.php-cs-fixer.cache \
+            release/hellotext/.php-cs-fixer.php \
+            release/hellotext/DEVELOPMENT.md \
+            release/hellotext/API.md \
+            release/hellotext/release; do
             if [ -e "$path" ]; then
               echo "Unexpected development file in release package: $path"
               exit 1

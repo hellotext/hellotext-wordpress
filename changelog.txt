@@ -6,6 +6,7 @@
 * Declare the supported WordPress, WooCommerce and PHP versions, and compatibility with High-Performance Order Storage.
 * Log failed Hellotext requests to the WooCommerce logs (source "hellotext") when WP_DEBUG is on.
 * Sanitize the checkout link's products and the Webchat card's source before reading them.
+* The release zip is hellotext.zip and installs to the hellotext folder, as the Woo Marketplace requires.
 
 2026-11-06 - version 2.0.1
 
